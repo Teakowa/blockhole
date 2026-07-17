@@ -12,11 +12,11 @@ from .models import Observation
 from .policy import normalize_ip
 
 QUERY = """
-query Requests($zone: String!, $start: DateTime!, $end: DateTime!, $cursor: String) {
+query Requests($zone: String!, $start: DateTime!, $end: DateTime!) {
   viewer { zones(filter: {zoneTag: $zone}) {
     series: httpRequestsAdaptiveGroups(
       limit: 1000, filter: {datetime_geq: $start, datetime_lt: $end},
-      orderBy: [count_DESC], cursor: $cursor
+      orderBy: [count_DESC]
     ) {
       dimensions { clientIP }
       count
@@ -83,7 +83,6 @@ class AnalyticsClient:
                     "zone": zone_id,
                     "start": start.isoformat(),
                     "end": end.isoformat(),
-                    "cursor": None,
                 },
             },
         )
