@@ -9,19 +9,19 @@
       "ip": "45.92.1.180"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "comment": "score=3; reasons=high_error_ratio,request_volume; expires=2026-07-20T17:26:19+00:00",
       "ip": "45.148.10.67"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "comment": "score=1; reasons=high_error_ratio; expires=2026-07-20T17:26:19+00:00",
       "ip": "47.254.46.30"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "comment": "score=1; reasons=high_error_ratio; expires=2026-07-20T17:26:19+00:00",
       "ip": "159.89.207.20"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "comment": "score=1; reasons=high_error_ratio; expires=2026-07-20T17:26:19+00:00",
       "ip": "159.223.62.250"
     },
     {
