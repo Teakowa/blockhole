@@ -1,6 +1,6 @@
 {
   "checkpoints": {
-    "analytics": "2026-07-17T21:08:29.118719Z"
+    "analytics": "2026-07-17T22:06:57.771072Z"
   },
   "records": {
     "100.54.150.50": {
@@ -1807,6 +1807,29 @@
       "ttl_extensions": 0,
       "weighted_requests": 1.0
     },
+    "185.247.137.75": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 1,
+      "expires_at": null,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "schema_version": 1,
+      "score": 1.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
+    },
     "187.72.149.74": {
       "block_started_at": null,
       "distinct_paths": 1,
@@ -2293,14 +2316,14 @@
     },
     "216.73.217.16": {
       "block_started_at": null,
-      "distinct_paths": 1,
-      "error_requests": 5,
+      "distinct_paths": 2,
+      "error_requests": 6,
       "expires_at": null,
-      "first_seen": "2026-07-17T21:08:29.118719Z",
-      "last_evaluated": "2026-07-17T21:08:32.032720Z",
-      "last_seen": "2026-07-17T21:08:29.118719Z",
-      "observation_windows": 3,
-      "observed_requests": 5,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 4,
+      "observed_requests": 7,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2313,7 +2336,7 @@
       "status": "candidate",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 5.0
+      "weighted_requests": 7.0
     },
     "216.73.217.178": {
       "block_started_at": null,
@@ -2341,13 +2364,13 @@
     "216.73.217.70": {
       "block_started_at": null,
       "distinct_paths": 2,
-      "error_requests": 3,
+      "error_requests": 4,
       "expires_at": null,
-      "first_seen": "2026-07-17T21:08:29.118719Z",
-      "last_evaluated": "2026-07-17T21:08:32.032720Z",
-      "last_seen": "2026-07-17T21:08:29.118719Z",
-      "observation_windows": 2,
-      "observed_requests": 5,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 3,
+      "observed_requests": 7,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -2359,7 +2382,7 @@
       "status": "candidate",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 5.0
+      "weighted_requests": 7.0
     },
     "223.199.181.184": {
       "block_started_at": null,
@@ -2729,13 +2752,13 @@
     "2a06:98c0:3600::103": {
       "block_started_at": "2026-07-17T19:33:27.786478Z",
       "distinct_paths": 2,
-      "error_requests": 112,
+      "error_requests": 116,
       "expires_at": "2026-07-20T19:33:27.786478Z",
-      "first_seen": "2026-07-17T21:08:29.118719Z",
-      "last_evaluated": "2026-07-17T21:08:32.032720Z",
-      "last_seen": "2026-07-17T21:08:29.118719Z",
-      "observation_windows": 3,
-      "observed_requests": 112,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 4,
+      "observed_requests": 116,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -2751,9 +2774,9 @@
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
       "status": "blocked",
-      "suspicious_paths": 4,
+      "suspicious_paths": 5,
       "ttl_extensions": 0,
-      "weighted_requests": 112.0
+      "weighted_requests": 116.0
     },
     "2a09:bac1:36c0:1468::243:96": {
       "block_started_at": null,
@@ -3322,11 +3345,11 @@
       "distinct_paths": 114,
       "error_requests": 135,
       "expires_at": "2026-07-20T19:33:27.786478Z",
-      "first_seen": "2026-07-17T21:08:29.118719Z",
-      "last_evaluated": "2026-07-17T21:08:32.032720Z",
-      "last_seen": "2026-07-17T21:08:29.118719Z",
-      "observation_windows": 3,
-      "observed_requests": 3944,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 4,
+      "observed_requests": 4002,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -3342,7 +3365,7 @@
       "status": "blocked",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 5367.0
+      "weighted_requests": 5425.0
     },
     "40.77.167.12": {
       "block_started_at": null,
@@ -3800,6 +3823,29 @@
       "ttl_extensions": 0,
       "weighted_requests": 1.0
     },
+    "45.92.85.193": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 1,
+      "expires_at": null,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "schema_version": 1,
+      "score": 1.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
+    },
     "45.92.85.50": {
       "block_started_at": null,
       "distinct_paths": 0,
@@ -3808,6 +3854,29 @@
       "first_seen": "2026-07-17T17:59:54.734738Z",
       "last_evaluated": "2026-07-17T17:59:58.243860Z",
       "last_seen": "2026-07-17T17:59:54.734738Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "schema_version": 1,
+      "score": 1.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
+    },
+    "45.92.86.106": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 1,
+      "expires_at": null,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
       "observation_windows": 1,
       "observed_requests": 1,
       "reason_codes": [
@@ -4318,6 +4387,50 @@
       "suspicious_paths": 0,
       "ttl_extensions": 0,
       "weighted_requests": 4.0
+    },
+    "66.249.71.7": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 1,
+      "expires_at": null,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "schema_version": 1,
+      "score": 1.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
+    },
+    "66.249.79.194": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 0,
+      "expires_at": null,
+      "first_seen": "2026-07-17T22:06:57.771072Z",
+      "last_evaluated": "2026-07-17T22:07:01.107178Z",
+      "last_seen": "2026-07-17T22:06:57.771072Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [],
+      "schema_version": 1,
+      "score": 0.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
     },
     "68.183.143.107": {
       "block_started_at": null,
