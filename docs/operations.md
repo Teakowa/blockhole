@@ -21,6 +21,11 @@ does not cancel an active run, and keeps manual dry-run available.
 5. Confirm the allowlist and policy thresholds.
 6. Perform a manual synchronization before enabling scheduled enforcement.
 
+The first analytics collection uses the configured `lookback_hours` window.
+After a successful run, the next collection starts at the saved analytics
+checkpoint and ends at the current time. This makes hourly runs collect only
+the new interval instead of adding the same rolling 24-hour result repeatedly.
+
 ## Empty-list protection
 
 A scheduled or ordinary run cannot replace a non-empty Cloudflare list with an

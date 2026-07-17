@@ -18,6 +18,8 @@ from .rendering import render
 from .state import load_state, utc_now, write_state
 from .sync import ListsClient, diff_lists
 
+ANALYTICS_CHECKPOINT = "analytics"
+
 
 def _root() -> Path:
     return Path.cwd()
@@ -55,13 +57,21 @@ def validate(root: Path) -> None:
     print(f"valid: {len(networks)} allowlist entries, {len(state.records)} state records")
 
 
-def collect(root: Path, lookback_hours: int | None = None) -> list[Observation]:
+def _collection_window(root: Path, lookback_hours: int | None = None) -> tuple[datetime, datetime]:
+    settings = load_settings(root)
+    state = load_state(settings.state_path)
+    end = utc_now()
+    checkpoint = state.checkpoints.get(ANALYTICS_CHECKPOINT)
+    if checkpoint is not None and checkpoint < end:
+        return checkpoint, end
+    return end - timedelta(hours=lookback_hours or settings.lookback_hours), end
+
+
+def _collect_window(root: Path, start: datetime, end: datetime) -> list[Observation]:
     settings = load_settings(root)
     token, _, _ = cloudflare_environment()
     if not settings.zone_ids:
         raise ConfigurationError("no zone IDs configured in config/policy.toml")
-    end = utc_now()
-    start = end - timedelta(hours=lookback_hours or settings.lookback_hours)
     with _http_client(settings, token) as client:
         analytics = AnalyticsClient(client, settings.graphql_url, settings.max_retries)
         observations: list[Observation] = []
@@ -75,7 +85,16 @@ def collect(root: Path, lookback_hours: int | None = None) -> list[Observation]:
     return observations
 
 
-def evaluate(root: Path, observations: list[Observation] | None = None) -> None:
+def collect(root: Path, lookback_hours: int | None = None) -> list[Observation]:
+    start, end = _collection_window(root, lookback_hours)
+    return _collect_window(root, start, end)
+
+
+def evaluate(
+    root: Path,
+    observations: list[Observation] | None = None,
+    checkpoint: datetime | None = None,
+) -> None:
     settings = load_settings(root)
     state = load_state(settings.state_path)
     now = utc_now()
@@ -88,6 +107,10 @@ def evaluate(root: Path, observations: list[Observation] | None = None) -> None:
     for ip, values in grouped.items():
         record = evaluate_observations(values, state.records.get(ip), settings, now)
         state.records[ip] = apply_lifecycle(record, settings, now, is_allowlisted(ip, allowlist))
+    if checkpoint is None and observations:
+        checkpoint = max(observation.observed_at for observation in observations)
+    if checkpoint is not None:
+        state.checkpoints[ANALYTICS_CHECKPOINT] = checkpoint
     write_state(settings.state_path, state)
 
 
@@ -117,8 +140,9 @@ def sync(root: Path, allow_empty: bool = False, dry_run: bool = False) -> None:
 
 def run(root: Path, args: argparse.Namespace) -> None:
     validate(root)
-    observations = collect(root, args.lookback_hours)
-    evaluate(root, observations)
+    start, end = _collection_window(root, args.lookback_hours)
+    observations = _collect_window(root, start, end)
+    evaluate(root, observations, checkpoint=end)
     desired = render(root, load_state(root / "data/state.json"), datetime.now(UTC))
     if not desired.items and not args.allow_empty:
         print("empty desired list rendered; remote synchronization remains fused")
