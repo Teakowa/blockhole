@@ -18,9 +18,8 @@ query Requests($zone: String!, $start: DateTime!, $end: DateTime!) {
       limit: 1000, filter: {datetime_geq: $start, datetime_lt: $end},
       orderBy: [count_DESC]
     ) {
-      dimensions { clientIP }
+      dimensions { clientIP edgeResponseStatus }
       count
-      sum { edgeResponseStatus { status2xx status3xx status4xx status5xx } }
     }
   } }
 }
@@ -44,10 +43,10 @@ def parse_grouped(
     observations: list[Observation] = []
     for row in rows:
         try:
-            ip = normalize_ip(row["dimensions"]["clientIP"])
+            dimensions = row["dimensions"]
+            ip = normalize_ip(dimensions["clientIP"])
+            response_status = int(dimensions["edgeResponseStatus"])
             count = int(row["count"])
-            statuses = row.get("sum", {}).get("edgeResponseStatus", {})
-            errors = int(statuses.get("status4xx", 0) or 0) + int(statuses.get("status5xx", 0) or 0)
         except (KeyError, TypeError, ValueError) as exc:
             raise CloudflareError("invalid grouped analytics row") from exc
         fingerprint = sha256(f"{zone_id}:{ip}:{observed_at.isoformat()}".encode()).hexdigest()[:16]
@@ -58,7 +57,7 @@ def parse_grouped(
                 observed_at=observed_at,
                 observed_requests=count,
                 weighted_requests=float(count),
-                error_requests=errors,
+                error_requests=count if response_status >= 400 else 0,
                 fingerprint=fingerprint,
             )
         )

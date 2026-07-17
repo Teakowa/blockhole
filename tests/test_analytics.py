@@ -18,9 +18,11 @@ def test_collect_uses_supported_analytics_arguments() -> None:
                             {
                                 "series": [
                                     {
-                                        "dimensions": {"clientIP": "192.0.2.1"},
+                                        "dimensions": {
+                                            "clientIP": "192.0.2.1",
+                                            "edgeResponseStatus": 404,
+                                        },
                                         "count": 3,
-                                        "sum": {"edgeResponseStatus": {"status4xx": 1}},
                                     }
                                 ]
                             }
@@ -39,3 +41,4 @@ def test_collect_uses_supported_analytics_arguments() -> None:
     assert route.called
     assert "cursor" not in route.calls[0].request.content.decode()
     assert observations[0].observed_requests == 3
+    assert observations[0].error_requests == 3
