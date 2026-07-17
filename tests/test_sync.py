@@ -24,3 +24,26 @@ def test_empty_list_fuse() -> None:
             lists.replace(DesiredList(items=[]), actual_count=1)
     finally:
         client.close()
+
+
+@respx.mock
+def test_get_items_discards_cloudflare_metadata() -> None:
+    respx.get("https://api.example/accounts/account/rules/lists/list/items").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "result": [
+                    {
+                        "id": "item-id",
+                        "created_on": "2026-07-18T00:00:00Z",
+                        "ip": "192.0.2.1",
+                        "comment": "scanner",
+                    }
+                ]
+            },
+        )
+    )
+    with httpx.Client(trust_env=False) as client:
+        items = ListsClient(client, "https://api.example", "account", "list").get_items()
+
+    assert items == [CloudflareItem(ip="192.0.2.1", comment="scanner")]

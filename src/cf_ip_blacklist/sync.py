@@ -58,7 +58,10 @@ class ListsClient:
             raise CloudflareError(f"list read HTTP {response.status_code}")
         try:
             return [
-                CloudflareItem.model_validate(item) for item in response.json().get("result", [])
+                CloudflareItem.model_validate(
+                    {"ip": item["ip"], "comment": item.get("comment", "")}
+                )
+                for item in response.json().get("result", [])
             ]
         except (TypeError, ValueError) as exc:
             raise CloudflareError("invalid list response") from exc
