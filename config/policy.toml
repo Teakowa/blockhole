@@ -6,6 +6,12 @@ block_ttl_hours = 72
 cooldown_hours = 24
 max_ttl_extensions = 3
 score_decay_per_day = 0.25
+suspicious_path_patterns = [
+  "(^|/)\\.env($|/)",
+  "(^|/)\\.git($|/)",
+  "(^|/)wp-(admin|login\\.php)($|/)",
+  "(^|/)(phpmyadmin|actuator|server-status)(/|$)",
+]
 
 [thresholds]
 min_weighted_requests = 100

@@ -7,7 +7,15 @@ matches, error ratio, repeated collection windows, and activity across zones.
 No single URI, user agent, country, ASN, or sampled event can block an IP.
 Automatic blocking requires at least two scored signals and a score meeting
 the configured threshold. Observed counts and weighted estimates remain
-separate; weighted values are not exact request totals.
+separate; weighted values are not exact request totals. Security Analytics uses
+adaptive sampling, so rare IPs may not appear and repeated queries can vary
+slightly with sampling resolution. The number of observed IPs must therefore
+not be interpreted as an exact malicious density for a network.
+
+The analytics query groups by client IP, response status, and
+`clientRequestPath`. Query strings are removed before paths are retained. The
+configured `suspicious_path_patterns` identify probe-like paths; these paths
+are one signal among several and cannot block an IP on their own.
 
 The allowlist is evaluated before scoring. Entries may be individual IPv4 or
 IPv6 addresses or networks. Invalid entries fail validation. Do not add broad

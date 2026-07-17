@@ -35,6 +35,7 @@ class Settings:
     poll_interval_seconds: float
     poll_timeout_seconds: float
     zone_ids: tuple[str, ...]
+    suspicious_path_patterns: tuple[str, ...] = ()
 
     @property
     def state_path(self) -> Path:
@@ -72,6 +73,7 @@ def load_settings(root: Path) -> Settings:
             cooldown_hours=int(raw["cooldown_hours"]),
             max_ttl_extensions=int(raw["max_ttl_extensions"]),
             score_decay_per_day=float(raw["score_decay_per_day"]),
+            suspicious_path_patterns=tuple(raw.get("suspicious_path_patterns", [])),
             thresholds=Thresholds(**{k: threshold[k] for k in Thresholds.__annotations__}),
             graphql_url=cloudflare["graphql_url"],
             api_base_url=cloudflare["api_base_url"],

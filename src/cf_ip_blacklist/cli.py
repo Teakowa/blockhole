@@ -73,7 +73,12 @@ def _collect_window(root: Path, start: datetime, end: datetime) -> list[Observat
     if not settings.zone_ids:
         raise ConfigurationError("no zone IDs configured in config/policy.toml")
     with _http_client(settings, token) as client:
-        analytics = AnalyticsClient(client, settings.graphql_url, settings.max_retries)
+        analytics = AnalyticsClient(
+            client,
+            settings.graphql_url,
+            settings.max_retries,
+            settings.suspicious_path_patterns,
+        )
         observations: list[Observation] = []
         for zone_id in settings.zone_ids:
             observations.extend(analytics.collect(zone_id, start, end))
