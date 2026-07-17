@@ -1,0 +1,27 @@
+schema_version = 1
+mode = "dry-run"
+lookback_hours = 24
+overlap_hours = 2
+block_ttl_hours = 72
+cooldown_hours = 24
+max_ttl_extensions = 3
+score_decay_per_day = 0.25
+
+[thresholds]
+min_weighted_requests = 100
+min_distinct_paths = 5
+min_suspicious_paths = 2
+max_error_ratio = 0.8
+block_score = 6
+
+[cloudflare]
+graphql_url = "https://api.cloudflare.com/client/v4/graphql"
+api_base_url = "https://api.cloudflare.com/client/v4"
+timeout_seconds = 30
+max_retries = 3
+poll_interval_seconds = 2
+poll_timeout_seconds = 120
+
+[zones]
+# Fill with zone IDs before enabling collection.
+ids = []
