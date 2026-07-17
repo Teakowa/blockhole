@@ -53,6 +53,10 @@
       "ip": "91.148.244.131"
     },
     {
+      "comment": "score=7; reasons=path_breadth,request_volume,suspicious_paths; expires=2026-07-20T23:08:45.839889+00:00",
+      "ip": "132.196.11.13"
+    },
+    {
       "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "154.37.69.70"
     },
