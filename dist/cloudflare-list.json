@@ -1,3 +1,52 @@
 {
-  "items": []
+  "items": [
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "34.124.151.220"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "45.92.1.180"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "45.148.10.67"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "47.254.46.30"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "159.89.207.20"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "159.223.62.250"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "159.223.94.35"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "178.22.106.230"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "185.177.72.0/24"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "185.177.72.22"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "185.177.72.50"
+    },
+    {
+      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
+      "ip": "2a09:bac1:5500::49b:38"
+    }
+  ]
 }

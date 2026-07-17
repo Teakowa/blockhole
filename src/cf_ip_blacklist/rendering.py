@@ -13,7 +13,11 @@ def sorted_ips(ips: list[str]) -> list[str]:
 
     return sorted(
         ips,
-        key=lambda value: (ipaddress.ip_address(value).version, int(ipaddress.ip_address(value))),
+        key=lambda value: (
+            ipaddress.ip_network(value, strict=False).version,
+            int(ipaddress.ip_network(value, strict=False).network_address),
+            ipaddress.ip_network(value, strict=False).prefixlen,
+        ),
     )
 
 
