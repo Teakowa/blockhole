@@ -9,6 +9,10 @@
       "ip": "20.206.89.130"
     },
     {
+      "comment": "score=7; reasons=path_breadth,request_volume,suspicious_paths; expires=2026-07-21T15:15:57.542244+00:00",
+      "ip": "20.206.105.145"
+    },
+    {
       "comment": "score=7; reasons=multiple_zones,path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "23.27.0.61"
     },
