@@ -1,6 +1,6 @@
 {
   "checkpoints": {
-    "analytics": "2026-07-18T10:41:10.062341Z"
+    "analytics": "2026-07-18T12:05:23.806424Z"
   },
   "records": {
     "1.14.110.85": {
@@ -586,13 +586,13 @@
     "124.230.40.235": {
       "block_started_at": null,
       "distinct_paths": 3,
-      "error_requests": 560,
+      "error_requests": 562,
       "expires_at": null,
-      "first_seen": "2026-07-18T10:41:10.062341Z",
-      "last_evaluated": "2026-07-18T10:41:13.057114Z",
-      "last_seen": "2026-07-18T10:41:10.062341Z",
-      "observation_windows": 8,
-      "observed_requests": 1120,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 9,
+      "observed_requests": 1124,
       "reason_codes": [
         "repeated_windows",
         "request_volume"
@@ -605,7 +605,7 @@
       "status": "candidate",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 1495.0
+      "weighted_requests": 1499.0
     },
     "124.88.113.245": {
       "block_started_at": null,
@@ -2820,6 +2820,29 @@
       "ttl_extensions": 0,
       "weighted_requests": 1.0
     },
+    "205.210.31.255": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 1,
+      "expires_at": null,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "schema_version": 1,
+      "score": 1.0,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
+    },
     "207.180.209.233": {
       "block_started_at": null,
       "distinct_paths": 1,
@@ -2934,26 +2957,26 @@
     },
     "216.73.216.145": {
       "block_started_at": null,
-      "distinct_paths": 1,
-      "error_requests": 1,
+      "distinct_paths": 2,
+      "error_requests": 2,
       "expires_at": null,
-      "first_seen": "2026-07-18T08:59:02.534646Z",
-      "last_evaluated": "2026-07-18T08:59:04.588612Z",
-      "last_seen": "2026-07-18T08:59:02.534646Z",
-      "observation_windows": 1,
-      "observed_requests": 1,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 2,
+      "observed_requests": 3,
       "reason_codes": [
-        "high_error_ratio"
+        "repeated_windows"
       ],
       "schema_version": 1,
-      "score": 1.0,
+      "score": 2.0,
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
       "status": "candidate",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 1.0
+      "weighted_requests": 3.0
     },
     "216.73.216.150": {
       "block_started_at": null,
@@ -3074,13 +3097,13 @@
     "216.73.217.174": {
       "block_started_at": null,
       "distinct_paths": 2,
-      "error_requests": 7,
+      "error_requests": 8,
       "expires_at": null,
-      "first_seen": "2026-07-18T10:41:10.062341Z",
-      "last_evaluated": "2026-07-18T10:41:13.057114Z",
-      "last_seen": "2026-07-18T10:41:10.062341Z",
-      "observation_windows": 4,
-      "observed_requests": 11,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 5,
+      "observed_requests": 13,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -3092,7 +3115,7 @@
       "status": "candidate",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 11.0
+      "weighted_requests": 13.0
     },
     "216.73.217.178": {
       "block_started_at": null,
@@ -3643,13 +3666,13 @@
     "2a06:98c0:3600::103": {
       "block_started_at": "2026-07-17T19:33:27.786478Z",
       "distinct_paths": 3,
-      "error_requests": 181,
+      "error_requests": 187,
       "expires_at": "2026-07-20T19:33:27.786478Z",
-      "first_seen": "2026-07-18T10:41:10.062341Z",
-      "last_evaluated": "2026-07-18T10:41:13.057114Z",
-      "last_seen": "2026-07-18T10:41:10.062341Z",
-      "observation_windows": 10,
-      "observed_requests": 183,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 11,
+      "observed_requests": 189,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -3665,9 +3688,9 @@
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
       "status": "blocked",
-      "suspicious_paths": 17,
+      "suspicious_paths": 19,
       "ttl_extensions": 0,
-      "weighted_requests": 183.0
+      "weighted_requests": 189.0
     },
     "2a09:bac1:36c0:1468::243:96": {
       "block_started_at": null,
@@ -3829,6 +3852,29 @@
       "suspicious_paths": 1,
       "ttl_extensions": 0,
       "weighted_requests": 1.0
+    },
+    "2a0a:4cc0:c2:5271:b8be:25ff:fe36:645c": {
+      "block_started_at": null,
+      "distinct_paths": 8,
+      "error_requests": 4,
+      "expires_at": null,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 1,
+      "observed_requests": 12,
+      "reason_codes": [
+        "path_breadth"
+      ],
+      "schema_version": 1,
+      "score": 2.0,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 16.0
     },
     "3.219.86.171": {
       "block_started_at": null,
@@ -4330,13 +4376,13 @@
     "38.55.104.199": {
       "block_started_at": "2026-07-17T19:33:27.786478Z",
       "distinct_paths": 114,
-      "error_requests": 150,
+      "error_requests": 152,
       "expires_at": "2026-07-20T19:33:27.786478Z",
-      "first_seen": "2026-07-18T10:41:10.062341Z",
-      "last_evaluated": "2026-07-18T10:41:13.057114Z",
-      "last_seen": "2026-07-18T10:41:10.062341Z",
-      "observation_windows": 10,
-      "observed_requests": 4765,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 11,
+      "observed_requests": 4850,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -4352,7 +4398,7 @@
       "status": "blocked",
       "suspicious_paths": 0,
       "ttl_extensions": 0,
-      "weighted_requests": 6188.0
+      "weighted_requests": 6273.0
     },
     "40.77.167.12": {
       "block_started_at": null,
@@ -5812,6 +5858,27 @@
       "suspicious_paths": 0,
       "ttl_extensions": 0,
       "weighted_requests": 2.0
+    },
+    "74.7.241.179": {
+      "block_started_at": null,
+      "distinct_paths": 1,
+      "error_requests": 0,
+      "expires_at": null,
+      "first_seen": "2026-07-18T12:05:23.806424Z",
+      "last_evaluated": "2026-07-18T12:05:26.826933Z",
+      "last_seen": "2026-07-18T12:05:23.806424Z",
+      "observation_windows": 1,
+      "observed_requests": 1,
+      "reason_codes": [],
+      "schema_version": 1,
+      "score": 0.0,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "status": "candidate",
+      "suspicious_paths": 0,
+      "ttl_extensions": 0,
+      "weighted_requests": 1.0
     },
     "8.212.151.166": {
       "block_started_at": null,
