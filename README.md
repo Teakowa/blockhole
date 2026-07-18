@@ -7,7 +7,9 @@ deterministic policy, commits canonical state and generated artifacts, and
 reconciles a Cloudflare Custom IP List.
 
 The policy runs in `enforce` mode by default. Use `--dry-run` when validating a
-run without changing the remote list.
+run without changing the remote list. Scheduled runs execute code from `main`
+and read/write runtime state and generated artifacts on the `blacklist-state`
+branch.
 
 ## Quick start
 
@@ -50,10 +52,10 @@ cf-ip-blacklist run --dry-run --lookback-hours 24
 
 - `config/policy.toml`: thresholds, lifecycle, API, and rollout settings.
 - `config/allowlist.txt`: trusted addresses and networks.
-- `data/state.json`: canonical versioned lifecycle state.
-- `dist/blacklist.txt`: generated active IP list.
-- `dist/cloudflare-list.json`: generated Custom List payload.
-- `reports/latest.md`: redacted run report.
+- `data/state.json`: canonical versioned lifecycle state (on `blacklist-state`).
+- `dist/blacklist.txt`: generated active IP list (on `blacklist-state`).
+- `dist/cloudflare-list.json`: generated Custom List payload (on `blacklist-state`).
+- `reports/latest.md`: redacted run report (on `blacklist-state`).
 
 See [detection policy](docs/detection-policy.md) and
 [operations](docs/operations.md) for behavior and GitHub Actions setup.

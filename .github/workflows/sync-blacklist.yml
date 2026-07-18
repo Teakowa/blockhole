@@ -42,6 +42,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Load blacklist state
+        env:
+          STATE_BRANCH: blacklist-state
+        run: |
+          git fetch --no-tags origin "refs/heads/${STATE_BRANCH}:refs/remotes/origin/${STATE_BRANCH}"
+          mkdir -p data dist reports
+          git archive "origin/${STATE_BRANCH}" -- data/state.json dist reports/latest.md | tar -x
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -60,10 +67,24 @@ jobs:
             ${{ inputs.dry_run == 'true' && '--dry-run' || '' }} \
             --lookback-hours "${{ inputs.lookback_hours || '24' }}" \
             ${{ inputs.allow_empty == 'true' && '--allow-empty' || '' }}
-      - name: Commit generated state
+      - name: Commit generated state to blacklist-state
+        env:
+          STATE_BRANCH: blacklist-state
         run: |
+          state_dir="${RUNNER_TEMP}/blackhole-${STATE_BRANCH}"
+          git worktree add --detach "${state_dir}" "origin/${STATE_BRANCH}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/state.json dist/ reports/latest.md
-          git diff --cached --quiet || git commit -m "chore(blacklist): update"
-          git push
+          cp data/state.json "${state_dir}/data/state.json"
+          cp dist/blacklist.txt "${state_dir}/dist/blacklist.txt"
+          cp dist/cloudflare-list.json "${state_dir}/dist/cloudflare-list.json"
+          cp reports/latest.md "${state_dir}/reports/latest.md"
+          git -C "${state_dir}" config user.name "github-actions[bot]"
+          git -C "${state_dir}" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "${state_dir}" add data/state.json dist/ reports/latest.md
+          if git -C "${state_dir}" diff --cached --quiet; then
+            echo "No blacklist state changes"
+          else
+            git -C "${state_dir}" commit -m "chore(blacklist): update"
+            git -C "${state_dir}" push origin "HEAD:${STATE_BRANCH}"
+          fi

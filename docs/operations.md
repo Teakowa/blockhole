@@ -27,6 +27,17 @@ After a successful run, the next collection starts at the saved analytics
 checkpoint and ends at the current time. This makes hourly runs collect only
 the new interval instead of adding the same rolling 24-hour result repeatedly.
 
+## Runtime state branch
+
+Scheduled synchronization runs from `main`, but loads `data/state.json`,
+`dist/`, and `reports/latest.md` from the `blacklist-state` branch. After a
+successful run, only those runtime files are committed back to
+`blacklist-state`; `main` remains focused on code, policy, and workflow
+changes. The state branch must exist before enabling the scheduled workflow.
+
+The regular CI workflow does not read the state branch: tests generate their
+fixtures in temporary directories and validate the source tree independently.
+
 ## Empty-list protection
 
 A scheduled or ordinary run cannot replace a non-empty Cloudflare list with an
@@ -36,8 +47,8 @@ modify Cloudflare. An empty replacement requires manual dispatch with
 
 ## Recovery
 
-If collection or synchronization fails, keep the previous committed state and
-inspect the redacted workflow report. Re-run after fixing configuration or API
-access. If a remote write succeeds but the Git commit fails, the next run
-fetches the remote list and reconciles it idempotently; it does not duplicate
-items.
+If collection or synchronization fails, keep the previous committed state on
+`blacklist-state` and inspect the redacted workflow report. Re-run after fixing
+configuration or API access. If a remote write succeeds but the Git commit
+fails, the next run fetches the remote list and reconciles it idempotently; it
+does not duplicate items.
