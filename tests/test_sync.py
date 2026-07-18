@@ -47,3 +47,31 @@ def test_get_items_discards_cloudflare_metadata() -> None:
         items = ListsClient(client, "https://api.example", "account", "list").get_items()
 
     assert items == [CloudflareItem(ip="192.0.2.1", comment="scanner")]
+
+
+@respx.mock
+def test_replace_retries_eventually_consistent_verification(monkeypatch) -> None:
+    items_url = "https://api.example/accounts/account/rules/lists/list/items"
+    respx.put(items_url).mock(
+        return_value=httpx.Response(200, json={"result": {"operation_id": "op-1"}})
+    )
+    respx.get("https://api.example/accounts/account/rules/lists/bulk_operations/op-1").mock(
+        return_value=httpx.Response(200, json={"result": {"status": "completed"}})
+    )
+    response = respx.get(items_url).mock(
+        side_effect=[
+            httpx.Response(200, json={"result": []}),
+            httpx.Response(
+                200,
+                json={"result": [{"ip": "192.0.2.1", "comment": "scanner"}]},
+            ),
+        ]
+    )
+    monkeypatch.setattr("cf_ip_blacklist.sync.time.sleep", lambda _: None)
+    desired = DesiredList(items=[CloudflareItem(ip="192.0.2.1", comment="scanner")])
+
+    with httpx.Client(trust_env=False) as client:
+        lists = ListsClient(client, "https://api.example", "account", "list")
+        lists.replace(desired)
+
+    assert response.call_count == 2

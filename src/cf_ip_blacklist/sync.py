@@ -83,9 +83,17 @@ class ListsClient:
         operation_id = response.json().get("result", {}).get("operation_id")
         if operation_id:
             self.wait(operation_id)
-        final = self.get_items()
-        if diff_lists(desired, final).identical is False:
-            raise CloudflareError("remote list verification mismatch")
+        self.verify(desired)
+
+    def verify(self, desired: DesiredList) -> None:
+        deadline = time.monotonic() + self.poll_timeout
+        while True:
+            if diff_lists(desired, self.get_items()).identical:
+                return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise CloudflareError("remote list verification mismatch")
+            time.sleep(min(self.poll_interval, remaining))
 
     def wait(self, operation_id: str) -> None:
         url = (
