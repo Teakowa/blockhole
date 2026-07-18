@@ -30,10 +30,12 @@ the new interval instead of adding the same rolling 24-hour result repeatedly.
 ## Runtime state branch
 
 Scheduled synchronization runs from `main`, but loads `data/state.json`,
-`dist/`, and `reports/latest.md` from the `blacklist-state` branch. After a
-successful run, only those runtime files are committed back to
-`blacklist-state`; `main` remains focused on code, policy, and workflow
-changes. The state branch must exist before enabling the scheduled workflow.
+`dist/`, and `reports/latest.md` from the orphan `blacklist-state` branch.
+That branch contains only those runtime files; it does not contain the code,
+configuration, or workflows from `main`. After a successful run, only those
+runtime files are committed back to `blacklist-state`; `main` remains focused
+on code, policy, and workflow changes. The state branch must exist before
+enabling the scheduled workflow.
 
 The regular CI workflow does not read the state branch: tests generate their
 fixtures in temporary directories and validate the source tree independently.
