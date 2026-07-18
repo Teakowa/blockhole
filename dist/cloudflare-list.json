@@ -1,6 +1,10 @@
 {
   "items": [
     {
+      "comment": "score=8; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00",
+      "ip": "3.96.166.235"
+    },
+    {
       "comment": "score=9; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "20.206.89.130"
     },
@@ -47,6 +51,10 @@
     {
       "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "51.159.108.219"
+    },
+    {
+      "comment": "score=6; reasons=high_error_ratio,path_breadth,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00",
+      "ip": "82.39.206.121"
     },
     {
       "comment": "score=9; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
