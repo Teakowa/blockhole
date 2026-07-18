@@ -8,7 +8,7 @@ on:
       dry_run:
         description: "Do not write the Cloudflare list"
         required: false
-        default: true
+        default: false
         type: boolean
       lookback_hours:
         description: "Analytics lookback window"

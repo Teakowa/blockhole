@@ -26,6 +26,5 @@ Every automatic block has a TTL. Repeated activity may extend a block only
 within the configured limit. Scores decay deterministically, and all times
 are UTC-aware.
 
-The initial rollout is dry-run. Review several days of reports and false
-positives before enabling enforcement. A materially broader policy returns to
-dry-run until explicitly approved.
+The configured rollout mode is `enforce`. Use dry-run for validation or when
+reviewing a materially broader policy before enabling remote synchronization.

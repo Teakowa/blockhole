@@ -12,14 +12,15 @@ Store only `CLOUDFLARE_API_TOKEN` as a secret. Do not expose it to pull
 request jobs. The synchronization workflow uses a single concurrency group,
 does not cancel an active run, and keeps manual dry-run available.
 
-## First rollout
+## Rollout
 
 1. Configure zones and the allowlist.
 2. Run CI and `cf-ip-blacklist validate`.
-3. Run manual collection in dry-run for several days.
-4. Review `reports/latest.md`, candidates, and false positives.
-5. Confirm the allowlist and policy thresholds.
-6. Perform a manual synchronization before enabling scheduled enforcement.
+3. Use manual dry-run to review `reports/latest.md`, candidates, and false
+   positives when validating a policy change.
+4. Confirm the allowlist and policy thresholds.
+5. Scheduled runs enforce the configured policy by default; set the manual
+   `dry_run` input to `true` when a manual run must not write Cloudflare.
 
 The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics

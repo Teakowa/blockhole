@@ -6,8 +6,8 @@ Analytics. It is a batch pipeline: GitHub Actions collects analytics, applies
 deterministic policy, commits canonical state and generated artifacts, and
 reconciles a Cloudflare Custom IP List.
 
-The initial policy runs in `dry-run`. No automatic remote change is enabled by
-default.
+The policy runs in `enforce` mode by default. Use `--dry-run` when validating a
+run without changing the remote list.
 
 ## Quick start
 

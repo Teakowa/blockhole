@@ -1,5 +1,5 @@
 schema_version = 1
-mode = "dry-run"
+mode = "enforce"
 lookback_hours = 24
 overlap_hours = 2
 block_ttl_hours = 72
