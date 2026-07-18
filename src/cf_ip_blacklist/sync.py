@@ -53,18 +53,35 @@ class ListsClient:
         return f"{self.base_url}/accounts/{self.account_id}/rules/lists/{self.list_id}/items"
 
     def get_items(self) -> list[CloudflareItem]:
-        response = request_with_retry(self.client, "GET", self.items_url, self.max_retries)
-        if response.status_code >= 400:
-            raise CloudflareError(f"list read HTTP {response.status_code}")
-        try:
-            return [
-                CloudflareItem.model_validate(
-                    {"ip": item["ip"], "comment": item.get("comment", "")}
+        items: list[CloudflareItem] = []
+        cursor: str | None = None
+        seen_cursors: set[str] = set()
+        while True:
+            params: dict[str, str | int] = {"per_page": 1000}
+            if cursor is not None:
+                params["cursor"] = cursor
+            response = request_with_retry(
+                self.client, "GET", self.items_url, self.max_retries, params=params
+            )
+            if response.status_code >= 400:
+                raise CloudflareError(f"list read HTTP {response.status_code}")
+            try:
+                payload = response.json()
+                items.extend(
+                    CloudflareItem.model_validate(
+                        {"ip": item["ip"], "comment": item.get("comment", "")}
+                    )
+                    for item in payload.get("result", [])
                 )
-                for item in response.json().get("result", [])
-            ]
-        except (TypeError, ValueError) as exc:
-            raise CloudflareError("invalid list response") from exc
+                next_cursor = payload.get("result_info", {}).get("cursors", {}).get("after")
+            except (AttributeError, TypeError, ValueError) as exc:
+                raise CloudflareError("invalid list response") from exc
+            if not next_cursor:
+                return items
+            if next_cursor in seen_cursors:
+                raise CloudflareError("list response pagination cursor repeated")
+            seen_cursors.add(next_cursor)
+            cursor = next_cursor
 
     def replace(
         self, desired: DesiredList, allow_empty: bool = False, actual_count: int = 0

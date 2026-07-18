@@ -50,6 +50,36 @@ def test_get_items_discards_cloudflare_metadata() -> None:
 
 
 @respx.mock
+def test_get_items_reads_all_pages() -> None:
+    items_url = "https://api.example/accounts/account/rules/lists/list/items"
+    response = respx.get(items_url).mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json={
+                    "result": [{"ip": "192.0.2.1", "comment": "first"}],
+                    "result_info": {"cursors": {"after": "next-page"}},
+                },
+            ),
+            httpx.Response(
+                200,
+                json={"result": [{"ip": "192.0.2.2", "comment": "second"}]},
+            ),
+        ]
+    )
+
+    with httpx.Client(trust_env=False) as client:
+        items = ListsClient(client, "https://api.example", "account", "list").get_items()
+
+    assert items == [
+        CloudflareItem(ip="192.0.2.1", comment="first"),
+        CloudflareItem(ip="192.0.2.2", comment="second"),
+    ]
+    assert response.calls[0].request.url.params["per_page"] == "1000"
+    assert response.calls[1].request.url.params["cursor"] == "next-page"
+
+
+@respx.mock
 def test_replace_retries_eventually_consistent_verification(monkeypatch) -> None:
     items_url = "https://api.example/accounts/account/rules/lists/list/items"
     respx.put(items_url).mock(
