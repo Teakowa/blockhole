@@ -57,7 +57,7 @@ class ListsClient:
         cursor: str | None = None
         seen_cursors: set[str] = set()
         while True:
-            params: dict[str, str | int] = {"per_page": 1000}
+            params: dict[str, str | int] = {"per_page": 500}
             if cursor is not None:
                 params["cursor"] = cursor
             response = request_with_retry(

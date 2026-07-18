@@ -75,7 +75,7 @@ def test_get_items_reads_all_pages() -> None:
         CloudflareItem(ip="192.0.2.1", comment="first"),
         CloudflareItem(ip="192.0.2.2", comment="second"),
     ]
-    assert response.calls[0].request.url.params["per_page"] == "1000"
+    assert response.calls[0].request.url.params["per_page"] == "500"
     assert response.calls[1].request.url.params["cursor"] == "next-page"
 
 
