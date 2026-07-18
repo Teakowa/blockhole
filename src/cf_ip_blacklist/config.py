@@ -18,6 +18,16 @@ class Thresholds:
 
 
 @dataclass(frozen=True)
+class SignalWeights:
+    request_volume: float
+    path_breadth: float
+    suspicious_paths: float
+    high_error_ratio: float
+    repeated_windows: float
+    multiple_zones: float
+
+
+@dataclass(frozen=True)
 class Settings:
     root: Path
     mode: str
@@ -36,6 +46,14 @@ class Settings:
     poll_timeout_seconds: float
     zone_ids: tuple[str, ...]
     suspicious_path_patterns: tuple[str, ...] = ()
+    signal_weights: SignalWeights = SignalWeights(
+        request_volume=1,
+        path_breadth=0,
+        suspicious_paths=4,
+        high_error_ratio=1,
+        repeated_windows=1,
+        multiple_zones=0,
+    )
 
     @property
     def state_path(self) -> Path:
@@ -54,6 +72,7 @@ def load_settings(root: Path) -> Settings:
     try:
         raw = tomllib.loads((root / "config/policy.toml").read_text())
         threshold = raw["thresholds"]
+        weights = raw.get("signal_weights", {})
         cloudflare = raw["cloudflare"]
         configured_zones = tuple(raw.get("zones", {}).get("ids", []))
         zone_ids = (
@@ -82,6 +101,14 @@ def load_settings(root: Path) -> Settings:
             poll_interval_seconds=float(cloudflare["poll_interval_seconds"]),
             poll_timeout_seconds=float(cloudflare["poll_timeout_seconds"]),
             zone_ids=zone_ids,
+            signal_weights=SignalWeights(
+                request_volume=float(weights.get("request_volume", 1)),
+                path_breadth=float(weights.get("path_breadth", 0)),
+                suspicious_paths=float(weights.get("suspicious_paths", 4)),
+                high_error_ratio=float(weights.get("high_error_ratio", 1)),
+                repeated_windows=float(weights.get("repeated_windows", 1)),
+                multiple_zones=float(weights.get("multiple_zones", 0)),
+            ),
         )
     except (KeyError, TypeError, ValueError, OSError, tomllib.TOMLDecodeError) as exc:
         raise ConfigurationError(f"invalid policy configuration: {exc}") from exc

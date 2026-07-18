@@ -20,6 +20,14 @@ min_suspicious_paths = 2
 max_error_ratio = 0.8
 block_score = 6
 
+[signal_weights]
+request_volume = 1
+path_breadth = 0
+suspicious_paths = 4
+high_error_ratio = 1
+repeated_windows = 1
+multiple_zones = 0
+
 [cloudflare]
 graphql_url = "https://api.cloudflare.com/client/v4/graphql"
 api_base_url = "https://api.cloudflare.com/client/v4"

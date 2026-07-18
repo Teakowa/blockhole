@@ -67,33 +67,42 @@ def evaluate_observations(
     error_ratio = errors / observed if observed else 0
     reasons: list[str] = []
     score = 0.0
+    weights = settings.signal_weights
     if weighted >= settings.thresholds.min_weighted_requests:
-        score += 2
+        score += weights.request_volume
         reasons.append("request_volume")
     if distinct_paths >= settings.thresholds.min_distinct_paths:
-        score += 2
+        score += weights.path_breadth
         reasons.append("path_breadth")
     if suspicious >= settings.thresholds.min_suspicious_paths:
-        score += 3
+        score += weights.suspicious_paths
         reasons.append("suspicious_paths")
     if error_ratio >= settings.thresholds.max_error_ratio and observed > 0:
-        score += 1
+        score += weights.high_error_ratio
         reasons.append("high_error_ratio")
     if windows >= 2:
-        score += 2
+        score += weights.repeated_windows
         reasons.append("repeated_windows")
     if len(zones) >= 2:
-        score += 1
+        score += weights.multiple_zones
         reasons.append("multiple_zones")
     status = existing.status if existing else "candidate"
     blocked_at = existing.block_started_at if existing else None
     expires_at = existing.expires_at if existing else None
     extensions = existing.ttl_extensions if existing else 0
-    if score >= settings.thresholds.block_score and len(reasons) >= 2:
+    if (
+        score >= settings.thresholds.block_score
+        and len(reasons) >= 2
+        and suspicious >= settings.thresholds.min_suspicious_paths
+    ):
         status = "blocked"
         blocked_at = blocked_at or now
         if expires_at is None:
             expires_at = now + timedelta(hours=settings.block_ttl_hours)
+    elif status == "blocked":
+        status = "candidate"
+        blocked_at = None
+        expires_at = None
     return IPRecord(
         first_seen=first_seen,
         last_seen=last_seen,

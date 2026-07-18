@@ -106,6 +106,11 @@ def evaluate(
     allowlist = load_allowlist(str(settings.allowlist_path))
     if observations is None:
         observations = []
+    for ip, record in list(state.records.items()):
+        reevaluated = evaluate_observations([], record, settings, now)
+        state.records[ip] = apply_lifecycle(
+            reevaluated, settings, now, is_allowlisted(ip, allowlist)
+        )
     grouped: dict[str, list[Observation]] = {}
     for observation in observations:
         grouped.setdefault(observation.ip, []).append(observation)
