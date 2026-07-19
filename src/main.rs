@@ -29,7 +29,10 @@ enum Command {
         lookback_hours: Option<i64>,
     },
     Evaluate,
-    Render,
+    Render {
+        #[arg(long, default_value = "reports/latest.md")]
+        report_path: PathBuf,
+    },
     Sync {
         #[arg(long)]
         dry_run: bool,
@@ -41,8 +44,6 @@ enum Command {
         dry_run: bool,
         #[arg(long)]
         lookback_hours: Option<i64>,
-        #[arg(long)]
-        force_rebuild: bool,
         #[arg(long)]
         allow_empty: bool,
         #[arg(long, default_value = "reports/latest.md")]
@@ -83,10 +84,10 @@ fn execute(args: Vec<String>) -> Result<()> {
             Ok(())
         }
         Command::Evaluate => evaluate(&root, &[]),
-        Command::Render => {
+        Command::Render { report_path } => {
             let settings = config::load(&root)?;
             let st = state::load(&settings.root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now()).map(|_| ())
+            render::render(&root, &st, Utc::now(), &report_path).map(|_| ())
         }
         Command::Sync {
             dry_run,
@@ -95,9 +96,8 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Run {
             dry_run,
             lookback_hours,
-            force_rebuild: _,
             allow_empty,
-            report_path: _,
+            report_path,
         } => {
             validate(&root)?;
             let settings = config::load(&root)?;
@@ -105,7 +105,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             let observations = collect(&settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
             let st = state::load(&root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now())?;
+            render::render(&root, &st, Utc::now(), &report_path)?;
             sync(&root, dry_run, allow_empty)
         }
     }
@@ -259,4 +259,32 @@ fn authenticated_client(token: String) -> Result<Client> {
         .user_agent("blockhole/0.2")
         .default_headers(headers)
         .build()?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cli_parse_render_and_run_report_path() {
+        let run_cli = Cli::try_parse_from(["blockhole", "run", "--report-path", "custom_run.md"]);
+        assert!(run_cli.is_ok());
+        if let Command::Run { report_path, .. } = run_cli.unwrap().command {
+            assert_eq!(report_path, PathBuf::from("custom_run.md"));
+        } else {
+            panic!("expected Run command");
+        }
+
+        let render_cli =
+            Cli::try_parse_from(["blockhole", "render", "--report-path", "custom_render.md"]);
+        assert!(render_cli.is_ok());
+        if let Command::Render { report_path } = render_cli.unwrap().command {
+            assert_eq!(report_path, PathBuf::from("custom_render.md"));
+        } else {
+            panic!("expected Render command");
+        }
+
+        let invalid_cli = Cli::try_parse_from(["blockhole", "run", "--force-rebuild"]);
+        assert!(invalid_cli.is_err());
+    }
 }

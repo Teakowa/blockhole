@@ -44,8 +44,8 @@ blockhole sync
 blockhole run --dry-run --lookback-hours 24
 ```
 
-`run` supports `--dry-run`, `--lookback-hours`, `--force-rebuild`,
-`--allow-empty`, and `--report-path`.
+`run` supports `--dry-run`, `--lookback-hours`, `--allow-empty`,
+and `--report-path`.
 
 ## Repository data
 

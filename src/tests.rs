@@ -182,3 +182,16 @@ proptest! {
         prop_assert!(result.identical());
     }
 }
+
+#[test]
+fn render_writes_report_to_custom_path() {
+    let temp = std::env::temp_dir().join(format!("blockhole-render-test-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&temp);
+    std::fs::create_dir_all(&temp).unwrap();
+    let state = state::empty();
+    let report_path = PathBuf::from("custom/report.md");
+    let res = crate::render::render(&temp, &state, Utc::now(), &report_path);
+    assert!(res.is_ok());
+    assert!(temp.join("custom/report.md").exists());
+    let _ = std::fs::remove_dir_all(&temp);
+}

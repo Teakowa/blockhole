@@ -5,7 +5,12 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use std::{fs, path::Path};
-pub fn render(root: &Path, state: &State, now: DateTime<Utc>) -> Result<DesiredList> {
+pub fn render(
+    root: &Path,
+    state: &State,
+    now: DateTime<Utc>,
+    report_path: &Path,
+) -> Result<DesiredList> {
     let active = active(&state.records, now);
     let mut items = Vec::new();
     for (subject, record) in active {
@@ -41,9 +46,16 @@ pub fn render(root: &Path, state: &State, now: DateTime<Utc>) -> Result<DesiredL
         root.join("dist/cloudflare-list.json"),
         serde_json::to_string_pretty(&desired)? + "\n",
     )?;
-    fs::create_dir_all(root.join("reports"))?;
+    let report_target = if report_path.is_relative() {
+        root.join(report_path)
+    } else {
+        report_path.to_path_buf()
+    };
+    if let Some(parent) = report_target.parent() {
+        fs::create_dir_all(parent)?;
+    }
     fs::write(
-        root.join("reports/latest.md"),
+        &report_target,
         format!(
             "# Latest run\n\n- Mode: generated\n- Evaluated at: {}\n- Active blocked IPs: {}\n",
             now.to_rfc3339(),
