@@ -6,22 +6,22 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Do not write the Cloudflare list"
+        description: "dry-run"
         required: false
         default: false
         type: boolean
       lookback_hours:
-        description: "Analytics lookback window"
+        description: "lookback-hours"
         required: false
         default: "24"
         type: string
       force_rebuild:
-        description: "Re-evaluate all available state"
+        description: "force-rebuild"
         required: false
         default: false
         type: boolean
       allow_empty:
-        description: "Allow an explicit empty-list replacement"
+        description: "allow-empty"
         required: false
         default: false
         type: boolean
