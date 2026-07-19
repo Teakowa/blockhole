@@ -2,51 +2,51 @@
   "items": [
     {
       "ip": "3.96.166.235/32",
-      "comment": "score=5.988961226851852; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00"
+      "comment": "score=5.962285879629629; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00"
     },
     {
       "ip": "20.206.89.130/32",
-      "comment": "score=5.988961226851852; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=5.962285879629629; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "36.40.86.106/32",
-      "comment": "score=6.988961226851852; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=6.962285879629629; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "43.161.196.238/32",
-      "comment": "score=6.988961226851852; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=6.962285879629629; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "45.45.237.69/32",
-      "comment": "score=5.988961226851852; reasons=high_error_ratio,path_breadth,repeated_windows,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=5.962285879629629; reasons=high_error_ratio,path_breadth,repeated_windows,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "45.148.10.51/32",
-      "comment": "score=5.988961226851852; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T03:32:28.100587+00:00"
+      "comment": "score=5.962285879629629; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T03:32:28.100587+00:00"
     },
     {
       "ip": "45.148.10.67/32",
-      "comment": "score=6.988961226851852; reasons=high_error_ratio,multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T17:26:19+00:00"
+      "comment": "score=6.962285879629629; reasons=high_error_ratio,multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T17:26:19+00:00"
     },
     {
       "ip": "45.148.10.120/32",
-      "comment": "score=5.988961226851852; reasons=high_error_ratio,repeated_windows,suspicious_paths; expires=2026-07-21T18:10:14.953870+00:00"
+      "comment": "score=5.962285879629629; reasons=high_error_ratio,repeated_windows,suspicious_paths; expires=2026-07-21T18:10:14.953870+00:00"
     },
     {
       "ip": "91.92.42.86/32",
-      "comment": "score=5.988961226851852; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=5.962285879629629; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "91.148.244.131/32",
-      "comment": "score=6.988961226851852; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=6.962285879629629; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "178.16.54.137/32",
-      "comment": "score=5.988961226851852; reasons=multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=5.962285879629629; reasons=multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "2602:fa59:10:172::1/128",
-      "comment": "score=6.988961226851852; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
+      "comment": "score=6.962285879629629; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00"
     },
     {
       "ip": "2a06:98c0:3600::103/128",
