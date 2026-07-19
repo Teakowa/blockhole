@@ -15,13 +15,18 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Parser)]
-#[command(name = "blockhole")]
+pub const VERSION: &str = match option_env!("BLOCKHOLE_VERSION") {
+    Some(v) => v,
+    None => env!("CARGO_PKG_VERSION"),
+};
+
+#[derive(Parser, Debug)]
+#[command(name = "blockhole", version = VERSION)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
 }
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum Command {
     Validate,
     Collect {
@@ -256,7 +261,7 @@ fn authenticated_client(token: String) -> Result<Client> {
     );
     Ok(Client::builder()
         .timeout(std::time::Duration::from_secs(30))
-        .user_agent("blockhole/0.2")
+        .user_agent(format!("blockhole/{VERSION}"))
         .default_headers(headers)
         .build()?)
 }
@@ -286,5 +291,14 @@ mod tests {
 
         let invalid_cli = Cli::try_parse_from(["blockhole", "run", "--force-rebuild"]);
         assert!(invalid_cli.is_err());
+    }
+
+    #[test]
+    fn version_cli_output() {
+        let version_cli = Cli::try_parse_from(["blockhole", "--version"]);
+        assert!(version_cli.is_err());
+        let err = version_cli.unwrap_err();
+        assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
+        assert!(err.to_string().contains(VERSION));
     }
 }

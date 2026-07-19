@@ -35,52 +35,27 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-
-      - name: Read version from Cargo.toml
-        id: version
-        run: |
-          version="$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')"
-          echo "tag=v${version}" >> "${GITHUB_OUTPUT}"
-
-      - name: Check if tag exists
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if git ls-remote --tags origin "refs/tags/${{ steps.version.outputs.tag }}" | grep -q .; then
-            echo "exists=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "exists=false" >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Restore cached binary
-        if: steps.check.outputs.exists == 'false'
-        id: cache
-        uses: actions/cache/restore@v6
         with:
-          path: target/release/blockhole
-          key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
-
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
       - name: Set up Rust
-        if: steps.check.outputs.exists == 'false' && steps.cache.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Build release binary
-        if: steps.check.outputs.exists == 'false' && steps.cache.outputs.cache-hit != 'true'
-        run: cargo build --release --locked
-
-      - name: Create GitHub Release
-        if: steps.check.outputs.exists == 'false'
+      - name: Run semantic-release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            target/release/blockhole \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes
+          npx --package=semantic-release@24.2.1 \
+              --package=@semantic-release/exec@6.0.3 \
+              --package=@semantic-release/github@11.0.1 \
+              semantic-release
