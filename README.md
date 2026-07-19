@@ -13,13 +13,12 @@ and read/write runtime state and generated artifacts on the orphan
 
 ## Quick start
 
-Requirements: Python 3.13 and [uv](https://docs.astral.sh/uv/).
+Requirements: Rust stable and Cargo.
 
 ```bash
-uv sync --frozen
-uv run cf-ip-blacklist validate
-uv run cf-ip-blacklist render
-uv run pytest
+cargo run -- validate
+cargo run -- render
+cargo test
 ```
 
 Before collection, add zone IDs to `config/policy.toml` and provide:
@@ -37,12 +36,12 @@ configuration files.
 ## CLI
 
 ```text
-cf-ip-blacklist validate
-cf-ip-blacklist collect
-cf-ip-blacklist evaluate
-cf-ip-blacklist render
-cf-ip-blacklist sync
-cf-ip-blacklist run --dry-run --lookback-hours 24
+blockhole validate
+blockhole collect
+blockhole evaluate
+blockhole render
+blockhole sync
+blockhole run --dry-run --lookback-hours 24
 ```
 
 `run` supports `--dry-run`, `--lookback-hours`, `--force-rebuild`,
@@ -52,6 +51,7 @@ cf-ip-blacklist run --dry-run --lookback-hours 24
 
 - `config/policy.toml`: thresholds, lifecycle, API, and rollout settings.
 - `config/allowlist.txt`: trusted addresses and networks.
+- `config/permanent-blocklist.txt`: manually managed permanent addresses and networks.
 - `data/state.json`: canonical versioned lifecycle state (only on the orphan
   `blacklist-state` branch).
 - `dist/blacklist.txt`: generated active IP list (only on the orphan

@@ -24,8 +24,9 @@ The allowlist is evaluated before scoring. Entries may be individual IPv4 or
 IPv6 addresses or networks. Invalid entries fail validation. Do not add broad
 ASN or country exemptions as a substitute for explicit allowlist entries.
 
-Records move through `candidate`, `blocked`, `cooldown`, and `expired` states.
-Every automatic block has a TTL. Existing records are re-evaluated against the
+Automatic records move through `candidate`, `temporary_blocked`, `cooldown`,
+and `expired` states. Manually imported records use `permanent_blocked` and
+have no TTL. Every automatic block has a TTL. Existing records are re-evaluated against the
 current policy, so a block that no longer has the required scanning evidence is
 released to `candidate`. Repeated activity may extend a block only within the
 configured limit. Scores decay deterministically, and all times are UTC-aware.

@@ -1,0 +1,1 @@
+# One manually managed permanent IPv4, IPv6, or CIDR entry per line.

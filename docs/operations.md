@@ -15,7 +15,7 @@ does not cancel an active run, and keeps manual dry-run available.
 ## Rollout
 
 1. Configure zones and the allowlist.
-2. Run CI and `cf-ip-blacklist validate`.
+2. Run CI and `blockhole validate`.
 3. Use manual dry-run to review `reports/latest.md`, candidates, and false
    positives when validating a policy change.
 4. Confirm the allowlist and policy thresholds.

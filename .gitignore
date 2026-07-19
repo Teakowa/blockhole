@@ -1,8 +1,7 @@
 .venv/
-__pycache__/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+/.pytest_cache/
+/.mypy_cache/
+/.ruff_cache/
 *.py[cod]
 *.log
 .env
@@ -10,3 +9,5 @@ __pycache__/
 !.env.example
 dist/*.tmp
 data/*.tmp
+/target/
+__pycache__/

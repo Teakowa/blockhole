@@ -1,0 +1,163 @@
+use crate::{
+    analytics,
+    config::{Settings, Thresholds, Weights},
+    models::{Observation, RecordStatus, Subject},
+    policy, state, sync,
+};
+use chrono::{TimeZone, Utc};
+use proptest::prelude::*;
+use std::path::PathBuf;
+fn settings() -> Settings {
+    Settings {
+        root: PathBuf::from("."),
+        mode: "dry-run".into(),
+        lookback_hours: 24,
+        overlap_hours: 2,
+        block_ttl_hours: 72,
+        cooldown_hours: 24,
+        max_ttl_extensions: 3,
+        score_decay_per_day: 0.25,
+        thresholds: Thresholds {
+            min_weighted_requests: 100.0,
+            min_distinct_paths: 2,
+            min_suspicious_paths: 2,
+            max_error_ratio: 0.8,
+            block_score: 6.0,
+        },
+        weights: Weights {
+            request_volume: 1.0,
+            path_breadth: 0.0,
+            suspicious_paths: 4.0,
+            high_error_ratio: 1.0,
+            repeated_windows: 1.0,
+            multiple_zones: 0.0,
+        },
+        suspicious_path_patterns: vec![],
+        graphql_url: "".into(),
+        api_base_url: "".into(),
+        max_retries: 3,
+        poll_interval_seconds: 0.0,
+        poll_timeout_seconds: 1.0,
+        zone_ids: vec!["zone".into()],
+    }
+}
+#[test]
+fn ip_and_cidr_are_canonical_and_allowlist_is_family_safe() {
+    let ip = Subject::parse(" 192.0.2.1 ").unwrap();
+    assert_eq!(ip.to_string(), "192.0.2.1/32");
+    let network = Subject::parse("192.0.2.0/24").unwrap();
+    assert!(network.contains(&ip));
+    assert!(!network.contains(&Subject::parse("2001:db8::1").unwrap()));
+}
+#[test]
+fn two_signals_and_scanning_block() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let obs = Observation {
+        ip: Subject::parse("192.0.2.1").unwrap(),
+        zone_id: "zone".into(),
+        observed_at: now,
+        observed_requests: 200,
+        weighted_requests: 200.0,
+        paths: vec!["/a".into(), "/b".into()],
+        suspicious_paths: 2,
+        error_requests: 180,
+        sampled: false,
+        sample_interval: None,
+        fingerprint: "x".into(),
+    };
+    let record = policy::evaluate(&[obs], None, &settings(), now).unwrap();
+    assert!(matches!(
+        record.status,
+        RecordStatus::TemporaryBlocked { .. }
+    ));
+}
+#[test]
+fn one_scanning_path_stays_candidate() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let obs = Observation {
+        ip: Subject::parse("192.0.2.1").unwrap(),
+        zone_id: "zone".into(),
+        observed_at: now,
+        observed_requests: 300,
+        weighted_requests: 300.0,
+        paths: vec!["/a".into(), "/b".into()],
+        suspicious_paths: 1,
+        error_requests: 270,
+        sampled: false,
+        sample_interval: None,
+        fingerprint: "x".into(),
+    };
+    let record = policy::evaluate(&[obs], None, &settings(), now).unwrap();
+    assert!(matches!(record.status, RecordStatus::Candidate));
+}
+proptest! { #[test] fn canonicalization_is_idempotent(value in "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}") { if let Ok(first) = Subject::parse(&value) { let second = Subject::parse(&first.to_string()).unwrap(); prop_assert_eq!(first, second); } } }
+
+#[test]
+fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let subject = Subject::parse("192.0.2.1").unwrap();
+    let mut current = state::empty();
+    policy::merge_permanent(&mut current, std::slice::from_ref(&subject), now);
+    assert!(matches!(
+        current.records[&subject].status,
+        RecordStatus::PermanentBlocked { .. }
+    ));
+    assert!(policy::is_allowlisted(
+        &subject,
+        &[Subject::parse("192.0.2.0/24").unwrap()]
+    ));
+}
+
+#[test]
+fn v1_state_migrates_to_v2_status() {
+    let path = std::env::temp_dir().join(format!("blockhole-state-{}.json", std::process::id()));
+    let json = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
+    std::fs::write(&path, json).unwrap();
+    let migrated = state::load(&path).unwrap();
+    std::fs::remove_file(path).unwrap();
+    assert_eq!(migrated.schema_version, 2);
+    assert!(matches!(
+        migrated.records[&Subject::parse("192.0.2.1").unwrap()].status,
+        RecordStatus::TemporaryBlocked { .. }
+    ));
+}
+
+#[test]
+fn analytics_parser_strips_query_and_preserves_sampling() {
+    let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":10},"count":3}]}]}}}"#;
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let observations =
+        analytics::parse(payload, "zone", now, &[r"(^|/)\.env($|/)".into()]).unwrap();
+    assert_eq!(observations[0].paths, vec!["/.env"]);
+    assert_eq!(observations[0].weighted_requests, 30.0);
+    assert!(observations[0].sampled);
+}
+
+#[test]
+fn list_diff_is_deterministic() {
+    let desired = crate::models::DesiredList {
+        items: vec![crate::models::CloudflareItem {
+            ip: Subject::parse("192.0.2.1").unwrap(),
+            comment: "new".into(),
+        }],
+    };
+    let actual = vec![crate::models::CloudflareItem {
+        ip: Subject::parse("192.0.2.2").unwrap(),
+        comment: "old".into(),
+    }];
+    let result = sync::diff(&desired, &actual);
+    assert_eq!(result.additions[0].ip, Subject::parse("192.0.2.1").unwrap());
+    assert_eq!(result.removals, vec![Subject::parse("192.0.2.2").unwrap()]);
+}
+
+#[test]
+fn empty_list_fuse_rejects_non_empty_remote_without_request() {
+    let client = reqwest::blocking::Client::builder().build().unwrap();
+    let lists =
+        sync::ListsClient::new(client, "http://127.0.0.1:1", "account", "list", 0, 0.0, 1.0);
+    let result = lists.replace(&crate::models::DesiredList { items: vec![] }, 1, false);
+    assert!(matches!(
+        result,
+        Err(crate::error::BlockholeError::Safety(_))
+    ));
+}
