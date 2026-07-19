@@ -5,6 +5,21 @@ use crate::{
 use chrono::{DateTime, Duration, Utc};
 use std::collections::BTreeMap;
 pub fn apply(record: &mut IpRecord, settings: &Settings, now: DateTime<Utc>, allowlisted: bool) {
+    if let RecordStatus::PermanentBlocked {
+        imported_at,
+        ref source,
+        ref reason,
+        ..
+    } = record.status
+    {
+        record.status = RecordStatus::PermanentBlocked {
+            imported_at,
+            source: source.clone(),
+            reason: reason.clone(),
+            suppressed_by_allowlist: allowlisted,
+        };
+        return;
+    }
     if allowlisted {
         record.status = RecordStatus::Allowlisted;
         return;
@@ -35,7 +50,10 @@ pub fn active(
     records
         .iter()
         .filter(|(_, r)| match r.status {
-            RecordStatus::PermanentBlocked { .. } => true,
+            RecordStatus::PermanentBlocked {
+                suppressed_by_allowlist,
+                ..
+            } => !suppressed_by_allowlist,
             RecordStatus::TemporaryBlocked { expires_at, .. } => expires_at > now,
             _ => false,
         })

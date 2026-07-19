@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use std::{collections::BTreeMap, fs, io::Write, path::Path};
 
-pub const CURRENT_SCHEMA: u32 = 2;
+pub const CURRENT_SCHEMA: u32 = 3;
 #[derive(Deserialize)]
 struct V1Record {
     first_seen: DateTime<Utc>,
@@ -47,7 +47,19 @@ pub fn load(path: &Path) -> Result<State> {
     if version == CURRENT_SCHEMA {
         return serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()));
     }
+    if version == 2 {
+        return migrate_v2(value);
+    }
     migrate_v1(serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?)
+}
+fn migrate_v2(value: serde_json::Value) -> Result<State> {
+    let mut state: State =
+        serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?;
+    state.schema_version = CURRENT_SCHEMA;
+    for record in state.records.values_mut() {
+        record.schema_version = CURRENT_SCHEMA;
+    }
+    Ok(state)
 }
 fn migrate_v1(old: V1State) -> Result<State> {
     let mut records = BTreeMap::new();

@@ -98,30 +98,82 @@ proptest! { #[test] fn canonicalization_is_idempotent(value in "[0-9]{1,3}\\.[0-
 fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let subject = Subject::parse("192.0.2.1").unwrap();
+    let allowlist_net = Subject::parse("192.0.2.0/24").unwrap();
     let mut current = state::empty();
     policy::merge_permanent(&mut current, std::slice::from_ref(&subject), now);
-    assert!(matches!(
-        current.records[&subject].status,
-        RecordStatus::PermanentBlocked { .. }
-    ));
-    assert!(policy::is_allowlisted(
-        &subject,
-        &[Subject::parse("192.0.2.0/24").unwrap()]
-    ));
+
+    // Initially not suppressed
+    let record = current.records.get_mut(&subject).unwrap();
+    let is_allowlisted = policy::is_allowlisted(&subject, &[allowlist_net.clone()]);
+    assert!(is_allowlisted);
+
+    crate::lifecycle::apply(record, &settings(), now, is_allowlisted);
+
+    // Should remain PermanentBlocked but with suppressed_by_allowlist = true
+    if let RecordStatus::PermanentBlocked {
+        suppressed_by_allowlist,
+        ..
+    } = record.status
+    {
+        assert!(suppressed_by_allowlist);
+    } else {
+        panic!("expected PermanentBlocked status");
+    }
+
+    // Active list should exclude suppressed permanent block
+    let active_records = crate::lifecycle::active(&current.records, now);
+    assert!(!active_records.contains_key(&subject));
+
+    // When allowlist entry is removed
+    let record = current.records.get_mut(&subject).unwrap();
+    crate::lifecycle::apply(record, &settings(), now, false);
+    if let RecordStatus::PermanentBlocked {
+        suppressed_by_allowlist,
+        ..
+    } = record.status
+    {
+        assert!(!suppressed_by_allowlist);
+    } else {
+        panic!("expected PermanentBlocked status");
+    }
+
+    // Active list should now include restored permanent block
+    let active_records = crate::lifecycle::active(&current.records, now);
+    assert!(active_records.contains_key(&subject));
 }
 
 #[test]
-fn v1_state_migrates_to_v2_status() {
-    let path = std::env::temp_dir().join(format!("blockhole-state-{}.json", std::process::id()));
-    let json = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
-    std::fs::write(&path, json).unwrap();
-    let migrated = state::load(&path).unwrap();
-    std::fs::remove_file(path).unwrap();
-    assert_eq!(migrated.schema_version, 2);
+fn v1_and_v2_state_migrates_to_v3_status() {
+    let path_v1 =
+        std::env::temp_dir().join(format!("blockhole-state-v1-{}.json", std::process::id()));
+    let json_v1 = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
+    std::fs::write(&path_v1, json_v1).unwrap();
+    let migrated_v1 = state::load(&path_v1).unwrap();
+    std::fs::remove_file(path_v1).unwrap();
+    assert_eq!(migrated_v1.schema_version, 3);
     assert!(matches!(
-        migrated.records[&Subject::parse("192.0.2.1").unwrap()].status,
+        migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].status,
         RecordStatus::TemporaryBlocked { .. }
     ));
+
+    let path_v2 =
+        std::env::temp_dir().join(format!("blockhole-state-v2-{}.json", std::process::id()));
+    let json_v2 = r#"{"schema_version":2,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":2,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":[],"score":0.0,"reason_codes":["manual_import"],"status":{"type":"permanent_blocked","imported_at":"2026-01-01T00:00:00Z","source":"config/permanent-blocklist.txt","reason":null}}}}"#;
+    std::fs::write(&path_v2, json_v2).unwrap();
+    let migrated_v2 = state::load(&path_v2).unwrap();
+    std::fs::remove_file(path_v2).unwrap();
+    assert_eq!(migrated_v2.schema_version, 3);
+    let record_v2 = &migrated_v2.records[&Subject::parse("192.0.2.1").unwrap()];
+    assert_eq!(record_v2.schema_version, 3);
+    if let RecordStatus::PermanentBlocked {
+        suppressed_by_allowlist,
+        ..
+    } = record_v2.status
+    {
+        assert!(!suppressed_by_allowlist);
+    } else {
+        panic!("expected PermanentBlocked status");
+    }
 }
 
 #[test]

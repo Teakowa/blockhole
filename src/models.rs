@@ -79,6 +79,8 @@ pub enum RecordStatus {
         imported_at: DateTime<Utc>,
         source: String,
         reason: Option<String>,
+        #[serde(default)]
+        suppressed_by_allowlist: bool,
     },
     Allowlisted,
 }

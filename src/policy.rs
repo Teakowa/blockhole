@@ -114,7 +114,7 @@ pub fn evaluate(
         RecordStatus::Candidate
     };
     Ok(IpRecord {
-        schema_version: 2,
+        schema_version: crate::state::CURRENT_SCHEMA,
         first_seen,
         last_seen,
         last_evaluated: now,
@@ -140,11 +140,23 @@ pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], n
         !matches!(record.status, RecordStatus::PermanentBlocked { .. }) || wanted.contains(subject)
     });
     for subject in subjects {
+        let existing_suppressed = state
+            .records
+            .get(subject)
+            .and_then(|r| match &r.status {
+                RecordStatus::PermanentBlocked {
+                    suppressed_by_allowlist,
+                    ..
+                } => Some(*suppressed_by_allowlist),
+                _ => None,
+            })
+            .unwrap_or(false);
+
         let entry = state
             .records
             .entry(subject.clone())
             .or_insert_with(|| IpRecord {
-                schema_version: 2,
+                schema_version: crate::state::CURRENT_SCHEMA,
                 first_seen: now,
                 last_seen: now,
                 last_evaluated: now,
@@ -161,12 +173,14 @@ pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], n
                     imported_at: now,
                     source: "config/permanent-blocklist.txt".into(),
                     reason: None,
+                    suppressed_by_allowlist: existing_suppressed,
                 },
             });
         entry.status = RecordStatus::PermanentBlocked {
             imported_at: now,
             source: "config/permanent-blocklist.txt".into(),
             reason: None,
+            suppressed_by_allowlist: existing_suppressed,
         };
     }
 }
