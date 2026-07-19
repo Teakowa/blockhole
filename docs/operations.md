@@ -22,10 +22,16 @@ does not cancel an active run, and keeps manual dry-run available.
 5. Scheduled runs enforce the configured policy by default; set the manual
    `dry_run` input to `true` when a manual run must not write Cloudflare.
 
-The CI workflow builds the Linux `blockhole` release binary and uploads it as
-an artifact. The scheduled workflow downloads the successful artifact for the
-current `main` commit and executes it directly; scheduled runs do not install
-Rust or compile the CLI.
+The CI workflow builds the Linux `blockhole` release binary and writes it to
+the GitHub Actions cache keyed by source hash. When a push to `main` bumps the
+version in `Cargo.toml`, the CI release job automatically creates a Git tag and
+GitHub Release with the binary attached.
+
+The scheduled Sync workflow obtains the CLI in two tiers: it first attempts to
+restore the binary from the Actions cache; if the cache misses it downloads
+the asset from the latest GitHub Release. If neither source is available the
+workflow fails without modifying state or Cloudflare. Scheduled runs do not
+install Rust or compile the CLI.
 
 The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics

@@ -5,13 +5,12 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -26,10 +25,62 @@ jobs:
           cargo test
       - name: Build release CLI
         run: cargo build --release --locked
-      - name: Upload release CLI
-        uses: actions/upload-artifact@v4
+      - name: Cache release binary
+        uses: actions/cache/save@v4
         with:
-          name: blockhole-linux-x86_64
           path: target/release/blockhole
-          if-no-files-found: error
-          retention-days: 90
+          key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read version from Cargo.toml
+        id: version
+        run: |
+          version="$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')"
+          echo "tag=v${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Check if tag exists
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git ls-remote --tags origin "refs/tags/${{ steps.version.outputs.tag }}" | grep -q .; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Restore cached binary
+        if: steps.check.outputs.exists == 'false'
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target/release/blockhole
+          key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
+
+      - name: Set up Rust
+        if: steps.check.outputs.exists == 'false' && steps.cache.outputs.cache-hit != 'true'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        if: steps.check.outputs.exists == 'false' && steps.cache.outputs.cache-hit != 'true'
+        run: cargo build --release --locked
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            target/release/blockhole \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes

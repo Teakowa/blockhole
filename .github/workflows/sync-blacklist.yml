@@ -50,31 +50,26 @@ jobs:
           git fetch --no-tags origin "refs/heads/${STATE_BRANCH}:refs/remotes/origin/${STATE_BRANCH}"
           mkdir -p data dist reports
           git archive "origin/${STATE_BRANCH}" -- data/state.json dist reports/latest.md | tar -x
-      - name: Download release CLI
+      - name: Restore cached CLI
+        id: cli-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target/release/blockhole
+          key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
+      - name: Download CLI from release
+        if: steps.cli-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          run_id="$(gh run list \
-            --repo "${GITHUB_REPOSITORY}" \
-            --workflow ci.yml \
-            --branch main \
-            --commit "${GITHUB_SHA}" \
-            --status success \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')"
-          test -n "${run_id}" || {
-            echo "No successful CI build found for ${GITHUB_SHA}" >&2
-            exit 1
-          }
-          cli_dir="${RUNNER_TEMP}/blockhole-cli"
-          mkdir -p "${cli_dir}"
-          gh run download "${run_id}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --name blockhole-linux-x86_64 \
-            --dir "${cli_dir}"
-          chmod +x "${cli_dir}/blockhole"
-          echo "BLOCKHOLE_BIN=${cli_dir}/blockhole" >> "${GITHUB_ENV}"
+          mkdir -p target/release
+          gh release download --repo "${GITHUB_REPOSITORY}" \
+            --pattern "blockhole" \
+            --output target/release/blockhole
+          chmod +x target/release/blockhole
+      - name: Set CLI path
+        run: |
+          chmod +x target/release/blockhole
+          echo "BLOCKHOLE_BIN=$(pwd)/target/release/blockhole" >> "${GITHUB_ENV}"
       - name: Validate and run
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
