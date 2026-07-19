@@ -2,7 +2,7 @@
 
 ## Project boundaries
 
-Blockhole is a Python CLI run by GitHub Actions. It reads Cloudflare Security
+Blockhole is a Rust CLI run by GitHub Actions. It reads Cloudflare Security
 Analytics, keeps canonical lifecycle state in Git, renders a deterministic IP
 denylist, and reconciles one Cloudflare Custom IP List.
 
@@ -46,9 +46,8 @@ denylist, and reconciles one Cloudflare Custom IP List.
 ## Required checks
 
 ```bash
-uv sync --frozen
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy src
-uv run pytest
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test
 ```
+

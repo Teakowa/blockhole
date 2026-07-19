@@ -104,7 +104,7 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
 
     // Initially not suppressed
     let record = current.records.get_mut(&subject).unwrap();
-    let is_allowlisted = policy::is_allowlisted(&subject, &[allowlist_net.clone()]);
+    let is_allowlisted = policy::is_allowlisted(&subject, std::slice::from_ref(&allowlist_net));
     assert!(is_allowlisted);
 
     crate::lifecycle::apply(record, &settings(), now, is_allowlisted);
