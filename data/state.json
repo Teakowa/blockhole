@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "checkpoints": {
-    "analytics": "2026-07-19T13:54:05.169316204Z"
+    "analytics": "2026-07-19T15:15:14.845025644Z"
   },
   "records": {
     "1.14.110.85/32": {
@@ -18,7 +18,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -41,7 +41,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -63,7 +63,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -85,7 +85,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -113,7 +113,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -136,7 +136,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -158,7 +158,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9067968750000001,
+      "score": 0.8445746527777778,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -180,7 +180,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -222,7 +222,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -244,7 +244,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -306,7 +306,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -349,10 +349,33 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "8.228.106.106/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 16,
+      "weighted_requests": 26.0,
+      "distinct_paths": 11,
+      "suspicious_paths": 0,
+      "error_requests": 16,
+      "observation_windows": 1,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "score": 1.0,
+      "reason_codes": [
+        "high_error_ratio",
+        "path_breadth"
       ],
       "status": {
         "type": "candidate"
@@ -372,7 +395,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -395,7 +418,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -418,7 +441,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -440,7 +463,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -483,7 +506,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -566,7 +589,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -588,7 +611,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -611,7 +634,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -633,7 +656,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -675,7 +698,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "path_breadth",
         "repeated_windows",
@@ -703,7 +726,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "path_breadth",
         "request_volume",
@@ -727,7 +750,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "path_breadth",
         "request_volume",
@@ -753,7 +776,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 2.0,
+      "score": 1.9859114583333333,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -778,7 +801,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -800,7 +823,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -823,7 +846,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9535445601851851,
+      "score": 0.9069068287037036,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -845,7 +868,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -867,7 +890,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -889,7 +912,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -912,7 +935,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -936,7 +959,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -958,7 +981,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -980,7 +1003,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1002,7 +1025,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "request_volume"
@@ -1025,7 +1048,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1047,7 +1070,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1091,7 +1114,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1113,7 +1136,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -1136,7 +1159,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1158,7 +1181,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1181,7 +1204,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1203,7 +1226,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1225,7 +1248,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -1247,10 +1270,32 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "34.82.198.78/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "score": 1.0,
+      "reason_codes": [
+        "high_error_ratio"
       ],
       "status": {
         "type": "candidate"
@@ -1270,7 +1315,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1293,7 +1338,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -1318,7 +1363,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -1360,7 +1405,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1383,7 +1428,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1405,7 +1450,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -1450,7 +1495,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -1472,7 +1517,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1495,7 +1540,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1539,7 +1584,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1561,7 +1606,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1584,7 +1629,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1607,7 +1652,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -1630,7 +1675,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1652,7 +1697,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1675,7 +1720,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 6.789056712962962,
+      "score": 6.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -1692,15 +1737,15 @@
     },
     "38.55.104.199/32": {
       "schema_version": 2,
-      "first_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_evaluated": "2026-07-19T13:54:05.169316204Z",
-      "observed_requests": 8441,
-      "weighted_requests": 14269.086904761902,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 8522,
+      "weighted_requests": 14350.086904761902,
       "distinct_paths": 114,
       "suspicious_paths": 0,
       "error_requests": 593,
-      "observation_windows": 24,
+      "observation_windows": 25,
       "source_zones": [
         "61b19bc9cc4c13a46886913ec6264491",
         "62fd0773983bcaa43d1362cbcbf484f8",
@@ -1731,7 +1776,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1754,7 +1799,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1777,7 +1822,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1799,7 +1844,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1821,7 +1866,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1843,7 +1888,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9067968750000001,
+      "score": 0.8445746527777778,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1865,7 +1910,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1887,7 +1932,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1909,7 +1954,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1931,7 +1976,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -1954,7 +1999,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -1976,7 +2021,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 6.789056712962962,
+      "score": 6.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -2005,7 +2050,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2027,7 +2072,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2050,7 +2095,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2072,7 +2117,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2094,7 +2139,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2117,7 +2162,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2140,7 +2185,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2183,7 +2228,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -2206,7 +2251,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -2229,7 +2274,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2251,7 +2296,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -2279,7 +2324,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2319,7 +2364,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2341,7 +2386,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2363,7 +2408,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2385,7 +2430,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2407,7 +2452,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2429,7 +2474,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2451,7 +2496,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2473,7 +2518,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2495,7 +2540,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2517,7 +2562,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2539,7 +2584,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2561,7 +2606,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2583,7 +2628,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2605,7 +2650,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2627,7 +2672,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2649,7 +2694,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2671,7 +2716,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2693,7 +2738,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2715,7 +2760,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2737,7 +2782,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2759,7 +2804,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2781,7 +2826,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2803,7 +2848,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -2826,7 +2871,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2848,7 +2893,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2870,7 +2915,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2892,7 +2937,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2914,7 +2959,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2936,7 +2981,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2958,7 +3003,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -2980,7 +3025,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3002,7 +3047,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3024,7 +3069,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -3047,7 +3092,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3069,7 +3114,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3091,7 +3136,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3113,7 +3158,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3135,7 +3180,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3157,7 +3202,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3179,7 +3224,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3201,7 +3246,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3223,7 +3268,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3245,7 +3290,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3267,7 +3312,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3289,7 +3334,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3311,7 +3356,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3333,7 +3378,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3355,7 +3400,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3377,7 +3422,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3399,7 +3444,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3421,7 +3466,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3443,7 +3488,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3465,7 +3510,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3487,7 +3532,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3509,7 +3554,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3531,7 +3576,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3553,7 +3598,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3575,7 +3620,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3597,7 +3642,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3619,7 +3664,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3641,7 +3686,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3663,7 +3708,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3685,7 +3730,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3707,7 +3752,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3729,7 +3774,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3751,7 +3796,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3773,7 +3818,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3795,7 +3840,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3817,7 +3862,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3839,7 +3884,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3861,7 +3906,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3883,7 +3928,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3905,7 +3950,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -3928,7 +3973,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3950,7 +3995,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3972,7 +4017,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -3994,7 +4039,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4016,7 +4061,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4038,7 +4083,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4060,7 +4105,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4082,7 +4127,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4104,7 +4149,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4126,7 +4171,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4148,7 +4193,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4170,7 +4215,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4192,7 +4237,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -4215,7 +4260,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4237,7 +4282,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4259,7 +4304,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4281,7 +4326,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4303,7 +4348,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4325,7 +4370,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4347,7 +4392,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4369,7 +4414,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -4392,7 +4437,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4414,7 +4459,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4436,7 +4481,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4458,7 +4503,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4480,7 +4525,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4502,7 +4547,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4524,7 +4569,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4546,7 +4591,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4568,7 +4613,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4590,7 +4635,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4612,7 +4657,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4634,7 +4679,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4656,7 +4701,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4678,7 +4723,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -4701,7 +4746,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -4729,7 +4774,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4752,7 +4797,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 6.789056712962962,
+      "score": 6.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -4782,7 +4827,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows",
@@ -4810,7 +4855,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "multiple_zones",
         "repeated_windows"
@@ -4833,7 +4878,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4855,7 +4900,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4877,7 +4922,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4899,7 +4944,7 @@
       "source_zones": [
         "61b19bc9cc4c13a46886913ec6264491"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -4921,7 +4966,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4943,7 +4988,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -4966,7 +5011,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -4988,7 +5033,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5010,7 +5055,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5033,7 +5078,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5055,7 +5100,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5077,7 +5122,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5100,7 +5145,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "path_breadth",
         "repeated_windows",
@@ -5124,7 +5169,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5146,7 +5191,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5168,7 +5213,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5190,7 +5235,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 2.789056712962963,
+      "score": 2.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -5215,7 +5260,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5238,7 +5283,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5284,7 +5329,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -5351,7 +5396,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -5374,7 +5419,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5397,7 +5442,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5439,7 +5484,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5461,7 +5506,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -5484,7 +5529,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -5508,7 +5553,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5530,7 +5575,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -5553,7 +5598,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5575,7 +5620,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -5599,7 +5644,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5622,7 +5667,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5644,7 +5689,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5672,6 +5717,28 @@
         "type": "candidate"
       }
     },
+    "66.132.186.195/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "score": 1.0,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
     "66.249.71.7/32": {
       "schema_version": 2,
       "first_seen": "2026-07-17T22:06:57.771072Z",
@@ -5686,7 +5753,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5748,7 +5815,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5771,7 +5838,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -5793,7 +5860,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 2.0,
+      "score": 1.9859114583333333,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -5816,7 +5883,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -5998,7 +6065,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -6022,7 +6089,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6045,7 +6112,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6067,7 +6134,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6089,7 +6156,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6112,7 +6179,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6135,7 +6202,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6157,7 +6224,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6179,7 +6246,29 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "87.236.176.128/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "score": 1.0,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6201,7 +6290,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6243,7 +6332,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "path_breadth",
         "repeated_windows",
@@ -6271,7 +6360,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 6.789056712962962,
+      "score": 6.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -6300,7 +6389,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -6324,7 +6413,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6347,7 +6436,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6370,7 +6459,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6392,7 +6481,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6415,7 +6504,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6437,7 +6526,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6459,7 +6548,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6481,7 +6570,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6503,7 +6592,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6526,7 +6615,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6549,7 +6638,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.8442534722222221,
+      "score": 1.766397569444444,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -6573,7 +6662,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6595,7 +6684,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6618,7 +6707,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6640,7 +6729,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6662,7 +6751,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6707,7 +6796,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6729,7 +6818,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6752,7 +6841,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6774,7 +6863,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -6796,7 +6885,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6818,7 +6907,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6840,7 +6929,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6863,7 +6952,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -6886,7 +6975,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6909,7 +6998,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -6931,7 +7020,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6954,7 +7043,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -6977,7 +7066,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -7066,7 +7155,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7088,7 +7177,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7110,7 +7199,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7132,7 +7221,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7154,7 +7243,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -7178,7 +7267,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -7202,7 +7291,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7224,7 +7313,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -7246,7 +7335,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7268,7 +7357,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -7291,7 +7380,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "multiple_zones",
         "repeated_windows"
@@ -7517,7 +7606,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -7541,7 +7630,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.9067968749999997,
+      "score": 1.8445746527777773,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -7584,7 +7673,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7606,7 +7695,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -7670,7 +7759,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -7693,7 +7782,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7715,7 +7804,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7737,7 +7826,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7759,7 +7848,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7867,7 +7956,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -7889,7 +7978,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -7912,7 +8001,7 @@
       "source_zones": [
         "61b19bc9cc4c13a46886913ec6264491"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "repeated_windows",
         "request_volume"
@@ -7923,15 +8012,15 @@
     },
     "124.230.55.211/32": {
       "schema_version": 2,
-      "first_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_evaluated": "2026-07-19T13:54:05.169316204Z",
-      "observed_requests": 3102,
-      "weighted_requests": 6372.669973173606,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 4096,
+      "weighted_requests": 8989.155595028387,
       "distinct_paths": 3,
       "suspicious_paths": 0,
-      "error_requests": 141,
-      "observation_windows": 7,
+      "error_requests": 240,
+      "observation_windows": 8,
       "source_zones": [
         "61b19bc9cc4c13a46886913ec6264491"
       ],
@@ -7958,7 +8047,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8000,7 +8089,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.844253472222222,
+      "score": 0.7663975694444443,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8022,7 +8111,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -8046,7 +8135,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 4.789056712962962,
+      "score": 4.700159143518517,
       "reason_codes": [
         "path_breadth",
         "request_volume",
@@ -8070,7 +8159,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8093,7 +8182,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8116,7 +8205,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -8138,7 +8227,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -8161,7 +8250,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8184,7 +8273,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8207,7 +8296,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8250,7 +8339,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 3.789056712962963,
+      "score": 3.7001591435185186,
       "reason_codes": [
         "suspicious_paths"
       ],
@@ -8272,7 +8361,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8295,7 +8384,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8317,7 +8406,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -8399,7 +8488,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8422,7 +8511,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8445,7 +8534,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8467,7 +8556,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8490,7 +8579,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8512,7 +8601,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.844253472222222,
+      "score": 0.7663975694444443,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8534,7 +8623,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8556,7 +8645,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9067968750000001,
+      "score": 0.8445746527777778,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8598,7 +8687,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8640,7 +8729,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8662,7 +8751,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8684,7 +8773,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8707,7 +8796,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "path_breadth",
         "repeated_windows",
@@ -8731,7 +8820,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8753,7 +8842,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8775,7 +8864,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8797,7 +8886,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8819,7 +8908,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8841,7 +8930,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8863,7 +8952,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8885,7 +8974,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8907,7 +8996,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -8929,7 +9018,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -8952,7 +9041,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -8975,7 +9064,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 2.906796875,
+      "score": 2.8445746527777778,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -9021,7 +9110,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9043,7 +9132,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 3.789056712962963,
+      "score": 3.7001591435185186,
       "reason_codes": [
         "suspicious_paths"
       ],
@@ -9065,7 +9154,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 2.789056712962963,
+      "score": 2.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -9090,7 +9179,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9113,7 +9202,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 2.789056712962963,
+      "score": 2.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -9156,7 +9245,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9178,7 +9267,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -9200,7 +9289,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -9242,7 +9331,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -9264,7 +9353,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9286,7 +9375,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9308,7 +9397,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9351,7 +9440,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9373,7 +9462,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -9397,7 +9486,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9419,7 +9508,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9441,7 +9530,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9463,7 +9552,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9526,7 +9615,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9548,7 +9637,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9570,7 +9659,29 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "172.235.197.86/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 1,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "score": 1.0,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9632,7 +9743,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9654,7 +9765,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9677,7 +9788,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 5.789056712962962,
+      "score": 5.700159143518517,
       "reason_codes": [
         "multiple_zones",
         "path_breadth",
@@ -9724,7 +9835,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9746,7 +9857,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9769,7 +9880,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9792,7 +9903,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9814,7 +9925,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9836,7 +9947,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -9860,7 +9971,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -9884,7 +9995,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9906,7 +10017,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9928,7 +10039,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9950,7 +10061,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.9067968749999997,
+      "score": 1.8445746527777773,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -9973,7 +10084,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -9995,7 +10106,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10037,7 +10148,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10113,7 +10224,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -10136,7 +10247,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9535445601851851,
+      "score": 0.9069068287037036,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10158,7 +10269,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -10180,7 +10291,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -10202,7 +10313,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10225,7 +10336,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10247,7 +10358,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10269,7 +10380,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10292,7 +10403,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10316,7 +10427,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.9535445601851853,
+      "score": 1.9069068287037039,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -10360,7 +10471,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10403,7 +10514,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10426,7 +10537,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10448,7 +10559,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -10492,7 +10603,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10514,7 +10625,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10536,7 +10647,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10558,7 +10669,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10620,7 +10731,29 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "199.45.154.140/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "62fd0773983bcaa43d1362cbcbf484f8"
+      ],
+      "score": 1.0,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10642,7 +10775,29 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
+      "reason_codes": [
+        "high_error_ratio"
+      ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "199.244.88.228/32": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 1,
+      "observation_windows": 1,
+      "source_zones": [
+        "f77a68ff7c108a02f26530608fc72e4c"
+      ],
+      "score": 1.0,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10664,7 +10819,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10706,7 +10861,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10728,7 +10883,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10751,7 +10906,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -10774,7 +10929,7 @@
       "source_zones": [
         "61b19bc9cc4c13a46886913ec6264491"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "request_volume"
@@ -10797,7 +10952,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10819,7 +10974,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -10943,7 +11098,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -10985,7 +11140,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11071,7 +11226,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11093,7 +11248,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11115,7 +11270,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11137,7 +11292,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11159,7 +11314,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11181,7 +11336,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11203,7 +11358,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -11266,7 +11421,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.0,
+      "score": 0.9859114583333334,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11288,7 +11443,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11310,7 +11465,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11352,7 +11507,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.844253472222222,
+      "score": 0.7663975694444443,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11374,7 +11529,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11396,7 +11551,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11418,7 +11573,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11468,15 +11623,15 @@
     },
     "216.73.216.252/32": {
       "schema_version": 2,
-      "first_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_evaluated": "2026-07-19T13:54:05.169316204Z",
-      "observed_requests": 7,
-      "weighted_requests": 7.0,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 9,
+      "weighted_requests": 9.0,
       "distinct_paths": 2,
       "suspicious_paths": 0,
-      "error_requests": 4,
-      "observation_windows": 4,
+      "error_requests": 5,
+      "observation_windows": 5,
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
@@ -11502,7 +11657,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11525,7 +11680,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -11537,21 +11692,21 @@
     },
     "216.73.217.24/32": {
       "schema_version": 2,
-      "first_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_evaluated": "2026-07-19T13:54:05.169316204Z",
-      "observed_requests": 1,
-      "weighted_requests": 1.0,
-      "distinct_paths": 1,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 3,
+      "weighted_requests": 3.0,
+      "distinct_paths": 2,
       "suspicious_paths": 0,
-      "error_requests": 1,
-      "observation_windows": 1,
+      "error_requests": 2,
+      "observation_windows": 2,
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
       "score": 1.0,
       "reason_codes": [
-        "high_error_ratio"
+        "repeated_windows"
       ],
       "status": {
         "type": "candidate"
@@ -11571,7 +11726,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11593,7 +11748,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11635,7 +11790,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11657,7 +11812,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11699,7 +11854,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9535445601851851,
+      "score": 0.9069068287037036,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11721,7 +11876,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11743,7 +11898,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11765,7 +11920,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -11788,7 +11943,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -11811,7 +11966,7 @@
         "62fd0773983bcaa43d1362cbcbf484f8",
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "multiple_zones",
@@ -11836,7 +11991,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -11859,7 +12014,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "path_breadth",
         "repeated_windows",
@@ -11883,7 +12038,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.9813628472222222,
+      "score": 0.9486342592592593,
       "reason_codes": [
         "repeated_windows"
       ],
@@ -11905,7 +12060,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -11929,7 +12084,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -11952,7 +12107,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -11975,11 +12130,31 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
       ],
+      "status": {
+        "type": "candidate"
+      }
+    },
+    "2406:da1e:13a:8a00:350:fad3:a641:c672/128": {
+      "schema_version": 2,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 1,
+      "weighted_requests": 1.0,
+      "distinct_paths": 1,
+      "suspicious_paths": 0,
+      "error_requests": 0,
+      "observation_windows": 1,
+      "source_zones": [
+        "61b19bc9cc4c13a46886913ec6264491"
+      ],
+      "score": 0.0,
+      "reason_codes": [],
       "status": {
         "type": "candidate"
       }
@@ -12018,7 +12193,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12060,7 +12235,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 6.789056712962962,
+      "score": 6.700159143518517,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth",
@@ -12089,7 +12264,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "path_breadth",
         "repeated_windows"
@@ -12112,7 +12287,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12134,7 +12309,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -12157,7 +12332,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12179,7 +12354,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12201,7 +12376,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -12224,7 +12399,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio",
         "path_breadth"
@@ -12255,15 +12430,15 @@
     },
     "2a06:98c0:3600::103/128": {
       "schema_version": 2,
-      "first_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_seen": "2026-07-19T13:54:05.169316204Z",
-      "last_evaluated": "2026-07-19T13:54:05.169316204Z",
-      "observed_requests": 309,
-      "weighted_requests": 309.0,
+      "first_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_seen": "2026-07-19T15:15:14.845025644Z",
+      "last_evaluated": "2026-07-19T15:15:14.845025644Z",
+      "observed_requests": 315,
+      "weighted_requests": 315.0,
       "distinct_paths": 3,
-      "suspicious_paths": 41,
-      "error_requests": 307,
-      "observation_windows": 24,
+      "suspicious_paths": 43,
+      "error_requests": 313,
+      "observation_windows": 25,
       "source_zones": [
         "199dca8f9ed5df9a61f21a81a8097ff4",
         "62fd0773983bcaa43d1362cbcbf484f8",
@@ -12298,7 +12473,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9535445601851851,
+      "score": 0.9069068287037036,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12340,7 +12515,7 @@
       "source_zones": [
         "62fd0773983bcaa43d1362cbcbf484f8"
       ],
-      "score": 0.9535445601851851,
+      "score": 0.9069068287037036,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12402,7 +12577,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -12425,7 +12600,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
@@ -12466,7 +12641,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12488,7 +12663,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12510,7 +12685,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12532,7 +12707,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 0.789056712962963,
+      "score": 0.7001591435185185,
       "reason_codes": [
         "high_error_ratio"
       ],
@@ -12576,7 +12751,7 @@
       "source_zones": [
         "f77a68ff7c108a02f26530608fc72e4c"
       ],
-      "score": 1.7890567129629633,
+      "score": 1.7001591435185186,
       "reason_codes": [
         "high_error_ratio",
         "repeated_windows"
