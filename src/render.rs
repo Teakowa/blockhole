@@ -15,14 +15,11 @@ pub fn render(
     let mut items = Vec::new();
     for (subject, record) in active {
         let comment = match record.status {
-            RecordStatus::PermanentBlocked { ref source, .. } => {
-                format!("source=permanent:{source}")
-            }
+            RecordStatus::PermanentBlocked { .. } => "blockhole:permanent:manual".to_string(),
             RecordStatus::TemporaryBlocked { expires_at, .. } => format!(
-                "score={}; reasons={}; expires={}",
-                record.score,
-                record.reason_codes.join(","),
-                expires_at.to_rfc3339()
+                "blockhole:auto:{}:expires={}",
+                record.reason_codes.join("+"),
+                expires_at.format("%Y-%m-%d")
             ),
             _ => continue,
         };

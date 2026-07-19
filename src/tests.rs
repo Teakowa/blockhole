@@ -247,3 +247,81 @@ fn render_writes_report_to_custom_path() {
     assert!(temp.join("custom/report.md").exists());
     let _ = std::fs::remove_dir_all(&temp);
 }
+
+#[test]
+fn render_formats_cloudflare_comments_correctly() {
+    let temp = std::env::temp_dir().join(format!(
+        "blockhole-render-comment-test-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&temp);
+    std::fs::create_dir_all(&temp).unwrap();
+    let now = Utc.with_ymd_and_hms(2026, 7, 20, 0, 0, 0).unwrap();
+    let mut state = state::empty();
+
+    let perm_ip = Subject::parse("192.0.2.10").unwrap();
+    state.records.insert(
+        perm_ip.clone(),
+        crate::models::IpRecord {
+            schema_version: crate::state::CURRENT_SCHEMA,
+            first_seen: now,
+            last_seen: now,
+            last_evaluated: now,
+            observed_requests: 0,
+            weighted_requests: 0.0,
+            distinct_paths: 0,
+            suspicious_paths: 0,
+            error_requests: 0,
+            observation_windows: 0,
+            source_zones: vec![],
+            score: 0.0,
+            reason_codes: vec!["manual_import".into()],
+            status: RecordStatus::PermanentBlocked {
+                imported_at: now,
+                source: "config/permanent-blocklist.txt".into(),
+                reason: None,
+                suppressed_by_allowlist: false,
+            },
+        },
+    );
+
+    let temp_ip = Subject::parse("192.0.2.20").unwrap();
+    let expires = Utc.with_ymd_and_hms(2026, 7, 22, 0, 0, 0).unwrap();
+    state.records.insert(
+        temp_ip.clone(),
+        crate::models::IpRecord {
+            schema_version: crate::state::CURRENT_SCHEMA,
+            first_seen: now,
+            last_seen: now,
+            last_evaluated: now,
+            observed_requests: 100,
+            weighted_requests: 100.0,
+            distinct_paths: 2,
+            suspicious_paths: 2,
+            error_requests: 90,
+            observation_windows: 1,
+            source_zones: vec!["zone".into()],
+            score: 6.0,
+            reason_codes: vec!["high_error_ratio".into(), "suspicious_paths".into()],
+            status: RecordStatus::TemporaryBlocked {
+                started_at: now,
+                expires_at: expires,
+                ttl_extensions: 0,
+            },
+        },
+    );
+
+    let report_path = PathBuf::from("reports/latest.md");
+    let desired = crate::render::render(&temp, &state, now, &report_path).unwrap();
+
+    let perm_item = desired.items.iter().find(|i| i.ip == perm_ip).unwrap();
+    assert_eq!(perm_item.comment, "blockhole:permanent:manual");
+
+    let temp_item = desired.items.iter().find(|i| i.ip == temp_ip).unwrap();
+    assert_eq!(
+        temp_item.comment,
+        "blockhole:auto:high_error_ratio+suspicious_paths:expires=2026-07-22"
+    );
+
+    let _ = std::fs::remove_dir_all(&temp);
+}
