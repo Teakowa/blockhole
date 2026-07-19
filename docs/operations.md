@@ -22,6 +22,11 @@ does not cancel an active run, and keeps manual dry-run available.
 5. Scheduled runs enforce the configured policy by default; set the manual
    `dry_run` input to `true` when a manual run must not write Cloudflare.
 
+The CI workflow builds the Linux `blockhole` release binary and uploads it as
+an artifact. The scheduled workflow downloads the successful artifact for the
+current `main` commit and executes it directly; scheduled runs do not install
+Rust or compile the CLI.
+
 The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics
 checkpoint and ends at the current time. This makes hourly runs collect only

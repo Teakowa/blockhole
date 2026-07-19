@@ -124,12 +124,12 @@ fn v1_state_migrates_to_v2_status() {
 
 #[test]
 fn analytics_parser_strips_query_and_preserves_sampling() {
-    let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":10},"count":3}]}]}}}"#;
+    let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":1.5},"count":3}]}]}}}"#;
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let observations =
         analytics::parse(payload, "zone", now, &[r"(^|/)\.env($|/)".into()]).unwrap();
     assert_eq!(observations[0].paths, vec!["/.env"]);
-    assert_eq!(observations[0].weighted_requests, 30.0);
+    assert_eq!(observations[0].weighted_requests, 4.5);
     assert!(observations[0].sampled);
 }
 

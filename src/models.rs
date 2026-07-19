@@ -58,7 +58,7 @@ pub struct Observation {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub sampled: bool,
-    pub sample_interval: Option<u64>,
+    pub sample_interval: Option<f64>,
     pub fingerprint: String,
 }
 

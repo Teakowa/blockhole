@@ -49,7 +49,7 @@ struct Dimensions {
 #[derive(Deserialize)]
 struct Average {
     #[serde(rename = "sampleInterval")]
-    sample_interval: Option<u64>,
+    sample_interval: Option<f64>,
 }
 pub fn parse(
     payload: &str,
@@ -86,8 +86,8 @@ pub fn parse(
             .map_err(|e| BlockholeError::Cloudflare(e.to_string()))?
             .path()
             .to_string();
-            let interval = row.avg.and_then(|a| a.sample_interval).unwrap_or(1);
-            if interval == 0 {
+            let interval = row.avg.and_then(|a| a.sample_interval).unwrap_or(1.0);
+            if !interval.is_finite() || interval <= 0.0 {
                 return Err(BlockholeError::Cloudflare("invalid sample interval".into()));
             }
             let suspicious = patterns
@@ -107,7 +107,7 @@ pub fn parse(
                 zone_id: zone_id.into(),
                 observed_at,
                 observed_requests: row.count,
-                weighted_requests: row.count as f64 * interval as f64,
+                weighted_requests: row.count as f64 * interval,
                 paths: vec![path],
                 suspicious_paths: u64::from(suspicious),
                 error_requests: if row.dimensions.status >= 400 {
@@ -115,8 +115,8 @@ pub fn parse(
                 } else {
                     0
                 },
-                sampled: interval > 1,
-                sample_interval: (interval > 1).then_some(interval),
+                sampled: interval > 1.0,
+                sample_interval: (interval > 1.0).then_some(interval),
                 fingerprint,
             })
         })

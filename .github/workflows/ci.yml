@@ -24,3 +24,12 @@ jobs:
           cargo fmt --check
           cargo clippy --all-targets --all-features -- -D warnings
           cargo test
+      - name: Build release CLI
+        run: cargo build --release --locked
+      - name: Upload release CLI
+        uses: actions/upload-artifact@v4
+        with:
+          name: blockhole-linux-x86_64
+          path: target/release/blockhole
+          if-no-files-found: error
+          retention-days: 90
