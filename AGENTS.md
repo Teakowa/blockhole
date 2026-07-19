@@ -1,5 +1,11 @@
 # Agent and contributor guide
 
+This is the canonical project specification. Agent-specific entry files
+(`CLAUDE.md`, `GEMINI.md`) reference this document and add only
+agent-specific workflow directives. Update this file first; update an
+agent entry file only when the content is specific to that agent's
+capabilities or interaction model.
+
 ## Project boundaries
 
 Blockhole is a Rust CLI run by GitHub Actions. It reads Cloudflare Security
@@ -13,6 +19,54 @@ denylist, and reconciles one Cloudflare Custom IP List.
   separate and typed.
 - Keep automatic enforcement in `dry-run` until the maintainer explicitly
   enables it.
+
+## Architecture
+
+```text
+config/policy.toml ──► src/config.rs      (parse + validate)
+                       src/analytics.rs   (GraphQL query builder)
+                       src/http.rs        (Cloudflare HTTP client)
+                       src/models.rs      (shared data types)
+                       src/policy.rs      (scoring + evaluation)
+                       src/lifecycle.rs   (state machine transitions)
+                       src/state.rs       (state I/O + schema migration)
+                       src/render.rs      (deterministic output files)
+                       src/sync.rs        (Cloudflare list reconciliation)
+                       src/main.rs        (CLI + orchestration)
+                       src/error.rs       (error types)
+                       src/tests.rs       (unit + integration tests)
+```
+
+### Module responsibilities
+
+| Module          | Responsibility                                              |
+|-----------------|-------------------------------------------------------------|
+| `config`        | Parse `policy.toml`, validate thresholds, expose typed config |
+| `analytics`     | Build Cloudflare GraphQL queries, deserialize responses     |
+| `http`          | Rate-limited Cloudflare HTTP client with `Retry-After`      |
+| `models`        | Shared structs: `IpRecord`, `AnalyticsRow`, scores          |
+| `policy`        | Scoring rules, threshold evaluation, signal combination     |
+| `lifecycle`     | State machine: candidate → blocked → cooldown → expired     |
+| `state`         | Schema-versioned JSON state I/O, atomic writes, migration   |
+| `render`        | Deterministic `blacklist.txt`, `cloudflare-list.json`, report |
+| `sync`          | Reconcile desired list against remote Cloudflare list       |
+| `main`          | CLI argument parsing, subcommand orchestration              |
+| `error`         | Unified error type                                          |
+| `tests`         | Unit and integration tests with mock fixtures               |
+
+### Runtime data flow
+
+```text
+Cloudflare Analytics → collect → evaluate (policy + lifecycle) → state.json
+state.json → render → dist/blacklist.txt + dist/cloudflare-list.json
+state.json + cloudflare-list.json → sync → Cloudflare Custom IP List
+```
+
+### Branch model
+
+- `main` — code, configuration, workflows, documentation.
+- `blacklist-state` (orphan) — `data/state.json`, `dist/`, `reports/latest.md`.
+  CI does not read this branch; tests use temporary fixtures.
 
 ## Safety requirements
 
@@ -43,7 +97,17 @@ denylist, and reconciles one Cloudflare Custom IP List.
 - Do not commit secrets or raw request data.
 - Keep changes narrow and update documentation when public behavior changes.
 
+## Development workflow
+
+1. Understand the task — read the relevant docs and source before editing.
+2. Make the smallest correct change — one concern per commit.
+3. Run all required checks before marking work as done.
+4. Update documentation when public behavior or CLI surface changes.
+5. Do not introduce new dependencies without explicit maintainer approval.
+
 ## Required checks
+
+All three must pass before a change is considered complete:
 
 ```bash
 cargo fmt --check
@@ -51,3 +115,10 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo test
 ```
 
+## Completion standards
+
+- All required checks pass.
+- No new warnings from `clippy`.
+- Tests cover the changed behavior; new logic has new tests.
+- Documentation updated if public behavior, CLI, or configuration changed.
+- Commit messages are concise and describe **why**, not just what.
