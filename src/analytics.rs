@@ -4,7 +4,7 @@ use crate::{
     models::{Observation, Subject},
 };
 use chrono::{DateTime, Utc};
-use regex::Regex;
+use regex::RegexSet;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -55,7 +55,7 @@ pub fn parse(
     payload: &str,
     zone_id: &str,
     observed_at: DateTime<Utc>,
-    patterns: &[String],
+    pattern_set: &RegexSet,
 ) -> Result<Vec<Observation>> {
     let payload: Payload = serde_json::from_str(payload)?;
     if let Some(errors) = payload.errors {
@@ -90,9 +90,7 @@ pub fn parse(
             if !interval.is_finite() || interval <= 0.0 {
                 return Err(BlockholeError::Cloudflare("invalid sample interval".into()));
             }
-            let suspicious = patterns
-                .iter()
-                .any(|p| Regex::new(p).map(|r| r.is_match(&path)).unwrap_or(false));
+            let suspicious = pattern_set.is_match(&path);
             let mut hasher = Sha256::new();
             hasher.update(
                 format!(
@@ -129,7 +127,7 @@ pub fn collect(
     zone: &str,
     start: DateTime<Utc>,
     end: DateTime<Utc>,
-    patterns: &[String],
+    pattern_set: &RegexSet,
 ) -> Result<Vec<Observation>> {
     let body = serde_json::json!({"query": QUERY, "variables": {"zone": zone, "start": start.to_rfc3339(), "end": end.to_rfc3339()}});
     let response = request(client, reqwest::Method::POST, url, retries, Some(body))?;
@@ -139,5 +137,5 @@ pub fn collect(
             response.status()
         )));
     }
-    parse(&response.text()?, zone, end, patterns)
+    parse(&response.text()?, zone, end, pattern_set)
 }

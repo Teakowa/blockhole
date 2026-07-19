@@ -4,6 +4,10 @@ use thiserror::Error;
 pub enum BlockholeError {
     #[error("configuration error: {0}")]
     Configuration(String),
+    #[error("missing required environment variable: {var}")]
+    MissingEnvVar { var: &'static str },
+    #[error("unsupported schema version {version}, expected {expected}")]
+    UnsupportedSchema { version: u32, expected: u32 },
     #[error("state error: {0}")]
     State(String),
     #[error("policy error: {0}")]

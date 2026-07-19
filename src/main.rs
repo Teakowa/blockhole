@@ -1,5 +1,6 @@
 use blockhole::{
-    analytics, config,
+    analytics,
+    config::{self, RunMode},
     error::{BlockholeError, Result},
     lifecycle,
     models::Observation,
@@ -114,16 +115,6 @@ fn validate(root: &Path) -> Result<()> {
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
     let st = state::load(&settings.root.join("data/state.json"))?;
-    if settings.mode != "dry-run" && settings.mode != "enforce" {
-        return Err(BlockholeError::Configuration(
-            "policy mode must be dry-run or enforce".into(),
-        ));
-    }
-    if settings.lookback_hours <= settings.overlap_hours {
-        return Err(BlockholeError::Configuration(
-            "lookback_hours must exceed overlap_hours".into(),
-        ));
-    }
     println!(
         "valid: {} allowlist entries, {} permanent entries, {} state records",
         allow.len(),
@@ -158,19 +149,32 @@ fn collect(
     }
     let (token, _, _) = config::credentials()?;
     let client = authenticated_client(token)?;
-    let mut all = Vec::new();
-    for zone in &settings.zone_ids {
-        all.extend(analytics::collect(
-            &client,
-            &settings.graphql_url,
-            settings.max_retries,
-            zone,
-            start,
-            end,
-            &settings.suspicious_path_patterns,
-        )?);
-    }
-    Ok(all)
+    std::thread::scope(|s| {
+        let handles: Vec<_> = settings
+            .zone_ids
+            .iter()
+            .map(|zone| {
+                s.spawn(|| {
+                    analytics::collect(
+                        &client,
+                        &settings.graphql_url,
+                        settings.max_retries,
+                        zone,
+                        start,
+                        end,
+                        &settings.suspicious_path_set,
+                    )
+                })
+            })
+            .collect();
+        let mut all = Vec::new();
+        for handle in handles {
+            all.extend(handle.join().map_err(|_| {
+                BlockholeError::Cloudflare("zone collection thread panicked".into())
+            })??);
+        }
+        Ok(all)
+    })
 }
 fn evaluate(root: &Path, observations: &[Observation]) -> Result<()> {
     evaluate_at(root, observations, Utc::now())
@@ -203,16 +207,13 @@ fn evaluate_at(
         );
         st.records.insert(subject, record);
     }
-    let keys: Vec<_> = st.records.keys().cloned().collect();
-    for subject in keys {
-        if let Some(record) = st.records.get_mut(&subject) {
-            lifecycle::apply(
-                record,
-                &settings,
-                checkpoint,
-                policy::is_allowlisted(&subject, &allow),
-            );
-        }
+    for (subject, record) in &mut st.records {
+        lifecycle::apply(
+            record,
+            &settings,
+            checkpoint,
+            policy::is_allowlisted(subject, &allow),
+        );
     }
     st.checkpoints.insert("analytics".into(), checkpoint);
     state::write(&root.join("data/state.json"), &st)
@@ -240,7 +241,7 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
         diff.removals.len(),
         diff.changes.len()
     );
-    if !dry_run && settings.mode != "dry-run" && !diff.identical() {
+    if !dry_run && settings.mode != RunMode::DryRun && !diff.identical() {
         lists.replace(&desired, actual.len(), allow_empty)?;
     }
     Ok(())

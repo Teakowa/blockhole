@@ -22,8 +22,9 @@ impl ListDiff {
     }
 }
 pub fn diff(desired: &DesiredList, actual: &[CloudflareItem]) -> ListDiff {
-    let want: BTreeMap<_, _> = desired.items.iter().map(|i| (i.ip.clone(), i)).collect();
-    let have: BTreeMap<_, _> = actual.iter().map(|i| (i.ip.clone(), i)).collect();
+    let want: BTreeMap<&Subject, &CloudflareItem> =
+        desired.items.iter().map(|i| (&i.ip, i)).collect();
+    let have: BTreeMap<&Subject, &CloudflareItem> = actual.iter().map(|i| (&i.ip, i)).collect();
     ListDiff {
         additions: want
             .iter()
@@ -33,7 +34,7 @@ pub fn diff(desired: &DesiredList, actual: &[CloudflareItem]) -> ListDiff {
         removals: have
             .keys()
             .filter(|k| !want.contains_key(*k))
-            .cloned()
+            .map(|k| (*k).clone())
             .collect(),
         changes: want
             .iter()

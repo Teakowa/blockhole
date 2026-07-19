@@ -1,16 +1,17 @@
 use crate::{
     analytics,
-    config::{Settings, Thresholds, Weights},
+    config::{RunMode, Settings, Thresholds, Weights},
     models::{Observation, RecordStatus, Subject},
     policy, state, sync,
 };
 use chrono::{TimeZone, Utc};
 use proptest::prelude::*;
+use regex::RegexSet;
 use std::path::PathBuf;
 fn settings() -> Settings {
     Settings {
         root: PathBuf::from("."),
-        mode: "dry-run".into(),
+        mode: RunMode::DryRun,
         lookback_hours: 24,
         overlap_hours: 2,
         block_ttl_hours: 72,
@@ -33,6 +34,7 @@ fn settings() -> Settings {
             multiple_zones: 0.0,
         },
         suspicious_path_patterns: vec![],
+        suspicious_path_set: RegexSet::empty(),
         graphql_url: "".into(),
         api_base_url: "".into(),
         max_retries: 3,
@@ -126,8 +128,8 @@ fn v1_state_migrates_to_v2_status() {
 fn analytics_parser_strips_query_and_preserves_sampling() {
     let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":1.5},"count":3}]}]}}}"#;
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-    let observations =
-        analytics::parse(payload, "zone", now, &[r"(^|/)\.env($|/)".into()]).unwrap();
+    let pattern_set = RegexSet::new([r"(^|/)\.env($|/)"]).unwrap();
+    let observations = analytics::parse(payload, "zone", now, &pattern_set).unwrap();
     assert_eq!(observations[0].paths, vec!["/.env"]);
     assert_eq!(observations[0].weighted_requests, 4.5);
     assert!(observations[0].sampled);
@@ -160,4 +162,23 @@ fn empty_list_fuse_rejects_non_empty_remote_without_request() {
         result,
         Err(crate::error::BlockholeError::Safety(_))
     ));
+}
+
+proptest! {
+    #[test]
+    fn diff_against_self_is_identical(
+        comments in prop::collection::vec("[a-z0-9]{1,10}", 0..20)
+    ) {
+        let items: Vec<crate::models::CloudflareItem> = comments
+            .into_iter()
+            .enumerate()
+            .map(|(idx, comment)| crate::models::CloudflareItem {
+                ip: Subject::parse(&format!("192.0.2.{}", (idx % 250) + 1)).unwrap(),
+                comment,
+            })
+            .collect();
+        let desired = crate::models::DesiredList { items: items.clone() };
+        let result = sync::diff(&desired, &items);
+        prop_assert!(result.identical());
+    }
 }
