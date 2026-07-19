@@ -31,8 +31,16 @@ def load_allowlist(path: str) -> tuple[ipaddress.IPv4Network | ipaddress.IPv6Net
 def is_allowlisted(
     ip: str, networks: tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...]
 ) -> bool:
-    address = ipaddress.ip_address(ip)
-    return any(address in network for network in networks)
+    address = ipaddress.ip_network(ip, strict=False)
+    if isinstance(address, ipaddress.IPv4Network):
+        return any(
+            isinstance(network, ipaddress.IPv4Network) and address.subnet_of(network)
+            for network in networks
+        )
+    return any(
+        isinstance(network, ipaddress.IPv6Network) and address.subnet_of(network)
+        for network in networks
+    )
 
 
 def evaluate_observations(

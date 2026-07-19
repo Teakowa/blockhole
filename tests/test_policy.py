@@ -31,6 +31,7 @@ def test_ip_normalization_and_cidr_allowlist() -> None:
 
     assert normalize_ip(" 192.0.2.1 ") == "192.0.2.1"
     assert is_allowlisted("192.0.2.1", (ipaddress.ip_network("192.0.2.0/24"),))
+    assert is_allowlisted("192.0.2.0/25", (ipaddress.ip_network("192.0.2.0/24"),))
 
 
 def test_multiple_signals_are_required_for_block() -> None:
