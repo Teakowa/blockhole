@@ -1,51 +1,31 @@
 {
   "items": [
     {
-      "comment": "score=8; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00",
+      "comment": "score=6; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00",
       "ip": "3.96.166.235"
     },
     {
-      "comment": "score=9; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "20.206.89.130"
     },
     {
-      "comment": "score=7; reasons=path_breadth,request_volume,suspicious_paths; expires=2026-07-21T15:15:57.542244+00:00",
-      "ip": "20.206.105.145"
-    },
-    {
-      "comment": "score=7; reasons=multiple_zones,path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
-      "ip": "23.27.0.61"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "34.124.151.220"
-    },
-    {
-      "comment": "score=10; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "36.40.86.106"
     },
     {
-      "comment": "score=7; reasons=multiple_zones,path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
-      "ip": "38.55.104.199"
-    },
-    {
-      "comment": "score=10; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "43.161.196.238"
     },
     {
-      "comment": "score=8; reasons=high_error_ratio,path_breadth,repeated_windows,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=6; reasons=high_error_ratio,path_breadth,repeated_windows,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "45.45.237.69"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "45.92.1.180"
-    },
-    {
-      "comment": "score=8; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T03:32:28.100587+00:00",
+      "comment": "score=6; reasons=high_error_ratio,path_breadth,request_volume,suspicious_paths; expires=2026-07-21T03:32:28.100587+00:00",
       "ip": "45.148.10.51"
     },
     {
-      "comment": "score=11; reasons=high_error_ratio,multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T17:26:19+00:00",
+      "comment": "score=7; reasons=high_error_ratio,multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T17:26:19+00:00",
       "ip": "45.148.10.67"
     },
     {
@@ -53,88 +33,24 @@
       "ip": "45.148.10.120"
     },
     {
-      "comment": "score=3; reasons=high_error_ratio,repeated_windows; expires=2026-07-20T17:26:19+00:00",
-      "ip": "47.254.46.30"
-    },
-    {
-      "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
-      "ip": "51.159.108.219"
-    },
-    {
-      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume; expires=2026-07-21T18:10:14.953870+00:00",
-      "ip": "51.255.160.62"
-    },
-    {
-      "comment": "score=6; reasons=high_error_ratio,path_breadth,suspicious_paths; expires=2026-07-21T06:52:33.449812+00:00",
-      "ip": "82.39.206.121"
-    },
-    {
-      "comment": "score=9; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "91.92.42.86"
     },
     {
-      "comment": "score=8; reasons=high_error_ratio,path_breadth,repeated_windows,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "91.148.244.131"
     },
     {
-      "comment": "score=7; reasons=path_breadth,request_volume,suspicious_paths; expires=2026-07-20T23:08:45.839889+00:00",
-      "ip": "132.196.11.13"
-    },
-    {
-      "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
-      "ip": "154.37.69.70"
-    },
-    {
-      "comment": "score=6; reasons=high_error_ratio,multiple_zones,path_breadth,repeated_windows; expires=2026-07-21T18:10:14.953870+00:00",
-      "ip": "157.143.3.35"
-    },
-    {
-      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume; expires=2026-07-20T17:26:19+00:00",
-      "ip": "159.89.207.20"
-    },
-    {
-      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume; expires=2026-07-20T17:26:19+00:00",
-      "ip": "159.223.62.250"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "159.223.94.35"
-    },
-    {
-      "comment": "score=10; reasons=multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=6; reasons=multiple_zones,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "178.16.54.137"
     },
     {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "178.22.106.230"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "185.177.72.0/24"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "185.177.72.22"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "185.177.72.50"
-    },
-    {
-      "comment": "score=6; reasons=path_breadth,repeated_windows,request_volume; expires=2026-07-20T19:33:27.786478+00:00",
-      "ip": "2001:bc8:1f90:22:da5e:d3ff:fe43:f7e4"
-    },
-    {
-      "comment": "score=10; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=7; reasons=high_error_ratio,path_breadth,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "2602:fa59:10:172::1"
     },
     {
-      "comment": "score=9; reasons=high_error_ratio,multiple_zones,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
+      "comment": "score=7; reasons=high_error_ratio,multiple_zones,repeated_windows,request_volume,suspicious_paths; expires=2026-07-20T19:33:27.786478+00:00",
       "ip": "2a06:98c0:3600::103"
-    },
-    {
-      "comment": "score=0; reasons=manual_import; expires=2026-07-20T17:26:19+00:00",
-      "ip": "2a09:bac1:5500::49b:38"
     }
   ]
 }
