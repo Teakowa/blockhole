@@ -26,7 +26,7 @@ jobs:
       - name: Build release CLI
         run: cargo build --release --locked
       - name: Cache release binary
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: target/release/blockhole
           key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
@@ -62,7 +62,7 @@ jobs:
       - name: Restore cached binary
         if: steps.check.outputs.exists == 'false'
         id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: target/release/blockhole
           key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}

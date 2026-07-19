@@ -52,7 +52,7 @@ jobs:
           git archive "origin/${STATE_BRANCH}" -- data/state.json dist reports/latest.md | tar -x
       - name: Restore cached CLI
         id: cli-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: target/release/blockhole
           key: blockhole-linux-x86_64-${{ hashFiles('Cargo.lock', 'src/**', 'Cargo.toml') }}
