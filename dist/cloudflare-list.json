@@ -5,22 +5,6 @@
       "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-21"
     },
     {
-      "ip": "20.206.89.130/32",
-      "comment": "blockhole:auto:path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "36.40.86.106/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "43.161.196.238/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "45.45.237.69/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+suspicious_paths:expires=2026-07-20"
-    },
-    {
       "ip": "45.148.10.51/32",
       "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-21"
     },
@@ -31,26 +15,6 @@
     {
       "ip": "45.148.10.95/32",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-23"
-    },
-    {
-      "ip": "91.92.42.86/32",
-      "comment": "blockhole:auto:path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "91.148.244.131/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "178.16.54.137/32",
-      "comment": "blockhole:auto:multiple_zones+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "2602:fa59:10:172::1/128",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
-    },
-    {
-      "ip": "2a06:98c0:3600::103/128",
-      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
     }
   ]
 }
