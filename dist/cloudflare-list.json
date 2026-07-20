@@ -29,6 +29,10 @@
       "comment": "blockhole:permanent:manual"
     },
     {
+      "ip": "45.148.10.95/32",
+      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-23"
+    },
+    {
       "ip": "91.92.42.86/32",
       "comment": "blockhole:auto:path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-20"
     },
