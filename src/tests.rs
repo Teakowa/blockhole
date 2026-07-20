@@ -4,7 +4,7 @@ use crate::{
     models::{Observation, RecordStatus, Subject},
     policy, state, sync,
 };
-use chrono::{TimeZone, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use proptest::prelude::*;
 use regex::RegexSet;
 use std::path::PathBuf;
@@ -43,18 +43,10 @@ fn settings() -> Settings {
         zone_ids: vec!["zone".into()],
     }
 }
-#[test]
-fn ip_and_cidr_are_canonical_and_allowlist_is_family_safe() {
-    let ip = Subject::parse(" 192.0.2.1 ").unwrap();
-    assert_eq!(ip.to_string(), "192.0.2.1/32");
-    let network = Subject::parse("192.0.2.0/24").unwrap();
-    assert!(network.contains(&ip));
-    assert!(!network.contains(&Subject::parse("2001:db8::1").unwrap()));
-}
-#[test]
-fn two_signals_and_scanning_block() {
-    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-    let obs = Observation {
+
+/// Helper: create a blocking observation (crosses all thresholds).
+fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
+    Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
         zone_id: "zone".into(),
         observed_at: now,
@@ -66,8 +58,22 @@ fn two_signals_and_scanning_block() {
         sampled: false,
         sample_interval: None,
         fingerprint: "x".into(),
-    };
-    let record = policy::evaluate(&[obs], None, &settings(), now).unwrap();
+    }
+}
+
+#[test]
+fn ip_and_cidr_are_canonical_and_allowlist_is_family_safe() {
+    let ip = Subject::parse(" 192.0.2.1 ").unwrap();
+    assert_eq!(ip.to_string(), "192.0.2.1/32");
+    let network = Subject::parse("192.0.2.0/24").unwrap();
+    assert!(network.contains(&ip));
+    assert!(!network.contains(&Subject::parse("2001:db8::1").unwrap()));
+}
+#[test]
+fn two_signals_and_scanning_block() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let obs = blocking_obs(now);
+    let record = crate::lifecycle::transition(None, &[obs], &settings(), now, false).unwrap();
     assert!(matches!(
         record.status,
         RecordStatus::TemporaryBlocked { .. }
@@ -89,7 +95,7 @@ fn one_scanning_path_stays_candidate() {
         sample_interval: None,
         fingerprint: "x".into(),
     };
-    let record = policy::evaluate(&[obs], None, &settings(), now).unwrap();
+    let record = crate::lifecycle::transition(None, &[obs], &settings(), now, false).unwrap();
     assert!(matches!(record.status, RecordStatus::Candidate));
 }
 proptest! { #[test] fn canonicalization_is_idempotent(value in "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}") { if let Ok(first) = Subject::parse(&value) { let second = Subject::parse(&first.to_string()).unwrap(); prop_assert_eq!(first, second); } } }
@@ -103,11 +109,12 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
     policy::merge_permanent(&mut current, std::slice::from_ref(&subject), now);
 
     // Initially not suppressed
-    let record = current.records.get_mut(&subject).unwrap();
+    let record = current.records.get(&subject).unwrap();
     let is_allowlisted = policy::is_allowlisted(&subject, std::slice::from_ref(&allowlist_net));
     assert!(is_allowlisted);
 
-    crate::lifecycle::apply(record, &settings(), now, is_allowlisted);
+    let record =
+        crate::lifecycle::transition(Some(record), &[], &settings(), now, is_allowlisted).unwrap();
 
     // Should remain PermanentBlocked but with suppressed_by_allowlist = true
     if let RecordStatus::PermanentBlocked {
@@ -121,12 +128,13 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
     }
 
     // Active list should exclude suppressed permanent block
+    current.records.insert(subject.clone(), record);
     let active_records = crate::lifecycle::active(&current.records, now);
     assert!(!active_records.contains_key(&subject));
 
     // When allowlist entry is removed
-    let record = current.records.get_mut(&subject).unwrap();
-    crate::lifecycle::apply(record, &settings(), now, false);
+    let record = current.records.get(&subject).unwrap();
+    let record = crate::lifecycle::transition(Some(record), &[], &settings(), now, false).unwrap();
     if let RecordStatus::PermanentBlocked {
         suppressed_by_allowlist,
         ..
@@ -138,6 +146,7 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
     }
 
     // Active list should now include restored permanent block
+    current.records.insert(subject.clone(), record);
     let active_records = crate::lifecycle::active(&current.records, now);
     assert!(active_records.contains_key(&subject));
 }
@@ -324,4 +333,91 @@ fn render_formats_cloudflare_comments_correctly() {
     );
 
     let _ = std::fs::remove_dir_all(&temp);
+}
+
+// ---------------------------------------------------------------------------
+// Decay regression tests
+// ---------------------------------------------------------------------------
+
+#[test]
+fn decay_advances_last_evaluated() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::days(1);
+    let s = settings();
+    let record = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+    assert_eq!(record.last_evaluated, t0);
+
+    // Decay without new observations.
+    let decayed = crate::lifecycle::transition(Some(&record), &[], &s, t1, false).unwrap();
+    assert_eq!(decayed.last_evaluated, t1);
+
+    let expected = (record.score - 1.0 * s.score_decay_per_day).max(0.0);
+    let expected = (expected * 10_000.0).round() / 10_000.0;
+    assert_eq!(decayed.score, expected);
+}
+
+#[test]
+fn decay_is_idempotent_at_same_time() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::days(1);
+    let s = settings();
+    let record = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+
+    let first = crate::lifecycle::transition(Some(&record), &[], &s, t1, false).unwrap();
+    let second = crate::lifecycle::transition(Some(&first), &[], &s, t1, false).unwrap();
+
+    assert_eq!(first.score, second.score);
+    assert_eq!(first.last_evaluated, second.last_evaluated);
+}
+
+#[test]
+fn decay_is_additive_not_cumulative() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::days(1);
+    let t2 = t0 + Duration::days(2);
+    let s = settings();
+    let record = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+
+    let after_1 = crate::lifecycle::transition(Some(&record), &[], &s, t1, false).unwrap();
+    let after_2 = crate::lifecycle::transition(Some(&after_1), &[], &s, t2, false).unwrap();
+
+    // Total decay must be exactly 2 days × rate, not 3 (= 1 + 2).
+    let expected = (record.score - 2.0 * s.score_decay_per_day).max(0.0);
+    let expected = (expected * 10_000.0).round() / 10_000.0;
+    assert_eq!(after_2.score, expected);
+}
+
+#[test]
+fn observations_do_not_suppress_decay() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::days(1);
+    let s = settings();
+    let record = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+
+    // At t1, provide a small new observation (doesn't change which signals fire
+    // except repeated_windows kicks in, raising the raw score from 6.0 to 7.0).
+    let obs2 = Observation {
+        ip: Subject::parse("192.0.2.1").unwrap(),
+        zone_id: "zone".into(),
+        observed_at: t1,
+        observed_requests: 1,
+        weighted_requests: 1.0,
+        paths: vec!["/c".into()],
+        suspicious_paths: 0,
+        error_requests: 0,
+        sampled: false,
+        sample_interval: None,
+        fingerprint: "y".into(),
+    };
+    let with_obs = crate::lifecycle::transition(Some(&record), &[obs2], &s, t1, false).unwrap();
+
+    // Raw score with new obs = 7.0 (repeated_windows now satisfied).
+    // Decay: 1 day × 0.25 = 0.25 → expected score = 6.75.
+    // Without the fix, decay would be zero (old bug) and score would be 7.0.
+    assert!(
+        with_obs.score < 7.0,
+        "decay must apply even with new observations (got {})",
+        with_obs.score
+    );
+    assert_eq!(with_obs.score, 6.75);
 }

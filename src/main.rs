@@ -88,7 +88,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&observations)?);
             Ok(())
         }
-        Command::Evaluate => evaluate(&root, &[]),
+        Command::Evaluate => evaluate_at(&root, &[], Utc::now()),
         Command::Render { report_path } => {
             let settings = config::load(&root)?;
             let st = state::load(&settings.root.join("data/state.json"))?;
@@ -181,9 +181,6 @@ fn collect(
         Ok(all)
     })
 }
-fn evaluate(root: &Path, observations: &[Observation]) -> Result<()> {
-    evaluate_at(root, observations, Utc::now())
-}
 fn evaluate_at(
     root: &Path,
     observations: &[Observation],
@@ -194,6 +191,7 @@ fn evaluate_at(
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
     policy::merge_permanent(&mut st, &permanent, checkpoint);
+
     let mut grouped = std::collections::BTreeMap::<_, Vec<Observation>>::new();
     for observation in observations.iter().cloned() {
         grouped
@@ -201,25 +199,29 @@ fn evaluate_at(
             .or_default()
             .push(observation);
     }
-    for (subject, values) in grouped {
-        let old = st.records.get(&subject);
-        let mut record = policy::evaluate(&values, old, &settings, checkpoint)?;
-        lifecycle::apply(
-            &mut record,
+
+    // Collect all subjects that need processing (existing + newly observed).
+    let all_subjects: std::collections::BTreeSet<_> = st
+        .records
+        .keys()
+        .cloned()
+        .chain(grouped.keys().cloned())
+        .collect();
+
+    // Single pass: transition each record exactly once.
+    for subject in all_subjects {
+        let previous = st.records.get(&subject);
+        let obs = grouped.get(&subject).map_or(&[] as &[_], |v| v.as_slice());
+        let record = lifecycle::transition(
+            previous,
+            obs,
             &settings,
             checkpoint,
             policy::is_allowlisted(&subject, &allow),
-        );
+        )?;
         st.records.insert(subject, record);
     }
-    for (subject, record) in &mut st.records {
-        lifecycle::apply(
-            record,
-            &settings,
-            checkpoint,
-            policy::is_allowlisted(subject, &allow),
-        );
-    }
+
     st.checkpoints.insert("analytics".into(), checkpoint);
     state::write(&root.join("data/state.json"), &st)
 }
