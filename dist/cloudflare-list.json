@@ -15,6 +15,14 @@
     {
       "ip": "45.148.10.95/32",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-23"
+    },
+    {
+      "ip": "94.154.43.187/32",
+      "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-07-23"
+    },
+    {
+      "ip": "2a06:98c0:3600::103/128",
+      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+request_volume+suspicious_paths:expires=2026-07-23"
     }
   ]
 }
