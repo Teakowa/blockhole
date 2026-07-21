@@ -1,10 +1,6 @@
 {
   "items": [
     {
-      "ip": "3.96.166.235/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-21"
-    },
-    {
       "ip": "45.148.10.67/32",
       "comment": "blockhole:permanent:manual"
     },
