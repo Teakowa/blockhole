@@ -100,6 +100,21 @@ jobs:
           if git -C "${state_dir}" diff --cached --quiet; then
             echo "No blacklist state changes"
           else
-            git -C "${state_dir}" commit -m "chore(blacklist): update"
+            # Count added/removed lines in blacklist.txt
+            added=$(git -C "${state_dir}" diff --cached -- dist/blacklist.txt \
+              | grep '^+' | grep -v '^+++' | grep -cv '^\s*#' || true)
+            removed=$(git -C "${state_dir}" diff --cached -- dist/blacklist.txt \
+              | grep '^-' | grep -v '^---' | grep -cv '^\s*#' || true)
+            # Read total blocked IPs from state.json
+            total=$(python3 -c "
+          import json, sys
+          data = json.load(open('${state_dir}/data/state.json'))
+          ips = data.get('ips', {})
+          blocked = sum(1 for v in ips.values() if v.get('state') == 'blocked')
+          print(blocked)
+          " 2>/dev/null || echo "?")
+            # Build summary suffix
+            summary="+${added}/-${removed} IPs, ${total} blocked"
+            git -C "${state_dir}" commit -m "chore(blacklist): update [${summary}]"
             git -C "${state_dir}" push origin "HEAD:${STATE_BRANCH}"
           fi
