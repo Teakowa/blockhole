@@ -6,7 +6,7 @@
     },
     {
       "ip": "94.154.43.187/32",
-      "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-07-23"
+      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-23"
     },
     {
       "ip": "94.154.43.188/32",
