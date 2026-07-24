@@ -5,6 +5,10 @@
       "comment": "blockhole:permanent:manual"
     },
     {
+      "ip": "54.151.230.240/32",
+      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-27"
+    },
+    {
       "ip": "94.154.43.188/32",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-26"
     },
