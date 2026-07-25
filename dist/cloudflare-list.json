@@ -1,6 +1,10 @@
 {
   "items": [
     {
+      "ip": "45.139.104.172/32",
+      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-28"
+    },
+    {
       "ip": "45.148.10.67/32",
       "comment": "blockhole:permanent:manual"
     },
