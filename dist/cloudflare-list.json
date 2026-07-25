@@ -45,6 +45,10 @@
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-26"
     },
     {
+      "ip": "2605:aa80:0:18:a967:c52b:9970:78f/128",
+      "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-07-28"
+    },
+    {
       "ip": "2a06:98c0:3600::103/128",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+request_volume+suspicious_paths:expires=2026-07-26"
     }
