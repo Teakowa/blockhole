@@ -37,10 +37,6 @@
       "comment": "blockhole:permanent:manual"
     },
     {
-      "ip": "195.178.110.241/32",
-      "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-07-25"
-    },
-    {
       "ip": "216.81.248.20/32",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-26"
     },
