@@ -1,12 +1,20 @@
 {
   "items": [
     {
+      "ip": "34.233.134.32/32",
+      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-30"
+    },
+    {
       "ip": "45.139.104.172/32",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-07-28"
     },
     {
       "ip": "45.148.10.67/32",
       "comment": "blockhole:permanent:manual"
+    },
+    {
+      "ip": "47.250.40.154/32",
+      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-30"
     },
     {
       "ip": "54.151.230.240/32",
