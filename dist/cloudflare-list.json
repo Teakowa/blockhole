@@ -21,10 +21,6 @@
       "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-30"
     },
     {
-      "ip": "54.151.230.240/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-27"
-    },
-    {
       "ip": "61.111.250.85/32",
       "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+suspicious_paths:expires=2026-07-30"
     },
