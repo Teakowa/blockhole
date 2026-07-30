@@ -9,6 +9,10 @@
       "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-31"
     },
     {
+      "ip": "34.16.209.7/32",
+      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-08-02"
+    },
+    {
       "ip": "34.60.118.207/32",
       "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-08-01"
     },
