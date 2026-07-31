@@ -17,10 +17,11 @@ not be interpreted as an exact malicious density for a network.
 
 The Cloudflare plugin groups analytics by client IP, response status, and
 `clientRequestPath`. The Nginx plugin reads client IP, response status, and
-request target from combined access logs. Both plugins remove query strings
-before paths are retained. The configured `suspicious_path_patterns` identify
-probe-like paths; these paths are the required primary signal and still cannot
-block an IP on their own.
+request target from combined access logs. The AWS WAF plugin reads client IP,
+response status, action, and URI from JSON Lines logs. All three plugins remove
+query strings before paths are retained. The configured
+`suspicious_path_patterns` identify probe-like paths; these paths are the
+required primary signal and still cannot block an IP on their own.
 
 The allowlist is evaluated before scoring and takes precedence over all blocks,
 including manually imported `permanent_blocked` records. When a `permanent_blocked`

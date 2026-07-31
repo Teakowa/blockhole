@@ -33,12 +33,17 @@ read/edit access for the configured account. Never commit it or place it in
 configuration files.
 
 The selected plugin is configured by `platform.name`; supported values are
-`cloudflare` and `nginx`.
+`cloudflare`, `nginx`, and `aws-waf`.
 
 For Nginx, add an `[nginx]` section with `access_log` and a dedicated
 `denylist_path`. The access log must use the standard combined format. Set
 `reload = true` only when the process can run the fixed `nginx -s reload`
 command; the default only updates the include file atomically.
+
+For AWS WAFv2, add an `[aws_waf]` section with a local JSON Lines WAF log,
+region, scope, and an existing IPSet name/ID. Set `address_version` to the
+IPSet's `IPV4` or `IPV6` family. The plugin uses the AWS SDK default credential
+chain and never accepts credentials from `policy.toml`.
 
 ## CLI
 

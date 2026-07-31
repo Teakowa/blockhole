@@ -30,7 +30,7 @@ config/policy.toml ──► blockhole-core
                               ▲                    │
                               │                    ▼
                   platform plugins                generic block target
-             Cloudflare / Nginx implementations        │
+          Cloudflare / Nginx / AWS WAF implementations   │
                               ▲                        ▼
                          blockhole CLI       collect → evaluate → sync
 ```
@@ -49,6 +49,7 @@ config/policy.toml ──► blockhole-core
 | `blockhole-core::plugin`          | Platform collection and sync contracts              |
 | `blockhole-plugin-cloudflare`     | GraphQL, HTTP, authentication, and Custom List API |
 | `blockhole-plugin-nginx`          | Access-log collection and managed deny include      |
+| `blockhole-plugin-aws-waf`        | WAF JSONL collection and WAFv2 IPSet API           |
 | `src/main.rs`                     | Plugin selection and CLI orchestration              |
 
 ### Runtime data flow

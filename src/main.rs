@@ -6,6 +6,7 @@ use blockhole_core::{
     plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
     policy, render, state,
 };
+use blockhole_plugin_aws_waf::AwsWafPlugin;
 use blockhole_plugin_cloudflare::CloudflarePlugin;
 use blockhole_plugin_nginx::NginxPlugin;
 use chrono::{Duration, Utc};
@@ -224,6 +225,7 @@ fn load_plugin(settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
     match settings.platform.as_str() {
         "cloudflare" => Ok(Box::new(CloudflarePlugin::load(&settings.root)?)),
         "nginx" => Ok(Box::new(NginxPlugin::load(&settings.root)?)),
+        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(&settings.root)?)),
         name => Err(BlockholeError::Configuration(format!(
             "unsupported platform plugin: {name}"
         ))),
@@ -234,6 +236,7 @@ fn validate_plugin(root: &Path, name: &str) -> Result<()> {
     match name {
         "cloudflare" => CloudflarePlugin::validate_config(root),
         "nginx" => NginxPlugin::validate_config(root),
+        "aws-waf" => AwsWafPlugin::validate_config(root),
         name => Err(BlockholeError::Configuration(format!(
             "unsupported platform plugin: {name}"
         ))),

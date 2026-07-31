@@ -3,7 +3,7 @@
 ## GitHub configuration
 
 The CLI selects a platform implementation through `platform.name` in
-`config/policy.toml`. Supported values are `cloudflare` and `nginx`.
+`config/policy.toml`. Supported values are `cloudflare`, `nginx`, and `aws-waf`.
 
 For Cloudflare, configure these repository or environment variables:
 
@@ -32,6 +32,35 @@ Nginx `server` or `location` block. `reload = true` invokes only
 read permission for the access log and write permission for the include file.
 Because this is a local-file plugin, the runner must be the Nginx host or have
 the required log and configuration paths mounted into it.
+
+For AWS WAFv2, configure an existing IPSet and a JSON Lines log file that the
+runner can read:
+
+```toml
+[aws_waf]
+log_path = "/var/log/blockhole/aws-waf.jsonl"
+region = "us-east-1"
+scope = "REGIONAL"
+ip_set_name = "blockhole-deny"
+ip_set_id = "0123456789abcdef0123456789abcdef"
+address_version = "IPV4"
+source_id = "aws-waf"
+```
+
+The AWS plugin reads `timestamp`, `httpRequest.clientIp`,
+`httpRequest.uri`, `action`, and `responseCodeSent`; it strips query strings
+and does not persist request arguments, headers, cookies, bodies, or request
+IDs. It reads and updates the configured WAFv2 IPSet through the AWS SDK,
+using the default AWS credential chain. The IPSet is replaced only after a
+successful read, and updates use the returned optimistic-lock token followed
+by a read-back verification. CloudFront scope must use `us-east-1`; a
+CloudFront IPSet also requires `address_version = "IPV4"` or `"IPV6"` as
+appropriate for that IPSet.
+
+The AWS WAF plugin does not create an IPSet or configure log delivery. Prepare
+the WAF logging destination and grant the runner permission to call
+`wafv2:GetIPSet` and `wafv2:UpdateIPSet`. Its local log path must be populated
+before `collect` or `run` is enabled.
 
 ## Rollout
 

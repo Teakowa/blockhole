@@ -50,3 +50,14 @@ ids = []
 # denylist_path = "/etc/nginx/conf.d/blockhole-deny.conf"
 # source_id = "nginx"
 # reload = false
+
+# For platform.name = "aws-waf", configure an existing AWS WAFv2 IPSet and a
+# JSON Lines log file populated by the AWS WAF logging pipeline:
+# [aws_waf]
+# log_path = "/var/log/blockhole/aws-waf.jsonl"
+# region = "us-east-1"
+# scope = "REGIONAL"
+# ip_set_name = "blockhole-deny"
+# ip_set_id = "0123456789abcdef0123456789abcdef"
+# address_version = "IPV4"
+# source_id = "aws-waf"
