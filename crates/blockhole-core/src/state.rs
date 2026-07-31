@@ -4,7 +4,7 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use std::{collections::BTreeMap, fs, io::Write, path::Path};
+use std::collections::BTreeMap;
 
 pub const CURRENT_SCHEMA: u32 = 4;
 #[derive(Deserialize)]
@@ -31,10 +31,6 @@ struct V1State {
     checkpoints: BTreeMap<String, DateTime<Utc>>,
     records: BTreeMap<String, V1Record>,
 }
-pub fn load(path: &Path) -> Result<State> {
-    decode(&fs::read_to_string(path)?)
-}
-
 pub fn decode(text: &str) -> Result<State> {
     let value: serde_json::Value = serde_json::from_str(text)?;
     let version = value
@@ -132,22 +128,6 @@ fn migrate_v1(old: V1State) -> Result<State> {
         records,
     })
 }
-pub fn write(path: &Path, state: &State) -> Result<()> {
-    let payload = encode(state)?;
-    fs::create_dir_all(path.parent().unwrap_or(Path::new(".")))?;
-    let temporary = path.with_file_name(format!(
-        ".{}.tmp",
-        path.file_name().unwrap().to_string_lossy()
-    ));
-    {
-        let mut file = fs::File::create(&temporary)?;
-        file.write_all(payload.as_bytes())?;
-        file.sync_all()?;
-    }
-    fs::rename(&temporary, path)?;
-    Ok(())
-}
-
 pub fn encode(state: &State) -> Result<String> {
     Ok(serde_json::to_string_pretty(state)? + "\n")
 }

@@ -4,7 +4,7 @@ use blockhole_core::{
     lifecycle,
     models::{Observation, Subject},
     plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
-    policy, render, state,
+    policy, render,
 };
 use blockhole_plugin_aws_waf::AwsWafPlugin;
 use blockhole_plugin_cloudflare::CloudflarePlugin;
@@ -17,6 +17,7 @@ use std::{
 };
 
 mod output;
+mod state_io;
 
 pub const VERSION: &str = match option_env!("BLOCKHOLE_VERSION") {
     Some(v) => v,
@@ -94,7 +95,7 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Evaluate => evaluate_at(&root, &[], Utc::now()),
         Command::Render { report_path } => {
             let _settings = load_settings(&root)?;
-            let st = state::load(&root.join("data/state.json"))?;
+            let st = state_io::load(&root.join("data/state.json"))?;
             let allow = load_subjects(&root, "allowlist.txt")?;
             let now = Utc::now();
             let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
@@ -115,7 +116,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             let (start, end) = window(&root, &settings, lookback_hours)?;
             let observations = collect(&root, &settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
-            let st = state::load(&root.join("data/state.json"))?;
+            let st = state_io::load(&root.join("data/state.json"))?;
             let allow = load_subjects(&root, "allowlist.txt")?;
             let now = Utc::now();
             let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
@@ -129,7 +130,7 @@ fn validate(root: &Path) -> Result<()> {
     validate_plugin(root, &settings.platform)?;
     let allow = load_subjects(root, "allowlist.txt")?;
     let permanent = load_subjects(root, "permanent-blocklist.txt")?;
-    let st = state::load(&root.join("data/state.json"))?;
+    let st = state_io::load(&root.join("data/state.json"))?;
     println!(
         "valid: {} allowlist entries, {} permanent entries, {} state records",
         allow.len(),
@@ -144,7 +145,7 @@ fn window(
     lookback: Option<i64>,
 ) -> Result<(chrono::DateTime<Utc>, chrono::DateTime<Utc>)> {
     let end = Utc::now();
-    let st = state::load(&root.join("data/state.json"))?;
+    let st = state_io::load(&root.join("data/state.json"))?;
     let checkpoint = st.checkpoints.get("analytics").copied();
     Ok((
         collection_start(
@@ -184,7 +185,7 @@ fn evaluate_at(
     checkpoint: chrono::DateTime<Utc>,
 ) -> Result<()> {
     let settings = load_settings(root)?;
-    let mut st = state::load(&root.join("data/state.json"))?;
+    let mut st = state_io::load(&root.join("data/state.json"))?;
     let allow = load_subjects(root, "allowlist.txt")?;
     let permanent = load_subjects(root, "permanent-blocklist.txt")?;
     policy::merge_permanent(&mut st, &permanent, checkpoint);
@@ -221,7 +222,7 @@ fn evaluate_at(
     }
 
     st.checkpoints.insert("analytics".into(), checkpoint);
-    state::write(&root.join("data/state.json"), &st)
+    state_io::write(&root.join("data/state.json"), &st)
 }
 fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     let settings = load_settings(root)?;
