@@ -9,7 +9,6 @@ use regex::RegexSet;
 use std::path::PathBuf;
 fn settings() -> Settings {
     Settings {
-        root: PathBuf::from("."),
         platform: "cloudflare".into(),
         mode: RunMode::DryRun,
         lookback_hours: 24,

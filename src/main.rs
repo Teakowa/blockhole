@@ -86,15 +86,15 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Validate => validate(&root),
         Command::Collect { lookback_hours } => {
             let settings = config::load(&root)?;
-            let (start, end) = window(&settings, lookback_hours)?;
-            let observations = collect(&settings, start, end)?;
+            let (start, end) = window(&root, &settings, lookback_hours)?;
+            let observations = collect(&root, &settings, start, end)?;
             println!("{}", serde_json::to_string_pretty(&observations)?);
             Ok(())
         }
         Command::Evaluate => evaluate_at(&root, &[], Utc::now()),
         Command::Render { report_path } => {
-            let settings = config::load(&root)?;
-            let st = state::load(&settings.root.join("data/state.json"))?;
+            let _settings = config::load(&root)?;
+            let st = state::load(&root.join("data/state.json"))?;
             let allow = policy::allowlist(&root)?;
             let now = Utc::now();
             let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
@@ -112,8 +112,8 @@ fn execute(args: Vec<String>) -> Result<()> {
         } => {
             validate(&root)?;
             let settings = config::load(&root)?;
-            let (start, end) = window(&settings, lookback_hours)?;
-            let observations = collect(&settings, start, end)?;
+            let (start, end) = window(&root, &settings, lookback_hours)?;
+            let observations = collect(&root, &settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
             let st = state::load(&root.join("data/state.json"))?;
             let allow = policy::allowlist(&root)?;
@@ -129,7 +129,7 @@ fn validate(root: &Path) -> Result<()> {
     validate_plugin(root, &settings.platform)?;
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
-    let st = state::load(&settings.root.join("data/state.json"))?;
+    let st = state::load(&root.join("data/state.json"))?;
     println!(
         "valid: {} allowlist entries, {} permanent entries, {} state records",
         allow.len(),
@@ -139,11 +139,12 @@ fn validate(root: &Path) -> Result<()> {
     Ok(())
 }
 fn window(
+    root: &Path,
     settings: &config::Settings,
     lookback: Option<i64>,
 ) -> Result<(chrono::DateTime<Utc>, chrono::DateTime<Utc>)> {
     let end = Utc::now();
-    let st = state::load(&settings.root.join("data/state.json"))?;
+    let st = state::load(&root.join("data/state.json"))?;
     let checkpoint = st.checkpoints.get("analytics").copied();
     Ok((
         collection_start(
@@ -167,11 +168,12 @@ fn collection_start(
         .unwrap_or(end - Duration::hours(lookback_hours))
 }
 fn collect(
+    root: &Path,
     settings: &config::Settings,
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
-    let plugin = load_plugin(settings)?;
+    let plugin = load_plugin(root, settings)?;
     let mut observations = plugin.collect(CollectionWindow { start, end })?;
     policy::annotate_suspicious_paths(&mut observations, &settings.suspicious_path_set);
     Ok(observations)
@@ -225,7 +227,7 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     let settings = config::load(root)?;
     let desired: blockhole_core::models::DesiredList =
         serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
-    let plugin = load_plugin(&settings)?;
+    let plugin = load_plugin(root, &settings)?;
     let diff = plugin.sync(
         &desired,
         SyncOptions {
@@ -243,11 +245,11 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     Ok(())
 }
 
-fn load_plugin(settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
+fn load_plugin(root: &Path, settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
     match settings.platform.as_str() {
-        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(&settings.root)?)),
-        "nginx" => Ok(Box::new(NginxPlugin::load(&settings.root)?)),
-        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(&settings.root)?)),
+        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
+        "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
+        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(root)?)),
         name => Err(BlockholeError::Configuration(format!(
             "unsupported platform plugin: {name}"
         ))),

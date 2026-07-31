@@ -4,10 +4,7 @@ use crate::{
 };
 use regex::RegexSet;
 use serde::Deserialize;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -48,7 +45,6 @@ fn four() -> f64 {
 }
 #[derive(Clone)]
 pub struct Settings {
-    pub root: PathBuf,
     pub platform: String,
     pub mode: RunMode,
     pub lookback_hours: i64,
@@ -65,7 +61,6 @@ pub struct Settings {
 impl std::fmt::Debug for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Settings")
-            .field("root", &self.root)
             .field("platform", &self.platform)
             .field("mode", &self.mode)
             .field("suspicious_path_patterns", &self.suspicious_path_patterns)
@@ -95,11 +90,11 @@ struct Platform {
 pub fn load(root: &Path) -> Result<Settings> {
     let raw: Raw = toml::from_str(&fs::read_to_string(root.join("config/policy.toml"))?)
         .map_err(|e| BlockholeError::Configuration(e.to_string()))?;
-    Settings::try_from((raw, root.to_path_buf()))
+    Settings::try_from(raw)
 }
-impl TryFrom<(Raw, PathBuf)> for Settings {
+impl TryFrom<Raw> for Settings {
     type Error = BlockholeError;
-    fn try_from((raw, root): (Raw, PathBuf)) -> Result<Self> {
+    fn try_from(raw: Raw) -> Result<Self> {
         if raw.schema_version != 1 {
             return Err(BlockholeError::UnsupportedSchema {
                 version: raw.schema_version,
@@ -119,7 +114,6 @@ impl TryFrom<(Raw, PathBuf)> for Settings {
         let suspicious_path_set = RegexSet::new(&raw.suspicious_path_patterns)
             .map_err(|e| BlockholeError::Configuration(format!("invalid regex pattern: {e}")))?;
         Ok(Settings {
-            root,
             platform: raw.platform.name,
             mode: raw.mode,
             lookback_hours: raw.lookback_hours,
