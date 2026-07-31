@@ -125,6 +125,46 @@ fn duplicate_fingerprints_count_once() {
 }
 
 #[test]
+fn qualifying_observations_extend_temporary_block_until_cap() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::hours(1);
+    let t2 = t1 + Duration::hours(1);
+    let mut s = settings();
+    s.block_ttl_hours = 72;
+    s.max_ttl_extensions = 1;
+
+    let initial = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+    let extended =
+        crate::lifecycle::transition(Some(&initial), &[blocking_obs(t1)], &s, t1, false).unwrap();
+    let capped =
+        crate::lifecycle::transition(Some(&extended), &[blocking_obs(t2)], &s, t2, false).unwrap();
+
+    let (initial_expires, extended_expires, capped_expires) =
+        match (initial.status, extended.status, capped.status) {
+            (
+                RecordStatus::TemporaryBlocked {
+                    expires_at: initial_expires,
+                    ..
+                },
+                RecordStatus::TemporaryBlocked {
+                    expires_at: extended_expires,
+                    ttl_extensions: 1,
+                    ..
+                },
+                RecordStatus::TemporaryBlocked {
+                    expires_at: capped_expires,
+                    ttl_extensions: 1,
+                    ..
+                },
+            ) => (initial_expires, extended_expires, capped_expires),
+            statuses => panic!("unexpected statuses: {statuses:?}"),
+        };
+
+    assert_eq!(extended_expires, initial_expires + Duration::hours(72));
+    assert_eq!(capped_expires, extended_expires);
+}
+
+#[test]
 fn one_scanning_path_stays_candidate() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let obs = Observation {

@@ -160,6 +160,20 @@ fn observed_transition(
                 started_at,
                 expires_at,
                 ttl_extensions,
+            }) if now < *expires_at
+                && *ttl_extensions < settings.max_ttl_extensions
+                && settings.block_ttl_hours > 0 =>
+            {
+                RecordStatus::TemporaryBlocked {
+                    started_at: *started_at,
+                    expires_at: *expires_at + Duration::hours(settings.block_ttl_hours),
+                    ttl_extensions: ttl_extensions.saturating_add(1),
+                }
+            }
+            Some(RecordStatus::TemporaryBlocked {
+                started_at,
+                expires_at,
+                ttl_extensions,
             }) => RecordStatus::TemporaryBlocked {
                 started_at: *started_at,
                 expires_at: *expires_at,
