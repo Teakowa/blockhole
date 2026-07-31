@@ -5,10 +5,6 @@
       "comment": "blockhole:permanent:manual"
     },
     {
-      "ip": "31.59.129.193/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+repeated_windows+request_volume+suspicious_paths:expires=2026-07-31"
-    },
-    {
       "ip": "34.16.209.7/32",
       "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-08-02"
     },
@@ -26,10 +22,6 @@
     },
     {
       "ip": "45.148.10.244/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-31"
-    },
-    {
-      "ip": "52.17.186.63/32",
       "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-31"
     },
     {
@@ -67,10 +59,6 @@
     {
       "ip": "182.138.158.218/32",
       "comment": "blockhole:permanent:manual"
-    },
-    {
-      "ip": "195.178.110.31/32",
-      "comment": "blockhole:auto:high_error_ratio+path_breadth+request_volume+suspicious_paths:expires=2026-07-31"
     },
     {
       "ip": "2a06:98c0:3600::103/128",
