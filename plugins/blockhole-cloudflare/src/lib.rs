@@ -261,7 +261,6 @@ mod tests {
         let observations = analytics::parse(payload, "zone", now).unwrap();
         assert_eq!(observations[0].paths, vec!["/.env"]);
         assert_eq!(observations[0].weighted_requests, 4.5);
-        assert_eq!(observations[0].suspicious_paths, 0);
         assert!(observations[0].sampled);
     }
 

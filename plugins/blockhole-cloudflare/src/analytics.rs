@@ -110,7 +110,6 @@ pub fn parse(
                 observed_requests: row.count,
                 weighted_requests: row.count as f64 * interval,
                 paths: vec![path],
-                suspicious_paths: 0,
                 error_requests: if row.dimensions.status >= 400 {
                     row.count
                 } else {

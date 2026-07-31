@@ -88,7 +88,7 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Collect { lookback_hours } => {
             let settings = load_settings(&root)?;
             let (start, end) = window(&root, &settings, lookback_hours)?;
-            let observations = collect(&root, &settings, start, end)?;
+            let observations = collect(&root, start, end)?;
             println!("{}", serde_json::to_string_pretty(&observations)?);
             Ok(())
         }
@@ -114,7 +114,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             validate(&root)?;
             let settings = load_settings(&root)?;
             let (start, end) = window(&root, &settings, lookback_hours)?;
-            let observations = collect(&root, &settings, start, end)?;
+            let observations = collect(&root, start, end)?;
             evaluate_at(&root, &observations, end)?;
             let st = state_io::load(&root.join("data/state.json"))?;
             let allow = load_subjects(&root, "allowlist.txt")?;
@@ -170,13 +170,11 @@ fn collection_start(
 }
 fn collect(
     root: &Path,
-    settings: &config::Settings,
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
     let source = load_source(root)?;
-    let mut observations = source.collect(CollectionWindow { start, end })?;
-    policy::annotate_suspicious_paths(&mut observations, &settings.suspicious_path_set);
+    let observations = source.collect(CollectionWindow { start, end })?;
     Ok(observations)
 }
 fn evaluate_at(

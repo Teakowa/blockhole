@@ -249,7 +249,6 @@ fn parse_log_line_with_source(line: &str, source_id: &str) -> Result<Observation
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec![path.clone()],
-        suspicious_paths: 0,
         error_requests: u64::from(status >= 400),
         sampled: false,
         sample_interval: None,
@@ -521,7 +520,6 @@ mod tests {
         assert_eq!(observation.observed_requests, 1);
         assert_eq!(observation.weighted_requests, 1.0);
         assert_eq!(observation.paths, vec!["/admin/login"]);
-        assert_eq!(observation.suspicious_paths, 0);
         assert_eq!(observation.error_requests, 1);
         assert_eq!(observation.source_id, "aws-waf");
         assert!(

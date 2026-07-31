@@ -4,7 +4,6 @@ use crate::{
     models::{IpRecord, Observation, RecordStatus, Subject},
 };
 use chrono::{DateTime, Duration, Utc};
-use regex::RegexSet;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn parse_subjects(text: &str, source: &str) -> Result<Vec<Subject>> {
@@ -180,16 +179,6 @@ pub fn score_signals(
         fingerprint_history,
         has_new_observations: !observations.is_empty(),
     })
-}
-
-pub fn annotate_suspicious_paths(observations: &mut [Observation], pattern_set: &RegexSet) {
-    for observation in observations {
-        observation.suspicious_paths = observation
-            .paths
-            .iter()
-            .filter(|path| pattern_set.is_match(path))
-            .count() as u64;
-    }
 }
 
 pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], now: DateTime<Utc>) {

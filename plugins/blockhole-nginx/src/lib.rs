@@ -187,7 +187,6 @@ pub fn parse_log_line(line: &str, source_id: &str) -> Result<Observation> {
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec![path],
-        suspicious_paths: 0,
         error_requests: u64::from(status >= 400),
         sampled: false,
         sample_interval: None,
@@ -380,7 +379,6 @@ mod tests {
         assert_eq!(observation.ip, Subject::parse("192.0.2.1").unwrap());
         assert_eq!(observation.source_id, "nginx");
         assert_eq!(observation.paths, vec!["/.env"]);
-        assert_eq!(observation.suspicious_paths, 0);
         assert_eq!(observation.error_requests, 1);
         assert_eq!(observation.observed_requests, 1);
     }

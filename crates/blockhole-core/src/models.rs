@@ -56,7 +56,6 @@ pub struct Observation {
     pub observed_requests: u64,
     pub weighted_requests: f64,
     pub paths: Vec<String>,
-    pub suspicious_paths: u64,
     pub error_requests: u64,
     pub sampled: bool,
     pub sample_interval: Option<f64>,

@@ -54,7 +54,6 @@ fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
         observed_requests: 200,
         weighted_requests: 200.0,
         paths: vec!["/scan/a".into(), "/scan/b".into()],
-        suspicious_paths: 0,
         error_requests: 180,
         sampled: false,
         sample_interval: None,
@@ -105,11 +104,10 @@ fn evaluation_result_contains_platform_neutral_block_decision() {
 #[test]
 fn policy_computes_suspicious_paths_from_paths() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-    let mut observations = vec![blocking_obs(now)];
+    let observations = [blocking_obs(now)];
+    let signals = policy::score_signals(&observations, None, &settings(), now).unwrap();
 
-    policy::annotate_suspicious_paths(&mut observations, &settings().suspicious_path_set);
-
-    assert_eq!(observations[0].suspicious_paths, 2);
+    assert_eq!(signals.suspicious_paths, 2);
 }
 
 #[test]
@@ -219,7 +217,6 @@ fn one_scanning_path_stays_candidate() {
         observed_requests: 300,
         weighted_requests: 300.0,
         paths: vec!["/scan/a".into(), "/normal".into()],
-        suspicious_paths: 0,
         error_requests: 270,
         sampled: false,
         sample_interval: None,
@@ -575,7 +572,6 @@ fn observations_do_not_suppress_decay() {
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec!["/c".into()],
-        suspicious_paths: 0,
         error_requests: 0,
         sampled: false,
         sample_interval: None,
