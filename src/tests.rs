@@ -125,6 +125,20 @@ fn duplicate_fingerprints_count_once() {
 }
 
 #[test]
+fn multiple_source_reason_is_platform_neutral() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let first = blocking_obs(now);
+    let mut second = blocking_obs(now);
+    second.source_id = "source-b".into();
+    second.fingerprint = "source-b-observation".into();
+
+    let signals = policy::score_signals(&[first, second], None, &settings(), now).unwrap();
+
+    assert!(signals.reason_codes.contains(&"multiple_sources".into()));
+    assert!(!signals.reason_codes.contains(&"multiple_zones".into()));
+}
+
+#[test]
 fn qualifying_observations_extend_temporary_block_until_cap() {
     let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let t1 = t0 + Duration::hours(1);

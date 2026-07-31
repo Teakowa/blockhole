@@ -129,7 +129,7 @@ pub fn score_signals(
     }
     if sources.len() >= 2 {
         score += w.multiple_sources;
-        reasons.push("multiple_zones".into());
+        reasons.push("multiple_sources".into());
     }
     let qualifies = score >= settings.thresholds.block_score
         && reasons.len() >= 2
