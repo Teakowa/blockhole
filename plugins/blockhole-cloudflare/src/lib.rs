@@ -192,14 +192,67 @@ fn credentials() -> Result<(String, String, String)> {
 
 #[cfg(test)]
 mod tests {
-    use super::analytics;
+    use super::{ListsClient, analytics};
+    use blockhole_core::{
+        config::RunMode,
+        models::{BlockTarget, DesiredList, Subject},
+        sync,
+    };
     use chrono::{Duration, TimeZone, Utc};
     use reqwest::blocking::Client;
     use std::{
         io::{Read, Write},
-        net::TcpListener,
+        net::{TcpListener, TcpStream},
         thread,
     };
+
+    fn read_request(stream: &mut TcpStream) -> (String, String) {
+        let mut bytes = Vec::new();
+        let header_end = loop {
+            let mut buffer = [0; 4096];
+            let count = stream.read(&mut buffer).unwrap();
+            assert!(
+                count > 0,
+                "mock Cloudflare server received an incomplete request"
+            );
+            bytes.extend_from_slice(&buffer[..count]);
+            if let Some(offset) = bytes.windows(4).position(|window| window == b"\r\n\r\n") {
+                break offset;
+            }
+        };
+        let headers = String::from_utf8_lossy(&bytes[..header_end]).to_string();
+        let content_length = headers
+            .lines()
+            .find_map(|line| {
+                let (name, value) = line.split_once(':')?;
+                name.eq_ignore_ascii_case("content-length")
+                    .then_some(value.trim().parse::<usize>().ok()?)
+            })
+            .unwrap_or(0);
+        while bytes.len() < header_end + 4 + content_length {
+            let mut buffer = [0; 4096];
+            let count = stream.read(&mut buffer).unwrap();
+            assert!(
+                count > 0,
+                "mock Cloudflare server received a truncated body"
+            );
+            bytes.extend_from_slice(&buffer[..count]);
+        }
+        let body_start = header_end + 4;
+        let body =
+            String::from_utf8_lossy(&bytes[body_start..body_start + content_length]).to_string();
+        (headers, body)
+    }
+
+    fn write_response(stream: &mut TcpStream, content_type: &str, body: &str) {
+        write!(
+            stream,
+            "HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+            body.len()
+        )
+        .unwrap();
+        stream.flush().unwrap();
+    }
 
     #[test]
     fn analytics_parser_strips_query_and_preserves_sampling() {
@@ -218,36 +271,11 @@ mod tests {
         let address = listener.local_addr().unwrap();
         let server = thread::spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
-            let mut request = Vec::new();
-            let mut buffer = [0; 4096];
-            let header_end = loop {
-                let read = stream.read(&mut buffer).unwrap();
-                request.extend_from_slice(&buffer[..read]);
-                if let Some(position) = request.windows(4).position(|window| window == b"\r\n\r\n")
-                {
-                    break position;
-                }
-            };
-            let headers = String::from_utf8_lossy(&request[..header_end]);
-            let content_length = headers
-                .lines()
-                .find_map(|line| {
-                    let (name, value) = line.split_once(':')?;
-                    name.eq_ignore_ascii_case("content-length")
-                        .then_some(value.trim())
-                })
-                .unwrap()
-                .parse::<usize>()
-                .unwrap();
-            while request.len() < header_end + 4 + content_length {
-                let read = stream.read(&mut buffer).unwrap();
-                request.extend_from_slice(&buffer[..read]);
-            }
-            let request = String::from_utf8(request).unwrap();
-            assert!(request.starts_with("POST /graphql HTTP/1.1"));
-            assert!(request.contains("\"zone\":\"zone-a\""));
-            assert!(request.contains("\"start\":\"2026-01-01T00:00:00+00:00\""));
-            assert!(request.contains("\"end\":\"2026-01-01T01:00:00+00:00\""));
+            let (headers, request_body) = read_request(&mut stream);
+            assert!(headers.starts_with("POST /graphql HTTP/1.1"));
+            assert!(request_body.contains("\"zone\":\"zone-a\""));
+            assert!(request_body.contains("\"start\":\"2026-01-01T00:00:00+00:00\""));
+            assert!(request_body.contains("\"end\":\"2026-01-01T01:00:00+00:00\""));
 
             let body = serde_json::json!({
                 "data": {
@@ -267,13 +295,7 @@ mod tests {
                 }
             })
             .to_string();
-            write!(
-                stream,
-                "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-                body.len(),
-                body
-            )
-            .unwrap();
+            write_response(&mut stream, "application/json", &body);
         });
 
         let start = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
@@ -294,5 +316,66 @@ mod tests {
         assert_eq!(observations[0].paths, vec!["/.env"]);
         assert_eq!(observations[0].weighted_requests, 6.0);
         assert_eq!(observations[0].observed_at, end);
+    }
+
+    #[test]
+    fn list_sync_uses_a_mock_read_replace_and_readback_cycle() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let server =
+            thread::spawn(move || {
+                let (mut stream, _) = listener.accept().unwrap();
+                let (headers, body) = read_request(&mut stream);
+                assert!(headers.starts_with(
+                    "GET /accounts/account/rules/lists/list/items?per_page=500 HTTP/1.1"
+                ));
+                assert!(body.is_empty());
+                write_response(&mut stream, "application/json", r#"{"result":[]}"#);
+
+                let (mut stream, _) = listener.accept().unwrap();
+                let (headers, body) = read_request(&mut stream);
+                assert!(
+                    headers.starts_with("PUT /accounts/account/rules/lists/list/items HTTP/1.1")
+                );
+                assert_eq!(
+                    serde_json::from_str::<serde_json::Value>(&body).unwrap(),
+                    serde_json::json!([{"ip":"192.0.2.10/32","comment":"blockhole:test"}])
+                );
+                write_response(&mut stream, "application/json", r#"{"result":{}}"#);
+
+                let (mut stream, _) = listener.accept().unwrap();
+                let (headers, body) = read_request(&mut stream);
+                assert!(headers.starts_with(
+                    "GET /accounts/account/rules/lists/list/items?per_page=500 HTTP/1.1"
+                ));
+                assert!(body.is_empty());
+                write_response(
+                    &mut stream,
+                    "application/json",
+                    r#"{"result":[{"ip":"192.0.2.10/32","comment":"blockhole:test"}]}"#,
+                );
+            });
+
+        let client = ListsClient::new(
+            Client::new(),
+            &format!("http://{address}"),
+            "account",
+            "list",
+            0,
+            0.0,
+            1.0,
+        );
+        let desired = DesiredList {
+            items: vec![BlockTarget {
+                subject: Subject::parse("192.0.2.10").unwrap(),
+                comment: "blockhole:test".into(),
+            }],
+        };
+        let diff = sync::reconcile(&client, &desired, false, RunMode::Enforce, false).unwrap();
+        server.join().unwrap();
+
+        assert_eq!(diff.additions, desired.items);
+        assert!(diff.removals.is_empty());
+        assert!(diff.changes.is_empty());
     }
 }
