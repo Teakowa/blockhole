@@ -31,6 +31,17 @@ fn subject_parser_is_pure_and_deterministic() {
     );
 }
 
+#[test]
+fn state_encoding_round_trips_without_a_path() {
+    let state = crate::state::empty();
+    let encoded = crate::state::encode(&state).unwrap();
+    let decoded = crate::state::decode(&encoded).unwrap();
+
+    assert_eq!(decoded.schema_version, crate::state::CURRENT_SCHEMA);
+    assert!(decoded.checkpoints.is_empty());
+    assert!(decoded.records.is_empty());
+}
+
 struct FakeBackend {
     replace_calls: Cell<usize>,
 }

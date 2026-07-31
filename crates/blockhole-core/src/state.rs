@@ -32,8 +32,11 @@ struct V1State {
     records: BTreeMap<String, V1Record>,
 }
 pub fn load(path: &Path) -> Result<State> {
-    let text = fs::read_to_string(path)?;
-    let value: serde_json::Value = serde_json::from_str(&text)?;
+    decode(&fs::read_to_string(path)?)
+}
+
+pub fn decode(text: &str) -> Result<State> {
+    let value: serde_json::Value = serde_json::from_str(text)?;
     let version = value
         .get("schema_version")
         .and_then(|v| v.as_u64())
@@ -130,7 +133,7 @@ fn migrate_v1(old: V1State) -> Result<State> {
     })
 }
 pub fn write(path: &Path, state: &State) -> Result<()> {
-    let payload = serde_json::to_string_pretty(state)? + "\n";
+    let payload = encode(state)?;
     fs::create_dir_all(path.parent().unwrap_or(Path::new(".")))?;
     let temporary = path.with_file_name(format!(
         ".{}.tmp",
@@ -144,6 +147,11 @@ pub fn write(path: &Path, state: &State) -> Result<()> {
     fs::rename(&temporary, path)?;
     Ok(())
 }
+
+pub fn encode(state: &State) -> Result<String> {
+    Ok(serde_json::to_string_pretty(state)? + "\n")
+}
+
 pub fn empty() -> State {
     State {
         schema_version: CURRENT_SCHEMA,
