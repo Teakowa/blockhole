@@ -33,8 +33,8 @@ fn settings() -> Settings {
             repeated_windows: 1.0,
             multiple_sources: 0.0,
         },
-        suspicious_path_patterns: vec![],
-        suspicious_path_set: RegexSet::empty(),
+        suspicious_path_patterns: vec![r"^/scan/".into()],
+        suspicious_path_set: RegexSet::new([r"^/scan/"]).unwrap(),
     }
 }
 
@@ -52,8 +52,8 @@ fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
         observed_at: now,
         observed_requests: 200,
         weighted_requests: 200.0,
-        paths: vec!["/a".into(), "/b".into()],
-        suspicious_paths: 2,
+        paths: vec!["/scan/a".into(), "/scan/b".into()],
+        suspicious_paths: 0,
         error_requests: 180,
         sampled: false,
         sample_interval: None,
@@ -79,6 +79,17 @@ fn two_signals_and_scanning_block() {
         RecordStatus::TemporaryBlocked { .. }
     ));
 }
+
+#[test]
+fn policy_computes_suspicious_paths_from_paths() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let mut observations = vec![blocking_obs(now)];
+
+    policy::annotate_suspicious_paths(&mut observations, &settings().suspicious_path_set);
+
+    assert_eq!(observations[0].suspicious_paths, 2);
+}
+
 #[test]
 fn one_scanning_path_stays_candidate() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
@@ -88,8 +99,8 @@ fn one_scanning_path_stays_candidate() {
         observed_at: now,
         observed_requests: 300,
         weighted_requests: 300.0,
-        paths: vec!["/a".into(), "/b".into()],
-        suspicious_paths: 1,
+        paths: vec!["/scan/a".into(), "/normal".into()],
+        suspicious_paths: 0,
         error_requests: 270,
         sampled: false,
         sample_interval: None,

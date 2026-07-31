@@ -4,6 +4,7 @@ use crate::{
     models::{IpRecord, Observation, RecordStatus, Subject},
 };
 use chrono::{DateTime, Utc};
+use regex::RegexSet;
 use std::{collections::BTreeSet, path::Path};
 pub fn allowlist(root: &Path) -> Result<Vec<Subject>> {
     load_subject_file(&root.join("config/allowlist.txt"))
@@ -73,7 +74,16 @@ pub fn score_signals(
         .collect();
     let distinct = paths.len() as u64;
     let distinct = distinct.max(existing.map_or(0, |r| r.distinct_paths));
-    let suspicious = observations.iter().map(|o| o.suspicious_paths).sum::<u64>()
+    let suspicious = observations
+        .iter()
+        .map(|observation| {
+            observation
+                .paths
+                .iter()
+                .filter(|path| settings.suspicious_path_set.is_match(path))
+                .count() as u64
+        })
+        .sum::<u64>()
         + existing.map_or(0, |r| r.suspicious_paths);
     let errors = observations.iter().map(|o| o.error_requests).sum::<u64>()
         + existing.map_or(0, |r| r.error_requests);
@@ -133,6 +143,17 @@ pub fn score_signals(
         qualifies_for_block: qualifies,
     })
 }
+
+pub fn annotate_suspicious_paths(observations: &mut [Observation], pattern_set: &RegexSet) {
+    for observation in observations {
+        observation.suspicious_paths = observation
+            .paths
+            .iter()
+            .filter(|path| pattern_set.is_match(path))
+            .count() as u64;
+    }
+}
+
 pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], now: DateTime<Utc>) {
     let wanted: BTreeSet<_> = subjects.iter().cloned().collect();
     state.records.retain(|subject, record| {

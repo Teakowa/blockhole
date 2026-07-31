@@ -7,7 +7,6 @@ use blockhole_core::{
     sync::{self, BlockBackend, ListDiff},
 };
 use chrono::{TimeZone, Utc};
-use regex::RegexSet;
 use serde::Deserialize;
 use std::{
     collections::BTreeMap,
@@ -96,7 +95,6 @@ impl ObservationSource for AwsWafPlugin {
     fn collect(
         &self,
         window: blockhole_core::plugin::CollectionWindow,
-        suspicious_path_set: &RegexSet,
     ) -> Result<Vec<Observation>> {
         let contents = fs::read_to_string(&self.log_path)?;
         contents
@@ -104,15 +102,13 @@ impl ObservationSource for AwsWafPlugin {
             .enumerate()
             .filter(|(_, line)| !line.trim().is_empty())
             .map(|(line_number, line)| {
-                parse_log_line_with_source(line, &self.source_id, suspicious_path_set).map_err(
-                    |error| {
-                        BlockholeError::Plugin(format!(
-                            "invalid AWS WAF log {}:{}: {error}",
-                            self.log_path.display(),
-                            line_number + 1
-                        ))
-                    },
-                )
+                parse_log_line_with_source(line, &self.source_id).map_err(|error| {
+                    BlockholeError::Plugin(format!(
+                        "invalid AWS WAF log {}:{}: {error}",
+                        self.log_path.display(),
+                        line_number + 1
+                    ))
+                })
             })
             .filter_map(|result| match result {
                 Ok(observation)
@@ -229,15 +225,11 @@ impl BlockBackend for AwsWafBackend {
     }
 }
 
-pub fn parse_log_line(line: &str, suspicious_path_set: &RegexSet) -> Result<Observation> {
-    parse_log_line_with_source(line, DEFAULT_SOURCE_ID, suspicious_path_set)
+pub fn parse_log_line(line: &str) -> Result<Observation> {
+    parse_log_line_with_source(line, DEFAULT_SOURCE_ID)
 }
 
-fn parse_log_line_with_source(
-    line: &str,
-    source_id: &str,
-    suspicious_path_set: &RegexSet,
-) -> Result<Observation> {
+fn parse_log_line_with_source(line: &str, source_id: &str) -> Result<Observation> {
     let record: WafLog = serde_json::from_str(line)
         .map_err(|error| BlockholeError::Plugin(format!("invalid AWS WAF log JSON: {error}")))?;
     let observed_at = Utc
@@ -255,7 +247,7 @@ fn parse_log_line_with_source(
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec![path.clone()],
-        suspicious_paths: u64::from(suspicious_path_set.is_match(&path)),
+        suspicious_paths: 0,
         error_requests: u64::from(status >= 400),
         sampled: false,
         sample_interval: None,
@@ -404,7 +396,6 @@ mod tests {
     use super::{AddressVersion, normalize_desired, parse_log_line};
     use super::{AwsWafConfig, validate_config_values};
     use blockhole_core::models::{BlockTarget, DesiredList, Subject};
-    use regex::RegexSet;
     use std::path::PathBuf;
 
     #[test]
@@ -423,15 +414,13 @@ mod tests {
                 "requestId": "redacted"
             }
         }"#;
-        let suspicious = RegexSet::new([r"^/admin"]).unwrap();
-
-        let observation = parse_log_line(line, &suspicious).unwrap();
+        let observation = parse_log_line(line).unwrap();
 
         assert_eq!(observation.ip, Subject::parse("203.0.113.5").unwrap());
         assert_eq!(observation.observed_requests, 1);
         assert_eq!(observation.weighted_requests, 1.0);
         assert_eq!(observation.paths, vec!["/admin/login"]);
-        assert_eq!(observation.suspicious_paths, 1);
+        assert_eq!(observation.suspicious_paths, 0);
         assert_eq!(observation.error_requests, 1);
         assert_eq!(observation.source_id, "aws-waf");
         assert_eq!(observation.fingerprint, "BLOCK:403:/admin/login");
@@ -439,7 +428,7 @@ mod tests {
 
     #[test]
     fn rejects_malformed_waf_json() {
-        let error = parse_log_line("not-json", &RegexSet::empty()).unwrap_err();
+        let error = parse_log_line("not-json").unwrap_err();
 
         assert!(error.to_string().contains("AWS WAF log"));
     }

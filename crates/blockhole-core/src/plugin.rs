@@ -5,7 +5,6 @@ use crate::{
     sync::ListDiff,
 };
 use chrono::{DateTime, Utc};
-use regex::RegexSet;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CollectionWindow {
@@ -21,11 +20,7 @@ pub struct SyncOptions {
 }
 
 pub trait ObservationSource {
-    fn collect(
-        &self,
-        window: CollectionWindow,
-        suspicious_path_set: &RegexSet,
-    ) -> Result<Vec<Observation>>;
+    fn collect(&self, window: CollectionWindow) -> Result<Vec<Observation>>;
 }
 
 pub trait BlockDeployer {

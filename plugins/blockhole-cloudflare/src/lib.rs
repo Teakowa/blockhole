@@ -8,7 +8,6 @@ use blockhole_core::{
     plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions},
     sync::ListDiff,
 };
-use regex::RegexSet;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::{env, fs, path::Path, time::Duration};
@@ -122,11 +121,7 @@ impl CloudflarePlugin {
 }
 
 impl ObservationSource for CloudflarePlugin {
-    fn collect(
-        &self,
-        window: CollectionWindow,
-        suspicious_path_set: &RegexSet,
-    ) -> Result<Vec<Observation>> {
+    fn collect(&self, window: CollectionWindow) -> Result<Vec<Observation>> {
         if self.zone_ids.is_empty() {
             return Err(BlockholeError::Configuration(
                 "no zone IDs configured in config/policy.toml".into(),
@@ -145,7 +140,6 @@ impl ObservationSource for CloudflarePlugin {
                             zone,
                             window.start,
                             window.end,
-                            suspicious_path_set,
                         )
                     })
                 })
@@ -200,16 +194,15 @@ fn credentials() -> Result<(String, String, String)> {
 mod tests {
     use super::analytics;
     use chrono::{TimeZone, Utc};
-    use regex::RegexSet;
 
     #[test]
     fn analytics_parser_strips_query_and_preserves_sampling() {
         let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":1.5},"count":3}]}]}}}"#;
         let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-        let pattern_set = RegexSet::new([r"(^|/)\.env($|/)"]).unwrap();
-        let observations = analytics::parse(payload, "zone", now, &pattern_set).unwrap();
+        let observations = analytics::parse(payload, "zone", now).unwrap();
         assert_eq!(observations[0].paths, vec!["/.env"]);
         assert_eq!(observations[0].weighted_requests, 4.5);
+        assert_eq!(observations[0].suspicious_paths, 0);
         assert!(observations[0].sampled);
     }
 }

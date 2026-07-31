@@ -150,10 +150,9 @@ fn collect(
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
     let plugin = load_plugin(settings)?;
-    plugin.collect(
-        CollectionWindow { start, end },
-        &settings.suspicious_path_set,
-    )
+    let mut observations = plugin.collect(CollectionWindow { start, end })?;
+    policy::annotate_suspicious_paths(&mut observations, &settings.suspicious_path_set);
+    Ok(observations)
 }
 fn evaluate_at(
     root: &Path,

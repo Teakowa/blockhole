@@ -5,7 +5,6 @@ use blockhole_core::{
     sync::{self, BlockBackend, ListDiff},
 };
 use chrono::{DateTime, Utc};
-use regex::RegexSet;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::{
@@ -62,18 +61,14 @@ impl NginxPlugin {
 }
 
 impl ObservationSource for NginxPlugin {
-    fn collect(
-        &self,
-        window: CollectionWindow,
-        suspicious_path_set: &RegexSet,
-    ) -> Result<Vec<Observation>> {
+    fn collect(&self, window: CollectionWindow) -> Result<Vec<Observation>> {
         let contents = fs::read_to_string(&self.access_log)?;
         contents
             .lines()
             .enumerate()
             .filter(|(_, line)| !line.trim().is_empty())
             .map(|(line_number, line)| {
-                parse_log_line(line, &self.source_id, suspicious_path_set).map_err(|error| {
+                parse_log_line(line, &self.source_id).map_err(|error| {
                     BlockholeError::Plugin(format!(
                         "invalid nginx access log {}:{}: {error}",
                         self.access_log.display(),
@@ -139,11 +134,7 @@ impl BlockBackend for NginxBackend<'_> {
     }
 }
 
-pub fn parse_log_line(
-    line: &str,
-    source_id: &str,
-    suspicious_path_set: &RegexSet,
-) -> Result<Observation> {
+pub fn parse_log_line(line: &str, source_id: &str) -> Result<Observation> {
     let ip = line
         .split_whitespace()
         .next()
@@ -186,7 +177,6 @@ pub fn parse_log_line(
         .map_err(|error| {
             BlockholeError::Plugin(format!("invalid nginx response status: {error}"))
         })?;
-    let suspicious = suspicious_path_set.is_match(&path);
     let mut hasher = Sha256::new();
     hasher.update(format!("{source_id}:{ip}:{path}:{status}:{observed_at}").as_bytes());
 
@@ -197,7 +187,7 @@ pub fn parse_log_line(
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec![path],
-        suspicious_paths: u64::from(suspicious),
+        suspicious_paths: 0,
         error_requests: u64::from(status >= 400),
         sampled: false,
         sample_interval: None,
@@ -377,23 +367,20 @@ mod tests {
     use blockhole_core::models::{BlockTarget, DesiredList, Subject};
     use blockhole_core::plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions};
     use chrono::{TimeZone, Utc};
-    use regex::RegexSet;
     use std::fs;
 
     #[test]
     fn parses_combined_access_log_and_strips_query_string() {
-        let patterns = RegexSet::new([r"(^|/)\.env($|/)"]).unwrap();
         let observation = parse_log_line(
             "192.0.2.1 - - [31/Jul/2026:12:00:00 +0000] \"GET /.env?token=secret HTTP/1.1\" 404 123 \"-\" \"curl/8.0\"",
             "nginx",
-            &patterns,
         )
         .unwrap();
 
         assert_eq!(observation.ip, Subject::parse("192.0.2.1").unwrap());
         assert_eq!(observation.source_id, "nginx");
         assert_eq!(observation.paths, vec!["/.env"]);
-        assert_eq!(observation.suspicious_paths, 1);
+        assert_eq!(observation.suspicious_paths, 0);
         assert_eq!(observation.error_requests, 1);
         assert_eq!(observation.observed_requests, 1);
     }
@@ -439,13 +426,10 @@ mod tests {
 
         let plugin = NginxPlugin::load(&root).unwrap();
         let observations = plugin
-            .collect(
-                CollectionWindow {
-                    start: Utc.with_ymd_and_hms(2026, 7, 31, 11, 0, 0).unwrap(),
-                    end: Utc.with_ymd_and_hms(2026, 7, 31, 13, 0, 0).unwrap(),
-                },
-                &RegexSet::new([r"(^|/)\.env($|/)"]).unwrap(),
-            )
+            .collect(CollectionWindow {
+                start: Utc.with_ymd_and_hms(2026, 7, 31, 11, 0, 0).unwrap(),
+                end: Utc.with_ymd_and_hms(2026, 7, 31, 13, 0, 0).unwrap(),
+            })
             .unwrap();
         assert_eq!(observations.len(), 1);
         assert_eq!(observations[0].source_id, "edge");

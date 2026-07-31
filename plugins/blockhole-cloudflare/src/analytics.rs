@@ -4,7 +4,6 @@ use blockhole_core::{
     models::{Observation, Subject},
 };
 use chrono::{DateTime, Utc};
-use regex::RegexSet;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -58,7 +57,6 @@ pub fn parse(
     payload: &str,
     source_id: &str,
     observed_at: DateTime<Utc>,
-    pattern_set: &RegexSet,
 ) -> Result<Vec<Observation>> {
     let payload: Payload = serde_json::from_str(payload)?;
     if let Some(errors) = payload.errors {
@@ -96,7 +94,6 @@ pub fn parse(
             if !interval.is_finite() || interval <= 0.0 {
                 return Err(BlockholeError::Plugin("invalid sample interval".into()));
             }
-            let suspicious = pattern_set.is_match(&path);
             let mut hasher = Sha256::new();
             hasher.update(
                 format!(
@@ -113,7 +110,7 @@ pub fn parse(
                 observed_requests: row.count,
                 weighted_requests: row.count as f64 * interval,
                 paths: vec![path],
-                suspicious_paths: u64::from(suspicious),
+                suspicious_paths: 0,
                 error_requests: if row.dimensions.status >= 400 {
                     row.count
                 } else {
@@ -134,7 +131,6 @@ pub fn collect(
     source_id: &str,
     start: DateTime<Utc>,
     end: DateTime<Utc>,
-    pattern_set: &RegexSet,
 ) -> Result<Vec<Observation>> {
     let body = serde_json::json!({
         "query": QUERY,
@@ -152,5 +148,5 @@ pub fn collect(
         )));
     }
     let body = response.text().map_err(plugin_error)?;
-    parse(&body, source_id, end, pattern_set)
+    parse(&body, source_id, end)
 }
