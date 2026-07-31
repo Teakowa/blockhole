@@ -193,7 +193,13 @@ fn credentials() -> Result<(String, String, String)> {
 #[cfg(test)]
 mod tests {
     use super::analytics;
-    use chrono::{TimeZone, Utc};
+    use chrono::{Duration, TimeZone, Utc};
+    use reqwest::blocking::Client;
+    use std::{
+        io::{Read, Write},
+        net::TcpListener,
+        thread,
+    };
 
     #[test]
     fn analytics_parser_strips_query_and_preserves_sampling() {
@@ -204,5 +210,89 @@ mod tests {
         assert_eq!(observations[0].weighted_requests, 4.5);
         assert_eq!(observations[0].suspicious_paths, 0);
         assert!(observations[0].sampled);
+    }
+
+    #[test]
+    fn analytics_collects_from_a_graphql_http_mock() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut request = Vec::new();
+            let mut buffer = [0; 4096];
+            let header_end = loop {
+                let read = stream.read(&mut buffer).unwrap();
+                request.extend_from_slice(&buffer[..read]);
+                if let Some(position) = request.windows(4).position(|window| window == b"\r\n\r\n")
+                {
+                    break position;
+                }
+            };
+            let headers = String::from_utf8_lossy(&request[..header_end]);
+            let content_length = headers
+                .lines()
+                .find_map(|line| {
+                    let (name, value) = line.split_once(':')?;
+                    name.eq_ignore_ascii_case("content-length")
+                        .then_some(value.trim())
+                })
+                .unwrap()
+                .parse::<usize>()
+                .unwrap();
+            while request.len() < header_end + 4 + content_length {
+                let read = stream.read(&mut buffer).unwrap();
+                request.extend_from_slice(&buffer[..read]);
+            }
+            let request = String::from_utf8(request).unwrap();
+            assert!(request.starts_with("POST /graphql HTTP/1.1"));
+            assert!(request.contains("\"zone\":\"zone-a\""));
+            assert!(request.contains("\"start\":\"2026-01-01T00:00:00+00:00\""));
+            assert!(request.contains("\"end\":\"2026-01-01T01:00:00+00:00\""));
+
+            let body = serde_json::json!({
+                "data": {
+                    "viewer": {
+                        "zones": [{
+                            "series": [{
+                                "dimensions": {
+                                    "clientIP": "192.0.2.8",
+                                    "edgeResponseStatus": 404,
+                                    "clientRequestPath": "/.env?token=redacted"
+                                },
+                                "avg": {"sampleInterval": 2.0},
+                                "count": 3
+                            }]
+                        }]
+                    }
+                }
+            })
+            .to_string();
+            write!(
+                stream,
+                "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                body.len(),
+                body
+            )
+            .unwrap();
+        });
+
+        let start = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+        let end = start + Duration::hours(1);
+        let observations = analytics::collect(
+            &Client::new(),
+            &format!("http://{address}/graphql"),
+            0,
+            "zone-a",
+            start,
+            end,
+        )
+        .unwrap();
+        server.join().unwrap();
+
+        assert_eq!(observations.len(), 1);
+        assert_eq!(observations[0].ip.to_string(), "192.0.2.8/32");
+        assert_eq!(observations[0].paths, vec!["/.env"]);
+        assert_eq!(observations[0].weighted_requests, 6.0);
+        assert_eq!(observations[0].observed_at, end);
     }
 }
