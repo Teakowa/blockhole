@@ -42,16 +42,18 @@ pub fn transition(
         });
     }
 
+    let signals = policy::score_signals(observations, previous, settings, now)?;
+
     // No new observations: decay + time-based transitions only.
-    if observations.is_empty() {
+    if !signals.has_new_observations {
         let prev = previous.ok_or_else(|| {
             BlockholeError::Policy("cannot evaluate empty observations without state".into())
         })?;
-        return no_observation_transition(prev, settings, now);
+        return no_observation_transition(prev, settings, now, signals.fingerprint_history);
     }
 
     // New observations: score, decay, qualify, determine status.
-    observed_transition(previous, observations, settings, now)
+    observed_transition(previous, signals, settings, now)
 }
 
 pub fn evaluate(
@@ -72,6 +74,7 @@ fn no_observation_transition(
     prev: &IpRecord,
     settings: &Settings,
     now: DateTime<Utc>,
+    fingerprint_history: std::collections::BTreeMap<String, DateTime<Utc>>,
 ) -> Result<IpRecord> {
     let elapsed_days = ((now - prev.last_evaluated).num_seconds() as f64 / 86_400.0).max(0.0);
 
@@ -97,6 +100,7 @@ fn no_observation_transition(
         score,
         status,
         last_evaluated: now,
+        fingerprint_history,
         ..prev.clone()
     })
 }
@@ -105,11 +109,10 @@ fn no_observation_transition(
 /// determine qualification, and set status.
 fn observed_transition(
     previous: Option<&IpRecord>,
-    observations: &[Observation],
+    signals: policy::MergedSignals,
     settings: &Settings,
     now: DateTime<Utc>,
 ) -> Result<IpRecord> {
-    let signals = policy::score_signals(observations, previous, settings, now)?;
     let old_status = previous.map(|p| &p.status);
 
     // Elapsed time since last evaluation (zero for brand-new records).
@@ -198,7 +201,7 @@ fn build_record(
         error_requests: signals.error_requests,
         observation_windows: signals.observation_windows,
         sources: signals.sources,
-        fingerprint_history: std::collections::BTreeMap::new(),
+        fingerprint_history: signals.fingerprint_history,
         score,
         reason_codes: signals.reason_codes,
         status,

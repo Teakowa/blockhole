@@ -58,7 +58,7 @@ fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
         error_requests: 180,
         sampled: false,
         sample_interval: None,
-        fingerprint: "x".into(),
+        fingerprint: format!("x-{now}"),
     }
 }
 
@@ -123,6 +123,36 @@ fn duplicate_fingerprints_count_once() {
     assert_eq!(signals.weighted_requests, 200.0);
     assert_eq!(signals.suspicious_paths, 2);
     assert_eq!(signals.observation_windows, 1);
+}
+
+#[test]
+fn overlapping_runs_ignore_a_prior_fingerprint() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::hours(1);
+    let s = settings();
+    let observation = blocking_obs(t0);
+    let first =
+        crate::lifecycle::transition(None, std::slice::from_ref(&observation), &s, t0, false)
+            .unwrap();
+    let second = crate::lifecycle::transition(Some(&first), &[observation], &s, t1, false).unwrap();
+
+    assert_eq!(second.observed_requests, first.observed_requests);
+    assert_eq!(second.weighted_requests, first.weighted_requests);
+    assert_eq!(second.observation_windows, first.observation_windows);
+    assert_eq!(second.fingerprint_history.len(), 1);
+    match (&first.status, &second.status) {
+        (
+            RecordStatus::TemporaryBlocked {
+                expires_at: first_expires,
+                ..
+            },
+            RecordStatus::TemporaryBlocked {
+                expires_at: second_expires,
+                ..
+            },
+        ) => assert_eq!(second_expires, first_expires),
+        statuses => panic!("unexpected statuses: {statuses:?}"),
+    }
 }
 
 #[test]

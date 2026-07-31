@@ -3,9 +3,9 @@ use crate::{
     error::{BlockholeError, Result},
     models::{IpRecord, Observation, RecordStatus, Subject},
 };
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use regex::RegexSet;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub fn parse_subjects(text: &str, source: &str) -> Result<Vec<Subject>> {
     let mut result = Vec::new();
@@ -39,6 +39,8 @@ pub struct MergedSignals {
     pub raw_score: f64,
     pub reason_codes: Vec<String>,
     pub qualifies_for_block: bool,
+    pub fingerprint_history: BTreeMap<String, DateTime<Utc>>,
+    pub has_new_observations: bool,
 }
 
 /// Merge observations with existing record counters and compute signal scores.
@@ -51,18 +53,34 @@ pub fn score_signals(
     settings: &Settings,
     now: DateTime<Utc>,
 ) -> Result<MergedSignals> {
+    let cutoff = existing.map(|record| record.last_evaluated).unwrap_or(now)
+        - Duration::hours(settings.overlap_hours.max(0));
+    let mut fingerprint_history = existing.map_or_else(BTreeMap::new, |record| {
+        record
+            .fingerprint_history
+            .iter()
+            .filter(|(_, observed_at)| **observed_at >= cutoff)
+            .map(|(fingerprint, observed_at)| (fingerprint.clone(), *observed_at))
+            .collect()
+    });
     let mut fingerprints = BTreeSet::new();
     let observations = observations
         .iter()
         .filter(|observation| {
             observation.fingerprint.is_empty()
-                || fingerprints.insert(observation.fingerprint.as_str())
+                || (!fingerprint_history.contains_key(&observation.fingerprint)
+                    && fingerprints.insert(observation.fingerprint.as_str()))
         })
         .collect::<Vec<_>>();
     if observations.is_empty() && existing.is_none() {
         return Err(BlockholeError::Policy(
             "cannot evaluate empty observations without state".into(),
         ));
+    }
+    for observation in &observations {
+        if !observation.fingerprint.is_empty() {
+            fingerprint_history.insert(observation.fingerprint.clone(), observation.observed_at);
+        }
     }
     let first_seen = observations
         .iter()
@@ -159,6 +177,8 @@ pub fn score_signals(
         raw_score: (score * 10_000.0).round() / 10_000.0,
         reason_codes: reasons,
         qualifies_for_block: qualifies,
+        fingerprint_history,
+        has_new_observations: !observations.is_empty(),
     })
 }
 

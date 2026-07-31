@@ -87,7 +87,8 @@ The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics
 checkpoint minus `overlap_hours` and ends at the current time. The overlap
 protects against boundary delays while the checkpoint still advances only
-after successful collection and evaluation.
+after successful collection and evaluation. State retains event fingerprints
+long enough to prevent the overlap from counting the same observation twice.
 
 ## Runtime state branch
 

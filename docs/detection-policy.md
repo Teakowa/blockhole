@@ -31,6 +31,10 @@ automatically reactivates. Entries may be individual IPv4 or IPv6 addresses or
 networks. Invalid entries fail validation. Do not add broad ASN or country exemptions
 as a substitute for explicit allowlist entries.
 
+Observation fingerprints are retained in state through the next checkpoint's
+overlap window. Re-reading the same event during that overlap does not increase
+request counts, weighted estimates, observation windows, or block TTLs.
+
 Automatic records move through `candidate`, `temporary_blocked`, `cooldown`,
 and `expired` states. Manually imported records use `permanent_blocked` and
 have no TTL. Every automatic block has a TTL. Existing records are re-evaluated against the
