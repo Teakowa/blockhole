@@ -85,7 +85,7 @@ fn execute(args: Vec<String>) -> Result<()> {
     match cli.command {
         Command::Validate => validate(&root),
         Command::Collect { lookback_hours } => {
-            let settings = config::load(&root)?;
+            let settings = load_settings(&root)?;
             let (start, end) = window(&root, &settings, lookback_hours)?;
             let observations = collect(&root, &settings, start, end)?;
             println!("{}", serde_json::to_string_pretty(&observations)?);
@@ -93,7 +93,7 @@ fn execute(args: Vec<String>) -> Result<()> {
         }
         Command::Evaluate => evaluate_at(&root, &[], Utc::now()),
         Command::Render { report_path } => {
-            let _settings = config::load(&root)?;
+            let _settings = load_settings(&root)?;
             let st = state::load(&root.join("data/state.json"))?;
             let allow = policy::allowlist(&root)?;
             let now = Utc::now();
@@ -111,7 +111,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             report_path,
         } => {
             validate(&root)?;
-            let settings = config::load(&root)?;
+            let settings = load_settings(&root)?;
             let (start, end) = window(&root, &settings, lookback_hours)?;
             let observations = collect(&root, &settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
@@ -125,7 +125,7 @@ fn execute(args: Vec<String>) -> Result<()> {
     }
 }
 fn validate(root: &Path) -> Result<()> {
-    let settings = config::load(root)?;
+    let settings = load_settings(root)?;
     validate_plugin(root, &settings.platform)?;
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
@@ -183,7 +183,7 @@ fn evaluate_at(
     observations: &[Observation],
     checkpoint: chrono::DateTime<Utc>,
 ) -> Result<()> {
-    let settings = config::load(root)?;
+    let settings = load_settings(root)?;
     let mut st = state::load(&root.join("data/state.json"))?;
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
@@ -224,7 +224,7 @@ fn evaluate_at(
     state::write(&root.join("data/state.json"), &st)
 }
 fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
-    let settings = config::load(root)?;
+    let settings = load_settings(root)?;
     let desired: blockhole_core::models::DesiredList =
         serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
     let plugin = load_plugin(root, &settings)?;
@@ -243,6 +243,10 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
         diff.changes.len()
     );
     Ok(())
+}
+
+fn load_settings(root: &Path) -> Result<config::Settings> {
+    config::parse(&fs::read_to_string(root.join("config/policy.toml"))?)
 }
 
 fn load_plugin(root: &Path, settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {

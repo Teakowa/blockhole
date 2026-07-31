@@ -39,7 +39,8 @@ fn settings() -> Settings {
 
 #[test]
 fn policy_config_selects_cloudflare_plugin() {
-    let settings = blockhole_core::config::load(std::path::Path::new(".")).unwrap();
+    let text = std::fs::read_to_string("config/policy.toml").unwrap();
+    let settings = blockhole_core::config::parse(&text).unwrap();
     assert_eq!(settings.platform, "cloudflare");
 }
 

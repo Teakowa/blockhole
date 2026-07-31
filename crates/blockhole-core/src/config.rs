@@ -87,10 +87,6 @@ struct Raw {
 struct Platform {
     name: String,
 }
-pub fn load(root: &Path) -> Result<Settings> {
-    parse(&fs::read_to_string(root.join("config/policy.toml"))?)
-}
-
 pub fn parse(text: &str) -> Result<Settings> {
     let raw: Raw =
         toml::from_str(text).map_err(|e| BlockholeError::Configuration(e.to_string()))?;
