@@ -16,6 +16,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+mod output;
+
 pub const VERSION: &str = match option_env!("BLOCKHOLE_VERSION") {
     Some(v) => v,
     None => env!("CARGO_PKG_VERSION"),
@@ -93,7 +95,9 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Render { report_path } => {
             let settings = config::load(&root)?;
             let st = state::load(&settings.root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now(), &report_path).map(|_| ())
+            let now = Utc::now();
+            let desired = render::render_desired_list(&render::evaluate_state(&st, now));
+            output::write_render_outputs(&root, &desired, now, &report_path)
         }
         Command::Sync {
             dry_run,
@@ -111,7 +115,9 @@ fn execute(args: Vec<String>) -> Result<()> {
             let observations = collect(&settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
             let st = state::load(&root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now(), &report_path)?;
+            let now = Utc::now();
+            let desired = render::render_desired_list(&render::evaluate_state(&st, now));
+            output::write_render_outputs(&root, &desired, now, &report_path)?;
             sync(&root, dry_run, allow_empty)
         }
     }

@@ -294,7 +294,9 @@ fn render_writes_report_to_custom_path() {
     std::fs::create_dir_all(&temp).unwrap();
     let state = state::empty();
     let report_path = PathBuf::from("custom/report.md");
-    let res = crate::render::render(&temp, &state, Utc::now(), &report_path);
+    let now = Utc::now();
+    let desired = crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
+    let res = crate::output::write_render_outputs(&temp, &desired, now, &report_path);
     assert!(res.is_ok());
     assert!(temp.join("custom/report.md").exists());
     let _ = std::fs::remove_dir_all(&temp);
@@ -363,11 +365,14 @@ fn render_formats_cloudflare_comments_correctly() {
         },
     );
 
-    let report_path = PathBuf::from("reports/latest.md");
-    let desired = crate::render::render(&temp, &state, now, &report_path).unwrap();
-    let pure_desired =
-        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
-    assert_eq!(pure_desired, desired);
+    let desired = crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
+    crate::output::write_render_outputs(
+        &temp,
+        &desired,
+        now,
+        PathBuf::from("reports/latest.md").as_path(),
+    )
+    .unwrap();
 
     let perm_item = desired.items.iter().find(|i| i.subject == perm_ip).unwrap();
     assert_eq!(perm_item.comment, "blockhole:permanent:manual");
