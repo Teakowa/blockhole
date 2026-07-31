@@ -26,7 +26,3 @@ pub trait ObservationSource {
 pub trait BlockDeployer {
     fn sync(&self, desired: &DesiredList, options: SyncOptions) -> Result<ListDiff>;
 }
-
-pub trait PlatformPlugin: ObservationSource + BlockDeployer {}
-
-impl<T> PlatformPlugin for T where T: ObservationSource + BlockDeployer {}

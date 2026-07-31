@@ -3,7 +3,7 @@ use blockhole_core::{
     error::{BlockholeError, Result},
     lifecycle,
     models::{Observation, Subject},
-    plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
+    plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions},
     policy, render,
 };
 use blockhole_plugin_aws_waf::AwsWafPlugin;
@@ -174,8 +174,8 @@ fn collect(
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
-    let plugin = load_plugin(root)?;
-    let mut observations = plugin.collect(CollectionWindow { start, end })?;
+    let source = load_source(root)?;
+    let mut observations = source.collect(CollectionWindow { start, end })?;
     policy::annotate_suspicious_paths(&mut observations, &settings.suspicious_path_set);
     Ok(observations)
 }
@@ -228,8 +228,8 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     let settings = load_settings(root)?;
     let desired: blockhole_core::models::DesiredList =
         serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
-    let plugin = load_plugin(root)?;
-    let diff = plugin.sync(
+    let deployer = load_deployer(root)?;
+    let diff = deployer.sync(
         &desired,
         SyncOptions {
             dry_run,
@@ -260,7 +260,18 @@ fn load_subjects(root: &Path, filename: &str) -> Result<Vec<Subject>> {
     policy::parse_subjects(&fs::read_to_string(&path)?, &source)
 }
 
-fn load_plugin(root: &Path) -> Result<Box<dyn PlatformPlugin>> {
+fn load_source(root: &Path) -> Result<Box<dyn ObservationSource>> {
+    match load_platform(root)?.as_str() {
+        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
+        "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
+        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(root)?)),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
+}
+
+fn load_deployer(root: &Path) -> Result<Box<dyn BlockDeployer>> {
     match load_platform(root)?.as_str() {
         "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
         "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
