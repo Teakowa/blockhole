@@ -88,8 +88,12 @@ struct Platform {
     name: String,
 }
 pub fn load(root: &Path) -> Result<Settings> {
-    let raw: Raw = toml::from_str(&fs::read_to_string(root.join("config/policy.toml"))?)
-        .map_err(|e| BlockholeError::Configuration(e.to_string()))?;
+    parse(&fs::read_to_string(root.join("config/policy.toml"))?)
+}
+
+pub fn parse(text: &str) -> Result<Settings> {
+    let raw: Raw =
+        toml::from_str(text).map_err(|e| BlockholeError::Configuration(e.to_string()))?;
     Settings::try_from(raw)
 }
 impl TryFrom<Raw> for Settings {
