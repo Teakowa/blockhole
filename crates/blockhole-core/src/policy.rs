@@ -1,16 +1,26 @@
 use crate::{
-    config::{Settings, load_subject_file},
+    config::Settings,
     error::{BlockholeError, Result},
     models::{IpRecord, Observation, RecordStatus, Subject},
 };
 use chrono::{DateTime, Utc};
 use regex::RegexSet;
-use std::{collections::BTreeSet, path::Path};
-pub fn allowlist(root: &Path) -> Result<Vec<Subject>> {
-    load_subject_file(&root.join("config/allowlist.txt"))
-}
-pub fn permanent(root: &Path) -> Result<Vec<Subject>> {
-    load_subject_file(&root.join("config/permanent-blocklist.txt"))
+use std::collections::BTreeSet;
+
+pub fn parse_subjects(text: &str, source: &str) -> Result<Vec<Subject>> {
+    let mut result = Vec::new();
+    for (line, raw) in text.lines().enumerate() {
+        let value = raw.split('#').next().unwrap_or("").trim();
+        if value.is_empty() {
+            continue;
+        }
+        result.push(Subject::parse(value).map_err(|error| {
+            BlockholeError::Configuration(format!("{source}:{}: {error}", line + 1))
+        })?);
+    }
+    result.sort();
+    result.dedup();
+    Ok(result)
 }
 pub fn is_allowlisted(subject: &Subject, list: &[Subject]) -> bool {
     list.iter().any(|network| network.contains(subject))

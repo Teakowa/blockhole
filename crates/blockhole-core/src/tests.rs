@@ -14,6 +14,23 @@ fn policy_parser_accepts_text_without_a_project_path() {
     assert_eq!(settings.lookback_hours, 24);
 }
 
+#[test]
+fn subject_parser_is_pure_and_deterministic() {
+    let subjects = crate::policy::parse_subjects(
+        "192.0.2.2 # duplicate\n192.0.2.1\n192.0.2.2\n",
+        "allowlist.txt",
+    )
+    .unwrap();
+
+    assert_eq!(
+        subjects,
+        vec![
+            Subject::parse("192.0.2.1").unwrap(),
+            Subject::parse("192.0.2.2").unwrap(),
+        ]
+    );
+}
+
 struct FakeBackend {
     replace_calls: Cell<usize>,
 }

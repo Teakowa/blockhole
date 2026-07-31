@@ -2,7 +2,7 @@ use blockhole_core::{
     config,
     error::{BlockholeError, Result},
     lifecycle,
-    models::Observation,
+    models::{Observation, Subject},
     plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
     policy, render, state,
 };
@@ -95,7 +95,7 @@ fn execute(args: Vec<String>) -> Result<()> {
         Command::Render { report_path } => {
             let _settings = load_settings(&root)?;
             let st = state::load(&root.join("data/state.json"))?;
-            let allow = policy::allowlist(&root)?;
+            let allow = load_subjects(&root, "allowlist.txt")?;
             let now = Utc::now();
             let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
             output::write_render_outputs(&root, &desired, now, &report_path)
@@ -116,7 +116,7 @@ fn execute(args: Vec<String>) -> Result<()> {
             let observations = collect(&root, &settings, start, end)?;
             evaluate_at(&root, &observations, end)?;
             let st = state::load(&root.join("data/state.json"))?;
-            let allow = policy::allowlist(&root)?;
+            let allow = load_subjects(&root, "allowlist.txt")?;
             let now = Utc::now();
             let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
             output::write_render_outputs(&root, &desired, now, &report_path)?;
@@ -127,8 +127,8 @@ fn execute(args: Vec<String>) -> Result<()> {
 fn validate(root: &Path) -> Result<()> {
     let settings = load_settings(root)?;
     validate_plugin(root, &settings.platform)?;
-    let allow = policy::allowlist(root)?;
-    let permanent = policy::permanent(root)?;
+    let allow = load_subjects(root, "allowlist.txt")?;
+    let permanent = load_subjects(root, "permanent-blocklist.txt")?;
     let st = state::load(&root.join("data/state.json"))?;
     println!(
         "valid: {} allowlist entries, {} permanent entries, {} state records",
@@ -185,8 +185,8 @@ fn evaluate_at(
 ) -> Result<()> {
     let settings = load_settings(root)?;
     let mut st = state::load(&root.join("data/state.json"))?;
-    let allow = policy::allowlist(root)?;
-    let permanent = policy::permanent(root)?;
+    let allow = load_subjects(root, "allowlist.txt")?;
+    let permanent = load_subjects(root, "permanent-blocklist.txt")?;
     policy::merge_permanent(&mut st, &permanent, checkpoint);
 
     let mut grouped = std::collections::BTreeMap::<_, Vec<Observation>>::new();
@@ -247,6 +247,12 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
 
 fn load_settings(root: &Path) -> Result<config::Settings> {
     config::parse(&fs::read_to_string(root.join("config/policy.toml"))?)
+}
+
+fn load_subjects(root: &Path, filename: &str) -> Result<Vec<Subject>> {
+    let path = root.join("config").join(filename);
+    let source = path.display().to_string();
+    policy::parse_subjects(&fs::read_to_string(&path)?, &source)
 }
 
 fn load_plugin(root: &Path, settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {

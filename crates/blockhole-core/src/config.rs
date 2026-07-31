@@ -1,10 +1,6 @@
-use crate::{
-    error::{BlockholeError, Result},
-    models::Subject,
-};
+use crate::error::{BlockholeError, Result};
 use regex::RegexSet;
 use serde::Deserialize;
-use std::{fs, path::Path};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -135,19 +131,4 @@ impl TryFrom<Raw> for Settings {
             suspicious_path_set,
         })
     }
-}
-pub fn load_subject_file(path: &Path) -> Result<Vec<Subject>> {
-    let mut result = Vec::new();
-    for (line, raw) in fs::read_to_string(path)?.lines().enumerate() {
-        let value = raw.split('#').next().unwrap_or("").trim();
-        if value.is_empty() {
-            continue;
-        }
-        result.push(Subject::parse(value).map_err(|e| {
-            BlockholeError::Configuration(format!("{}:{}: {e}", path.display(), line + 1))
-        })?);
-    }
-    result.sort();
-    result.dedup();
-    Ok(result)
 }
