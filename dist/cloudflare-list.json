@@ -65,6 +65,10 @@
       "comment": "blockhole:permanent:manual"
     },
     {
+      "ip": "194.180.48.253/32",
+      "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-08-03"
+    },
+    {
       "ip": "2a06:98c0:3600::103/128",
       "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+request_volume+suspicious_paths:expires=2026-08-02"
     }
