@@ -152,14 +152,18 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
 }
 
 #[test]
-fn v1_and_v2_state_migrates_to_v3_status() {
+fn v1_v2_and_v3_state_migrate_to_v4_status() {
     let path_v1 =
         std::env::temp_dir().join(format!("blockhole-state-v1-{}.json", std::process::id()));
     let json_v1 = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
     std::fs::write(&path_v1, json_v1).unwrap();
     let migrated_v1 = state::load(&path_v1).unwrap();
     std::fs::remove_file(path_v1).unwrap();
-    assert_eq!(migrated_v1.schema_version, 3);
+    assert_eq!(migrated_v1.schema_version, 4);
+    assert_eq!(
+        migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
+        4
+    );
     assert!(matches!(
         migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].status,
         RecordStatus::TemporaryBlocked { .. }
@@ -171,9 +175,9 @@ fn v1_and_v2_state_migrates_to_v3_status() {
     std::fs::write(&path_v2, json_v2).unwrap();
     let migrated_v2 = state::load(&path_v2).unwrap();
     std::fs::remove_file(path_v2).unwrap();
-    assert_eq!(migrated_v2.schema_version, 3);
+    assert_eq!(migrated_v2.schema_version, 4);
     let record_v2 = &migrated_v2.records[&Subject::parse("192.0.2.1").unwrap()];
-    assert_eq!(record_v2.schema_version, 3);
+    assert_eq!(record_v2.schema_version, 4);
     if let RecordStatus::PermanentBlocked {
         suppressed_by_allowlist,
         ..
@@ -183,6 +187,33 @@ fn v1_and_v2_state_migrates_to_v3_status() {
     } else {
         panic!("expected PermanentBlocked status");
     }
+
+    let path_v3 =
+        std::env::temp_dir().join(format!("blockhole-state-v3-{}.json", std::process::id()));
+    let json_v3 = r#"{"schema_version":3,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":3,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":["legacy-source"],"score":0.0,"reason_codes":[],"status":{"type":"candidate"}}}}"#;
+    std::fs::write(&path_v3, json_v3).unwrap();
+    let migrated_v3 = state::load(&path_v3).unwrap();
+    std::fs::remove_file(path_v3).unwrap();
+    assert_eq!(migrated_v3.schema_version, 4);
+    assert_eq!(
+        migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
+        4
+    );
+    assert_eq!(
+        migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].sources,
+        vec!["legacy-source"]
+    );
+    let serialized = serde_json::to_value(&migrated_v3).unwrap();
+    assert!(
+        serialized["records"]["192.0.2.1/32"]
+            .get("sources")
+            .is_some()
+    );
+    assert!(
+        serialized["records"]["192.0.2.1/32"]
+            .get("source_zones")
+            .is_none()
+    );
 }
 
 #[test]

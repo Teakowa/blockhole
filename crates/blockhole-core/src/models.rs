@@ -50,7 +50,7 @@ impl<'de> Deserialize<'de> for Subject {
 #[serde(deny_unknown_fields)]
 pub struct Observation {
     pub ip: Subject,
-    #[serde(rename = "zone_id")]
+    #[serde(alias = "zone_id")]
     pub source_id: String,
     pub observed_at: DateTime<Utc>,
     pub observed_requests: u64,
@@ -98,7 +98,7 @@ pub struct IpRecord {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub observation_windows: u64,
-    #[serde(rename = "source_zones")]
+    #[serde(alias = "source_zones")]
     pub sources: Vec<String>,
     pub score: f64,
     pub reason_codes: Vec<String>,

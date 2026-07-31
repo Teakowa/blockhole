@@ -29,7 +29,7 @@ path_breadth = 0
 suspicious_paths = 4
 high_error_ratio = 1
 repeated_windows = 1
-multiple_zones = 0
+multiple_sources = 0
 
 [cloudflare]
 graphql_url = "https://api.cloudflare.com/client/v4/graphql"

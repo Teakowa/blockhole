@@ -37,7 +37,7 @@ pub struct Weights {
     #[serde(default = "one")]
     pub repeated_windows: f64,
     #[serde(default)]
-    #[serde(rename = "multiple_zones")]
+    #[serde(alias = "multiple_zones")]
     pub multiple_sources: f64,
 }
 fn one() -> f64 {
