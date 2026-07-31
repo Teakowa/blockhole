@@ -7,6 +7,7 @@ use blockhole_core::{
     policy, render, state,
 };
 use blockhole_plugin_cloudflare::CloudflarePlugin;
+use blockhole_plugin_nginx::NginxPlugin;
 use chrono::{Duration, Utc};
 use clap::{Parser, Subcommand};
 use std::{
@@ -222,6 +223,7 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
 fn load_plugin(settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
     match settings.platform.as_str() {
         "cloudflare" => Ok(Box::new(CloudflarePlugin::load(&settings.root)?)),
+        "nginx" => Ok(Box::new(NginxPlugin::load(&settings.root)?)),
         name => Err(BlockholeError::Configuration(format!(
             "unsupported platform plugin: {name}"
         ))),
@@ -231,6 +233,7 @@ fn load_plugin(settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
 fn validate_plugin(root: &Path, name: &str) -> Result<()> {
     match name {
         "cloudflare" => CloudflarePlugin::validate_config(root),
+        "nginx" => NginxPlugin::validate_config(root),
         name => Err(BlockholeError::Configuration(format!(
             "unsupported platform plugin: {name}"
         ))),

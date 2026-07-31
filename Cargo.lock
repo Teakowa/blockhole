@@ -124,6 +124,7 @@ version = "0.2.0"
 dependencies = [
  "blockhole-core",
  "blockhole-plugin-cloudflare",
+ "blockhole-plugin-nginx",
  "chrono",
  "clap",
  "proptest",
@@ -157,6 +158,18 @@ dependencies = [
  "sha2",
  "toml",
  "url",
+]
+
+[[package]]
+name = "blockhole-plugin-nginx"
+version = "0.2.0"
+dependencies = [
+ "blockhole-core",
+ "chrono",
+ "regex",
+ "serde",
+ "sha2",
+ "toml",
 ]
 
 [[package]]

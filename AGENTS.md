@@ -29,8 +29,8 @@ config/policy.toml ──► blockhole-core
                          state / render / sync / plugin traits
                               ▲                    │
                               │                    ▼
-                  blockhole-plugin-cloudflare   generic block target
-                    GraphQL / HTTP / Custom List       │
+                  platform plugins                generic block target
+             Cloudflare / Nginx implementations        │
                               ▲                        ▼
                          blockhole CLI       collect → evaluate → sync
 ```
@@ -48,6 +48,7 @@ config/policy.toml ──► blockhole-core
 | `blockhole-core::sync`            | Generic diff, backend trait, and safety fuse       |
 | `blockhole-core::plugin`          | Platform collection and sync contracts              |
 | `blockhole-plugin-cloudflare`     | GraphQL, HTTP, authentication, and Custom List API |
+| `blockhole-plugin-nginx`          | Access-log collection and managed deny include      |
 | `src/main.rs`                     | Plugin selection and CLI orchestration              |
 
 ### Runtime data flow
@@ -106,9 +107,9 @@ state.json + desired-blocks.json → core reconcile → platform plugin enforcem
 All three must pass before a change is considered complete:
 
 ```bash
-cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
 ```
 
 ## Completion standards

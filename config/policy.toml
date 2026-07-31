@@ -42,3 +42,11 @@ poll_timeout_seconds = 120
 [zones]
 # Fill with zone IDs before enabling collection.
 ids = []
+
+# For platform.name = "nginx", configure a combined access log and a
+# dedicated include file instead of the Cloudflare settings above:
+# [nginx]
+# access_log = "/var/log/nginx/access.log"
+# denylist_path = "/etc/nginx/conf.d/blockhole-deny.conf"
+# source_id = "nginx"
+# reload = false

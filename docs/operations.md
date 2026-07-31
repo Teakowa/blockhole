@@ -3,9 +3,9 @@
 ## GitHub configuration
 
 The CLI selects a platform implementation through `platform.name` in
-`config/policy.toml`. The current implementation is `cloudflare`.
+`config/policy.toml`. Supported values are `cloudflare` and `nginx`.
 
-Configure these repository or environment variables for that plugin:
+For Cloudflare, configure these repository or environment variables:
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_ZONE_IDS`
@@ -14,6 +14,24 @@ Configure these repository or environment variables for that plugin:
 Store only `CLOUDFLARE_API_TOKEN` as a secret. Do not expose it to pull
 request jobs. The synchronization workflow uses a single concurrency group,
 does not cancel an active run, and keeps manual dry-run available.
+
+For Nginx, configure a dedicated managed include file:
+
+```toml
+[nginx]
+access_log = "/var/log/nginx/access.log"
+denylist_path = "/etc/nginx/conf.d/blockhole-deny.conf"
+source_id = "nginx"
+reload = false
+```
+
+The Nginx plugin reads standard combined access-log lines and writes only
+`deny` directives to `denylist_path`. Include that file from the applicable
+Nginx `server` or `location` block. `reload = true` invokes only
+`nginx -s reload`; it does not execute a configurable shell command. The process needs
+read permission for the access log and write permission for the include file.
+Because this is a local-file plugin, the runner must be the Nginx host or have
+the required log and configuration paths mounted into it.
 
 ## Rollout
 

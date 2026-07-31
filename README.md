@@ -32,8 +32,13 @@ The token needs analytics read access for the configured zones and Custom List
 read/edit access for the configured account. Never commit it or place it in
 configuration files.
 
-The selected plugin is configured by `platform.name`; the current supported
-value is `cloudflare`.
+The selected plugin is configured by `platform.name`; supported values are
+`cloudflare` and `nginx`.
+
+For Nginx, add an `[nginx]` section with `access_log` and a dedicated
+`denylist_path`. The access log must use the standard combined format. Set
+`reload = true` only when the process can run the fixed `nginx -s reload`
+command; the default only updates the include file atomically.
 
 ## CLI
 
