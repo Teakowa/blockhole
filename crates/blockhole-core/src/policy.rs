@@ -41,6 +41,14 @@ pub fn score_signals(
     settings: &Settings,
     now: DateTime<Utc>,
 ) -> Result<MergedSignals> {
+    let mut fingerprints = BTreeSet::new();
+    let observations = observations
+        .iter()
+        .filter(|observation| {
+            observation.fingerprint.is_empty()
+                || fingerprints.insert(observation.fingerprint.as_str())
+        })
+        .collect::<Vec<_>>();
     if observations.is_empty() && existing.is_none() {
         return Err(BlockholeError::Policy(
             "cannot evaluate empty observations without state".into(),

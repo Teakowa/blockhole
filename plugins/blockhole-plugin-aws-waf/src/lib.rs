@@ -239,9 +239,11 @@ fn parse_log_line_with_source(line: &str, source_id: &str) -> Result<Observation
     let path = normalize_path(&record.http_request.uri)?;
     let action = record.action.as_deref().unwrap_or("UNKNOWN");
     let status = record.response_code_sent.unwrap_or_default();
+    let ip = Subject::parse(&record.http_request.client_ip)?;
+    let fingerprint = format!("{source_id}:{ip}:{action}:{status}:{path}:{observed_at}");
 
     Ok(Observation {
-        ip: Subject::parse(&record.http_request.client_ip)?,
+        ip,
         source_id: source_id.into(),
         observed_at,
         observed_requests: 1,
@@ -251,7 +253,7 @@ fn parse_log_line_with_source(line: &str, source_id: &str) -> Result<Observation
         error_requests: u64::from(status >= 400),
         sampled: false,
         sample_interval: None,
-        fingerprint: format!("{action}:{status}:{path}"),
+        fingerprint,
     })
 }
 
@@ -423,7 +425,11 @@ mod tests {
         assert_eq!(observation.suspicious_paths, 0);
         assert_eq!(observation.error_requests, 1);
         assert_eq!(observation.source_id, "aws-waf");
-        assert_eq!(observation.fingerprint, "BLOCK:403:/admin/login");
+        assert!(
+            observation
+                .fingerprint
+                .starts_with("aws-waf:203.0.113.5/32:BLOCK:403:/admin/login:")
+        );
     }
 
     #[test]

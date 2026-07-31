@@ -112,6 +112,19 @@ fn policy_computes_suspicious_paths_from_paths() {
 }
 
 #[test]
+fn duplicate_fingerprints_count_once() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let observation = blocking_obs(now);
+    let signals =
+        policy::score_signals(&[observation.clone(), observation], None, &settings(), now).unwrap();
+
+    assert_eq!(signals.observed_requests, 200);
+    assert_eq!(signals.weighted_requests, 200.0);
+    assert_eq!(signals.suspicious_paths, 2);
+    assert_eq!(signals.observation_windows, 1);
+}
+
+#[test]
 fn one_scanning_path_stays_candidate() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let obs = Observation {
