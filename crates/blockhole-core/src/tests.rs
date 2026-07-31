@@ -10,7 +10,10 @@ use std::cell::Cell;
 fn policy_parser_accepts_text_without_a_project_path() {
     let settings = crate::config::parse(include_str!("../../../config/policy.toml")).unwrap();
 
-    assert_eq!(settings.platform, "cloudflare");
+    assert_eq!(
+        crate::config::parse_platform(include_str!("../../../config/policy.toml")).unwrap(),
+        "cloudflare"
+    );
     assert_eq!(settings.lookback_hours, 24);
 }
 

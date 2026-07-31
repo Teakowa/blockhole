@@ -126,8 +126,8 @@ fn execute(args: Vec<String>) -> Result<()> {
     }
 }
 fn validate(root: &Path) -> Result<()> {
-    let settings = load_settings(root)?;
-    validate_plugin(root, &settings.platform)?;
+    load_settings(root)?;
+    validate_plugin(root, &load_platform(root)?)?;
     let allow = load_subjects(root, "allowlist.txt")?;
     let permanent = load_subjects(root, "permanent-blocklist.txt")?;
     let st = state_io::load(&root.join("data/state.json"))?;
@@ -174,7 +174,7 @@ fn collect(
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
-    let plugin = load_plugin(root, settings)?;
+    let plugin = load_plugin(root)?;
     let mut observations = plugin.collect(CollectionWindow { start, end })?;
     policy::annotate_suspicious_paths(&mut observations, &settings.suspicious_path_set);
     Ok(observations)
@@ -228,7 +228,7 @@ fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     let settings = load_settings(root)?;
     let desired: blockhole_core::models::DesiredList =
         serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
-    let plugin = load_plugin(root, &settings)?;
+    let plugin = load_plugin(root)?;
     let diff = plugin.sync(
         &desired,
         SyncOptions {
@@ -250,14 +250,18 @@ fn load_settings(root: &Path) -> Result<config::Settings> {
     config::parse(&fs::read_to_string(root.join("config/policy.toml"))?)
 }
 
+fn load_platform(root: &Path) -> Result<String> {
+    config::parse_platform(&fs::read_to_string(root.join("config/policy.toml"))?)
+}
+
 fn load_subjects(root: &Path, filename: &str) -> Result<Vec<Subject>> {
     let path = root.join("config").join(filename);
     let source = path.display().to_string();
     policy::parse_subjects(&fs::read_to_string(&path)?, &source)
 }
 
-fn load_plugin(root: &Path, settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
-    match settings.platform.as_str() {
+fn load_plugin(root: &Path) -> Result<Box<dyn PlatformPlugin>> {
+    match load_platform(root)?.as_str() {
         "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
         "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
         "aws-waf" => Ok(Box::new(AwsWafPlugin::load(root)?)),

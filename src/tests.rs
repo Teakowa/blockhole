@@ -9,7 +9,6 @@ use regex::RegexSet;
 use std::path::PathBuf;
 fn settings() -> Settings {
     Settings {
-        platform: "cloudflare".into(),
         mode: RunMode::DryRun,
         lookback_hours: 24,
         overlap_hours: 2,
@@ -40,8 +39,10 @@ fn settings() -> Settings {
 #[test]
 fn policy_config_selects_cloudflare_plugin() {
     let text = std::fs::read_to_string("config/policy.toml").unwrap();
-    let settings = blockhole_core::config::parse(&text).unwrap();
-    assert_eq!(settings.platform, "cloudflare");
+    assert_eq!(
+        blockhole_core::config::parse_platform(&text).unwrap(),
+        "cloudflare"
+    );
 }
 
 /// Helper: create a blocking observation (crosses all thresholds).

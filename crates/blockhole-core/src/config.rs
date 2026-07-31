@@ -41,7 +41,6 @@ fn four() -> f64 {
 }
 #[derive(Clone)]
 pub struct Settings {
-    pub platform: String,
     pub mode: RunMode,
     pub lookback_hours: i64,
     pub overlap_hours: i64,
@@ -57,7 +56,6 @@ pub struct Settings {
 impl std::fmt::Debug for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Settings")
-            .field("platform", &self.platform)
             .field("mode", &self.mode)
             .field("suspicious_path_patterns", &self.suspicious_path_patterns)
             .finish_non_exhaustive()
@@ -66,7 +64,8 @@ impl std::fmt::Debug for Settings {
 #[derive(Deserialize)]
 struct Raw {
     schema_version: u32,
-    platform: Platform,
+    #[serde(default)]
+    platform: Option<Platform>,
     mode: RunMode,
     lookback_hours: i64,
     overlap_hours: i64,
@@ -84,9 +83,19 @@ struct Platform {
     name: String,
 }
 pub fn parse(text: &str) -> Result<Settings> {
-    let raw: Raw =
-        toml::from_str(text).map_err(|e| BlockholeError::Configuration(e.to_string()))?;
-    Settings::try_from(raw)
+    Settings::try_from(parse_raw(text)?)
+}
+
+pub fn parse_platform(text: &str) -> Result<String> {
+    parse_raw(text)?
+        .platform
+        .map(|platform| platform.name)
+        .filter(|name| !name.trim().is_empty())
+        .ok_or_else(|| BlockholeError::Configuration("platform.name must not be empty".into()))
+}
+
+fn parse_raw(text: &str) -> Result<Raw> {
+    toml::from_str(text).map_err(|e| BlockholeError::Configuration(e.to_string()))
 }
 impl TryFrom<Raw> for Settings {
     type Error = BlockholeError;
@@ -102,15 +111,9 @@ impl TryFrom<Raw> for Settings {
                 "lookback_hours must exceed overlap_hours".into(),
             ));
         }
-        if raw.platform.name.trim().is_empty() {
-            return Err(BlockholeError::Configuration(
-                "platform.name must not be empty".into(),
-            ));
-        }
         let suspicious_path_set = RegexSet::new(&raw.suspicious_path_patterns)
             .map_err(|e| BlockholeError::Configuration(format!("invalid regex pattern: {e}")))?;
         Ok(Settings {
-            platform: raw.platform.name,
             mode: raw.mode,
             lookback_hours: raw.lookback_hours,
             overlap_hours: raw.overlap_hours,
