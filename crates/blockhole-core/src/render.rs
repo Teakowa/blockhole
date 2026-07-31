@@ -1,12 +1,21 @@
-use crate::models::{BlockDecision, BlockTarget, DesiredList, EvaluationResult, State};
+use crate::models::{BlockDecision, BlockTarget, DesiredList, EvaluationResult, State, Subject};
 use chrono::{DateTime, Utc};
 
-pub fn evaluate_state(state: &State, now: DateTime<Utc>) -> Vec<EvaluationResult> {
+pub fn evaluate_state(
+    state: &State,
+    now: DateTime<Utc>,
+    allowlist: &[Subject],
+) -> Vec<EvaluationResult> {
     state
         .records
         .iter()
         .map(|(subject, record)| {
-            EvaluationResult::from_record(subject.clone(), record.clone(), now)
+            EvaluationResult::from_record_with_allowlist(
+                subject.clone(),
+                record.clone(),
+                now,
+                allowlist.iter().any(|network| network.contains(subject)),
+            )
         })
         .collect()
 }

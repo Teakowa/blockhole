@@ -23,11 +23,11 @@ query strings before paths are retained. The configured
 `suspicious_path_patterns` identify probe-like paths; these paths are the
 required primary signal and still cannot block an IP on their own.
 
-The allowlist is evaluated before scoring and takes precedence over all blocks,
-including manually imported `permanent_blocked` records. When a `permanent_blocked`
-record matches an allowlist entry, it is retained in state with `suppressed_by_allowlist: true`
-and excluded from active denylists. If the allowlist entry is later removed, the permanent
-block automatically reactivates. Entries may be individual IPv4 or IPv6 addresses or
+The allowlist takes precedence over all block decisions, including automatically
+qualified and manually imported `permanent_blocked` records. Allowlisted records
+remain in state and retain their underlying lifecycle status, but are excluded from
+active denylists. If the allowlist entry is later removed, an unexpired block
+automatically reactivates. Entries may be individual IPv4 or IPv6 addresses or
 networks. Invalid entries fail validation. Do not add broad ASN or country exemptions
 as a substitute for explicit allowlist entries.
 

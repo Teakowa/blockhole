@@ -42,11 +42,6 @@ pub fn transition(
         });
     }
 
-    // Allowlisted: merge observations for accounting, set Allowlisted status.
-    if allowlisted {
-        return allowlisted_transition(previous, observations, settings, now);
-    }
-
     // No new observations: decay + time-based transitions only.
     if observations.is_empty() {
         let prev = previous.ok_or_else(|| {
@@ -69,36 +64,6 @@ pub fn evaluate(
 ) -> Result<EvaluationResult> {
     let record = transition(previous, observations, settings, now, allowlisted)?;
     Ok(EvaluationResult::from_record(subject.clone(), record, now))
-}
-
-/// Handle allowlisted records: merge counters for book-keeping, always set
-/// `Allowlisted` status.
-fn allowlisted_transition(
-    previous: Option<&IpRecord>,
-    observations: &[Observation],
-    settings: &Settings,
-    now: DateTime<Utc>,
-) -> Result<IpRecord> {
-    if let Some(prev) = previous {
-        if observations.is_empty() {
-            return Ok(IpRecord {
-                status: RecordStatus::Allowlisted,
-                last_evaluated: now,
-                ..prev.clone()
-            });
-        }
-        let signals = policy::score_signals(observations, Some(prev), settings, now)?;
-        let score = signals.raw_score;
-        return Ok(build_record(signals, RecordStatus::Allowlisted, score, now));
-    }
-    if !observations.is_empty() {
-        let signals = policy::score_signals(observations, None, settings, now)?;
-        let score = signals.raw_score;
-        return Ok(build_record(signals, RecordStatus::Allowlisted, score, now));
-    }
-    Err(BlockholeError::Policy(
-        "cannot evaluate empty observations without state".into(),
-    ))
 }
 
 /// Handle existing records without new observations: apply score decay and

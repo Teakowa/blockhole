@@ -139,7 +139,17 @@ pub struct EvaluationResult {
 
 impl EvaluationResult {
     pub fn from_record(subject: Subject, record: IpRecord, now: DateTime<Utc>) -> Self {
+        Self::from_record_with_allowlist(subject, record, now, false)
+    }
+
+    pub fn from_record_with_allowlist(
+        subject: Subject,
+        record: IpRecord,
+        now: DateTime<Utc>,
+        allowlisted: bool,
+    ) -> Self {
         let decision = match &record.status {
+            _ if allowlisted => BlockDecision::Allow,
             RecordStatus::PermanentBlocked {
                 suppressed_by_allowlist: false,
                 ..

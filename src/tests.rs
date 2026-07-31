@@ -237,6 +237,30 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
 }
 
 #[test]
+fn allowlist_suppresses_decision_without_erasing_lifecycle_status() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let subject = Subject::parse("192.0.2.1").unwrap();
+    let record =
+        crate::lifecycle::transition(None, &[blocking_obs(now)], &settings(), now, true).unwrap();
+    assert!(matches!(
+        record.status,
+        RecordStatus::TemporaryBlocked { .. }
+    ));
+
+    let mut state = state::empty();
+    state.records.insert(subject, record);
+    let allowlist = vec![Subject::parse("192.0.2.0/24").unwrap()];
+
+    let suppressed =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &allowlist));
+    let active =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
+
+    assert!(suppressed.items.is_empty());
+    assert_eq!(active.items.len(), 1);
+}
+
+#[test]
 fn v1_v2_and_v3_state_migrate_to_v4_status() {
     let path_v1 =
         std::env::temp_dir().join(format!("blockhole-state-v1-{}.json", std::process::id()));
@@ -348,7 +372,8 @@ fn render_writes_report_to_custom_path() {
     let state = state::empty();
     let report_path = PathBuf::from("custom/report.md");
     let now = Utc::now();
-    let desired = crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
+    let desired =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
     let res = crate::output::write_render_outputs(&temp, &desired, now, &report_path);
     assert!(res.is_ok());
     assert!(temp.join("custom/report.md").exists());
@@ -418,7 +443,8 @@ fn render_formats_cloudflare_comments_correctly() {
         },
     );
 
-    let desired = crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
+    let desired =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
     crate::output::write_render_outputs(
         &temp,
         &desired,
