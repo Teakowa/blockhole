@@ -1,7 +1,7 @@
 use blockhole_core::{
     error::{BlockholeError, Result},
     models::{BlockTarget, DesiredList, Observation, Subject},
-    plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
+    plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions},
     sync::{self, BlockBackend, ListDiff},
 };
 use chrono::{DateTime, Utc};
@@ -61,7 +61,7 @@ impl NginxPlugin {
     }
 }
 
-impl PlatformPlugin for NginxPlugin {
+impl ObservationSource for NginxPlugin {
     fn collect(
         &self,
         window: CollectionWindow,
@@ -93,7 +93,9 @@ impl PlatformPlugin for NginxPlugin {
             })
             .collect()
     }
+}
 
+impl BlockDeployer for NginxPlugin {
     fn sync(&self, desired: &DesiredList, options: SyncOptions) -> Result<ListDiff> {
         let backend = NginxBackend {
             path: &self.denylist_path,
@@ -373,7 +375,7 @@ mod tests {
     use super::{NginxPlugin, parse_denylist, parse_log_line, render_denylist};
     use blockhole_core::config::RunMode;
     use blockhole_core::models::{BlockTarget, DesiredList, Subject};
-    use blockhole_core::plugin::{CollectionWindow, PlatformPlugin, SyncOptions};
+    use blockhole_core::plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions};
     use chrono::{TimeZone, Utc};
     use regex::RegexSet;
     use std::fs;

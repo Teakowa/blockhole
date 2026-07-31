@@ -5,7 +5,7 @@ mod lists;
 use blockhole_core::{
     error::{BlockholeError, Result},
     models::{DesiredList, Observation},
-    plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
+    plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions},
     sync::ListDiff,
 };
 use regex::RegexSet;
@@ -121,7 +121,7 @@ impl CloudflarePlugin {
     }
 }
 
-impl PlatformPlugin for CloudflarePlugin {
+impl ObservationSource for CloudflarePlugin {
     fn collect(
         &self,
         window: CollectionWindow,
@@ -159,7 +159,9 @@ impl PlatformPlugin for CloudflarePlugin {
             Ok(all)
         })
     }
+}
 
+impl BlockDeployer for CloudflarePlugin {
     fn sync(&self, desired: &DesiredList, options: SyncOptions) -> Result<ListDiff> {
         let backend = ListsClient::new(
             self.client.clone(),

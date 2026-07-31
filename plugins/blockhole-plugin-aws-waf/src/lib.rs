@@ -3,7 +3,7 @@ use aws_sdk_wafv2::{Client as WafClient, types::Scope};
 use blockhole_core::{
     error::{BlockholeError, Result},
     models::{BlockTarget, DesiredList, Observation, Subject},
-    plugin::{PlatformPlugin, SyncOptions},
+    plugin::{BlockDeployer, ObservationSource, SyncOptions},
     sync::{self, BlockBackend, ListDiff},
 };
 use chrono::{TimeZone, Utc};
@@ -92,7 +92,7 @@ impl AwsWafPlugin {
     }
 }
 
-impl PlatformPlugin for AwsWafPlugin {
+impl ObservationSource for AwsWafPlugin {
     fn collect(
         &self,
         window: blockhole_core::plugin::CollectionWindow,
@@ -126,7 +126,9 @@ impl PlatformPlugin for AwsWafPlugin {
             })
             .collect()
     }
+}
 
+impl BlockDeployer for AwsWafPlugin {
     fn sync(&self, desired: &DesiredList, options: SyncOptions) -> Result<ListDiff> {
         let normalized = normalize_desired(desired, self.address_version)?;
         let diff = sync::reconcile(

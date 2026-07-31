@@ -20,12 +20,18 @@ pub struct SyncOptions {
     pub allow_empty: bool,
 }
 
-pub trait PlatformPlugin {
+pub trait ObservationSource {
     fn collect(
         &self,
         window: CollectionWindow,
         suspicious_path_set: &RegexSet,
     ) -> Result<Vec<Observation>>;
+}
 
+pub trait BlockDeployer {
     fn sync(&self, desired: &DesiredList, options: SyncOptions) -> Result<ListDiff>;
 }
+
+pub trait PlatformPlugin: ObservationSource + BlockDeployer {}
+
+impl<T> PlatformPlugin for T where T: ObservationSource + BlockDeployer {}
