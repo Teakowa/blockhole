@@ -205,6 +205,7 @@ pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], n
                 error_requests: 0,
                 observation_windows: 0,
                 sources: Vec::new(),
+                fingerprint_history: std::collections::BTreeMap::new(),
                 score: 0.0,
                 reason_codes: vec!["manual_import".into()],
                 status: RecordStatus::PermanentBlocked {

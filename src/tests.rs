@@ -276,13 +276,13 @@ fn allowlist_suppresses_decision_without_erasing_lifecycle_status() {
 }
 
 #[test]
-fn v1_v2_and_v3_state_migrate_to_v4_status() {
+fn v1_v2_v3_and_v4_state_migrate_to_v5_status() {
     let json_v1 = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
     let migrated_v1 = state::decode(json_v1).unwrap();
-    assert_eq!(migrated_v1.schema_version, 4);
+    assert_eq!(migrated_v1.schema_version, 5);
     assert_eq!(
         migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
-        4
+        5
     );
     assert!(matches!(
         migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].status,
@@ -291,9 +291,9 @@ fn v1_v2_and_v3_state_migrate_to_v4_status() {
 
     let json_v2 = r#"{"schema_version":2,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":2,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":[],"score":0.0,"reason_codes":["manual_import"],"status":{"type":"permanent_blocked","imported_at":"2026-01-01T00:00:00Z","source":"config/permanent-blocklist.txt","reason":null}}}}"#;
     let migrated_v2 = state::decode(json_v2).unwrap();
-    assert_eq!(migrated_v2.schema_version, 4);
+    assert_eq!(migrated_v2.schema_version, 5);
     let record_v2 = &migrated_v2.records[&Subject::parse("192.0.2.1").unwrap()];
-    assert_eq!(record_v2.schema_version, 4);
+    assert_eq!(record_v2.schema_version, 5);
     if let RecordStatus::PermanentBlocked {
         suppressed_by_allowlist,
         ..
@@ -306,10 +306,10 @@ fn v1_v2_and_v3_state_migrate_to_v4_status() {
 
     let json_v3 = r#"{"schema_version":3,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":3,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":["legacy-source"],"score":0.0,"reason_codes":[],"status":{"type":"candidate"}}}}"#;
     let migrated_v3 = state::decode(json_v3).unwrap();
-    assert_eq!(migrated_v3.schema_version, 4);
+    assert_eq!(migrated_v3.schema_version, 5);
     assert_eq!(
         migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
-        4
+        5
     );
     assert_eq!(
         migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].sources,
@@ -326,6 +326,13 @@ fn v1_v2_and_v3_state_migrate_to_v4_status() {
             .get("source_zones")
             .is_none()
     );
+
+    let json_v4 = r#"{"schema_version":4,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":4,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"sources":[],"score":0.0,"reason_codes":[],"status":{"type":"candidate"}}}}"#;
+    let migrated_v4 = state::decode(json_v4).unwrap();
+    assert_eq!(migrated_v4.schema_version, 5);
+    let record_v4 = &migrated_v4.records[&Subject::parse("192.0.2.1").unwrap()];
+    assert_eq!(record_v4.schema_version, 5);
+    assert!(record_v4.fingerprint_history.is_empty());
 }
 
 #[test]
@@ -409,6 +416,7 @@ fn render_formats_cloudflare_comments_correctly() {
             error_requests: 0,
             observation_windows: 0,
             sources: vec![],
+            fingerprint_history: std::collections::BTreeMap::new(),
             score: 0.0,
             reason_codes: vec!["manual_import".into()],
             status: RecordStatus::PermanentBlocked {
@@ -436,6 +444,7 @@ fn render_formats_cloudflare_comments_correctly() {
             error_requests: 90,
             observation_windows: 1,
             sources: vec!["zone".into()],
+            fingerprint_history: std::collections::BTreeMap::new(),
             score: 6.0,
             reason_codes: vec!["high_error_ratio".into(), "suspicious_paths".into()],
             status: RecordStatus::TemporaryBlocked {

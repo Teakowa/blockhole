@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-pub const CURRENT_SCHEMA: u32 = 4;
+pub const CURRENT_SCHEMA: u32 = 5;
 #[derive(Deserialize)]
 struct V1Record {
     first_seen: DateTime<Utc>,
@@ -49,12 +49,24 @@ pub fn decode(text: &str) -> Result<State> {
     if version == 3 {
         return migrate_v3(value);
     }
+    if version == 4 {
+        return migrate_v4(value);
+    }
     if version == 2 {
         return migrate_v2(value);
     }
     migrate_v1(serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?)
 }
 fn migrate_v3(value: serde_json::Value) -> Result<State> {
+    let mut state: State =
+        serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?;
+    state.schema_version = CURRENT_SCHEMA;
+    for record in state.records.values_mut() {
+        record.schema_version = CURRENT_SCHEMA;
+    }
+    Ok(state)
+}
+fn migrate_v4(value: serde_json::Value) -> Result<State> {
     let mut state: State =
         serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?;
     state.schema_version = CURRENT_SCHEMA;
@@ -116,6 +128,7 @@ fn migrate_v1(old: V1State) -> Result<State> {
                 error_requests: old.error_requests,
                 observation_windows: old.observation_windows,
                 sources: old.source_zones,
+                fingerprint_history: BTreeMap::new(),
                 score: old.score,
                 reason_codes: old.reason_codes,
                 status,

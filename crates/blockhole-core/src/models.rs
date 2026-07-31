@@ -100,6 +100,8 @@ pub struct IpRecord {
     pub observation_windows: u64,
     #[serde(alias = "source_zones")]
     pub sources: Vec<String>,
+    #[serde(default)]
+    pub fingerprint_history: std::collections::BTreeMap<String, DateTime<Utc>>,
     pub score: f64,
     pub reason_codes: Vec<String>,
     pub status: RecordStatus,

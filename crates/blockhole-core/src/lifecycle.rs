@@ -198,6 +198,7 @@ fn build_record(
         error_requests: signals.error_requests,
         observation_windows: signals.observation_windows,
         sources: signals.sources,
+        fingerprint_history: std::collections::BTreeMap::new(),
         score,
         reason_codes: signals.reason_codes,
         status,
