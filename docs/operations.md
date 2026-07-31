@@ -85,8 +85,9 @@ install Rust or compile the CLI.
 
 The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics
-checkpoint and ends at the current time. This makes hourly runs collect only
-the new interval instead of adding the same rolling 24-hour result repeatedly.
+checkpoint minus `overlap_hours` and ends at the current time. The overlap
+protects against boundary delays while the checkpoint still advances only
+after successful collection and evaluation.
 
 ## Runtime state branch
 

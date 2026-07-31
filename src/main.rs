@@ -142,13 +142,27 @@ fn window(
 ) -> Result<(chrono::DateTime<Utc>, chrono::DateTime<Utc>)> {
     let end = Utc::now();
     let st = state::load(&settings.root.join("data/state.json"))?;
+    let checkpoint = st.checkpoints.get("analytics").copied();
     Ok((
-        st.checkpoints
-            .get("analytics")
-            .copied()
-            .unwrap_or(end - Duration::hours(lookback.unwrap_or(settings.lookback_hours))),
+        collection_start(
+            checkpoint,
+            end,
+            lookback.unwrap_or(settings.lookback_hours),
+            settings.overlap_hours,
+        ),
         end,
     ))
+}
+
+fn collection_start(
+    checkpoint: Option<chrono::DateTime<Utc>>,
+    end: chrono::DateTime<Utc>,
+    lookback_hours: i64,
+    overlap_hours: i64,
+) -> chrono::DateTime<Utc> {
+    checkpoint
+        .map(|value| value - Duration::hours(overlap_hours))
+        .unwrap_or(end - Duration::hours(lookback_hours))
 }
 fn collect(
     settings: &config::Settings,
@@ -252,6 +266,28 @@ fn validate_plugin(root: &Path, name: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::TimeZone;
+
+    #[test]
+    fn collection_window_rewinds_checkpoint_by_overlap() {
+        let end = Utc.with_ymd_and_hms(2026, 7, 31, 12, 0, 0).unwrap();
+        let checkpoint = end - Duration::hours(1);
+
+        assert_eq!(
+            collection_start(Some(checkpoint), end, 24, 2),
+            end - Duration::hours(3)
+        );
+    }
+
+    #[test]
+    fn first_collection_uses_lookback_without_checkpoint() {
+        let end = Utc.with_ymd_and_hms(2026, 7, 31, 12, 0, 0).unwrap();
+
+        assert_eq!(
+            collection_start(None, end, 24, 2),
+            end - Duration::hours(24)
+        );
+    }
 
     #[test]
     fn cli_parse_render_and_run_report_path() {
