@@ -185,14 +185,15 @@ fn evaluate_at(
     for subject in all_subjects {
         let previous = st.records.get(&subject);
         let obs = grouped.get(&subject).map_or(&[] as &[_], |v| v.as_slice());
-        let record = lifecycle::transition(
+        let result = lifecycle::evaluate(
+            &subject,
             previous,
             obs,
             &settings,
             checkpoint,
             policy::is_allowlisted(&subject, &allow),
         )?;
-        st.records.insert(subject, record);
+        st.records.insert(subject, result.record);
     }
 
     st.checkpoints.insert("analytics".into(), checkpoint);

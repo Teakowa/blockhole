@@ -122,3 +122,39 @@ pub struct BlockTarget {
 pub struct DesiredList {
     pub items: Vec<BlockTarget>,
 }
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum BlockDecision {
+    Allow,
+    Temporary { expires_at: DateTime<Utc> },
+    Permanent,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct EvaluationResult {
+    pub subject: Subject,
+    pub record: IpRecord,
+    pub decision: BlockDecision,
+}
+
+impl EvaluationResult {
+    pub fn from_record(subject: Subject, record: IpRecord, now: DateTime<Utc>) -> Self {
+        let decision = match &record.status {
+            RecordStatus::PermanentBlocked {
+                suppressed_by_allowlist: false,
+                ..
+            } => BlockDecision::Permanent,
+            RecordStatus::TemporaryBlocked { expires_at, .. } if *expires_at > now => {
+                BlockDecision::Temporary {
+                    expires_at: *expires_at,
+                }
+            }
+            _ => BlockDecision::Allow,
+        };
+        Self {
+            subject,
+            record,
+            decision,
+        }
+    }
+}

@@ -1,32 +1,50 @@
 use crate::{
     error::Result,
-    lifecycle::active,
-    models::{BlockTarget, DesiredList, RecordStatus, State},
+    models::{BlockDecision, BlockTarget, DesiredList, EvaluationResult, State},
 };
 use chrono::{DateTime, Utc};
 use std::{fs, path::Path};
+
+pub fn evaluate_state(state: &State, now: DateTime<Utc>) -> Vec<EvaluationResult> {
+    state
+        .records
+        .iter()
+        .map(|(subject, record)| {
+            EvaluationResult::from_record(subject.clone(), record.clone(), now)
+        })
+        .collect()
+}
+
+pub fn render_desired_list(results: &[EvaluationResult]) -> DesiredList {
+    let mut items = results
+        .iter()
+        .filter_map(|result| {
+            let comment = match &result.decision {
+                BlockDecision::Permanent => "blockhole:permanent:manual".to_string(),
+                BlockDecision::Temporary { expires_at } => format!(
+                    "blockhole:auto:{}:expires={}",
+                    result.record.reason_codes.join("+"),
+                    expires_at.format("%Y-%m-%d")
+                ),
+                BlockDecision::Allow => return None,
+            };
+            Some(BlockTarget {
+                subject: result.subject.clone(),
+                comment,
+            })
+        })
+        .collect::<Vec<_>>();
+    items.sort_by(|a, b| a.subject.cmp(&b.subject));
+    DesiredList { items }
+}
+
 pub fn render(
     root: &Path,
     state: &State,
     now: DateTime<Utc>,
     report_path: &Path,
 ) -> Result<DesiredList> {
-    let active = active(&state.records, now);
-    let mut items = Vec::new();
-    for (subject, record) in active {
-        let comment = match record.status {
-            RecordStatus::PermanentBlocked { .. } => "blockhole:permanent:manual".to_string(),
-            RecordStatus::TemporaryBlocked { expires_at, .. } => format!(
-                "blockhole:auto:{}:expires={}",
-                record.reason_codes.join("+"),
-                expires_at.format("%Y-%m-%d")
-            ),
-            _ => continue,
-        };
-        items.push(BlockTarget { subject, comment });
-    }
-    items.sort_by(|a, b| a.subject.cmp(&b.subject));
-    let desired = DesiredList { items };
+    let desired = render_desired_list(&evaluate_state(state, now));
     fs::create_dir_all(root.join("dist"))?;
     fs::write(
         root.join("dist/blacklist.txt"),

@@ -81,6 +81,27 @@ fn two_signals_and_scanning_block() {
 }
 
 #[test]
+fn evaluation_result_contains_platform_neutral_block_decision() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let subject = Subject::parse("192.0.2.1").unwrap();
+    let result = crate::lifecycle::evaluate(
+        &subject,
+        None,
+        &[blocking_obs(now)],
+        &settings(),
+        now,
+        false,
+    )
+    .unwrap();
+
+    assert_eq!(result.subject, subject);
+    assert!(matches!(
+        result.decision,
+        crate::models::BlockDecision::Temporary { .. }
+    ));
+}
+
+#[test]
 fn policy_computes_suspicious_paths_from_paths() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let mut observations = vec![blocking_obs(now)];
@@ -344,6 +365,9 @@ fn render_formats_cloudflare_comments_correctly() {
 
     let report_path = PathBuf::from("reports/latest.md");
     let desired = crate::render::render(&temp, &state, now, &report_path).unwrap();
+    let pure_desired =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now));
+    assert_eq!(pure_desired, desired);
 
     let perm_item = desired.items.iter().find(|i| i.subject == perm_ip).unwrap();
     assert_eq!(perm_item.comment, "blockhole:permanent:manual");

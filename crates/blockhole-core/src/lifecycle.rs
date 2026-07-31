@@ -1,7 +1,7 @@
 use crate::{
     config::Settings,
     error::{BlockholeError, Result},
-    models::{IpRecord, Observation, RecordStatus, Subject},
+    models::{EvaluationResult, IpRecord, Observation, RecordStatus, Subject},
     policy,
 };
 use chrono::{DateTime, Duration, Utc};
@@ -57,6 +57,18 @@ pub fn transition(
 
     // New observations: score, decay, qualify, determine status.
     observed_transition(previous, observations, settings, now)
+}
+
+pub fn evaluate(
+    subject: &Subject,
+    previous: Option<&IpRecord>,
+    observations: &[Observation],
+    settings: &Settings,
+    now: DateTime<Utc>,
+    allowlisted: bool,
+) -> Result<EvaluationResult> {
+    let record = transition(previous, observations, settings, now, allowlisted)?;
+    Ok(EvaluationResult::from_record(subject.clone(), record, now))
 }
 
 /// Handle allowlisted records: merge counters for book-keeping, always set
