@@ -50,7 +50,8 @@ impl<'de> Deserialize<'de> for Subject {
 #[serde(deny_unknown_fields)]
 pub struct Observation {
     pub ip: Subject,
-    pub zone_id: String,
+    #[serde(rename = "zone_id")]
+    pub source_id: String,
     pub observed_at: DateTime<Utc>,
     pub observed_requests: u64,
     pub weighted_requests: f64,
@@ -97,7 +98,8 @@ pub struct IpRecord {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub observation_windows: u64,
-    pub source_zones: Vec<String>,
+    #[serde(rename = "source_zones")]
+    pub sources: Vec<String>,
     pub score: f64,
     pub reason_codes: Vec<String>,
     pub status: RecordStatus,
@@ -111,12 +113,12 @@ pub struct State {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct CloudflareItem {
-    pub ip: Subject,
+pub struct BlockTarget {
+    pub subject: Subject,
     pub comment: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DesiredList {
-    pub items: Vec<CloudflareItem>,
+    pub items: Vec<BlockTarget>,
 }

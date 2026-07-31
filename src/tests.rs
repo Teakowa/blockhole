@@ -1,5 +1,4 @@
-use crate::{
-    analytics,
+use blockhole_core::{
     config::{RunMode, Settings, Thresholds, Weights},
     models::{Observation, RecordStatus, Subject},
     policy, state, sync,
@@ -11,6 +10,7 @@ use std::path::PathBuf;
 fn settings() -> Settings {
     Settings {
         root: PathBuf::from("."),
+        platform: "cloudflare".into(),
         mode: RunMode::DryRun,
         lookback_hours: 24,
         overlap_hours: 2,
@@ -31,24 +31,24 @@ fn settings() -> Settings {
             suspicious_paths: 4.0,
             high_error_ratio: 1.0,
             repeated_windows: 1.0,
-            multiple_zones: 0.0,
+            multiple_sources: 0.0,
         },
         suspicious_path_patterns: vec![],
         suspicious_path_set: RegexSet::empty(),
-        graphql_url: "".into(),
-        api_base_url: "".into(),
-        max_retries: 3,
-        poll_interval_seconds: 0.0,
-        poll_timeout_seconds: 1.0,
-        zone_ids: vec!["zone".into()],
     }
+}
+
+#[test]
+fn policy_config_selects_cloudflare_plugin() {
+    let settings = blockhole_core::config::load(std::path::Path::new(".")).unwrap();
+    assert_eq!(settings.platform, "cloudflare");
 }
 
 /// Helper: create a blocking observation (crosses all thresholds).
 fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
     Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: now,
         observed_requests: 200,
         weighted_requests: 200.0,
@@ -84,7 +84,7 @@ fn one_scanning_path_stays_candidate() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let obs = Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: now,
         observed_requests: 300,
         weighted_requests: 300.0,
@@ -186,43 +186,23 @@ fn v1_and_v2_state_migrates_to_v3_status() {
 }
 
 #[test]
-fn analytics_parser_strips_query_and_preserves_sampling() {
-    let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":1.5},"count":3}]}]}}}"#;
-    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-    let pattern_set = RegexSet::new([r"(^|/)\.env($|/)"]).unwrap();
-    let observations = analytics::parse(payload, "zone", now, &pattern_set).unwrap();
-    assert_eq!(observations[0].paths, vec!["/.env"]);
-    assert_eq!(observations[0].weighted_requests, 4.5);
-    assert!(observations[0].sampled);
-}
-
-#[test]
 fn list_diff_is_deterministic() {
-    let desired = crate::models::DesiredList {
-        items: vec![crate::models::CloudflareItem {
-            ip: Subject::parse("192.0.2.1").unwrap(),
+    let desired = blockhole_core::models::DesiredList {
+        items: vec![blockhole_core::models::BlockTarget {
+            subject: Subject::parse("192.0.2.1").unwrap(),
             comment: "new".into(),
         }],
     };
-    let actual = vec![crate::models::CloudflareItem {
-        ip: Subject::parse("192.0.2.2").unwrap(),
+    let actual = vec![blockhole_core::models::BlockTarget {
+        subject: Subject::parse("192.0.2.2").unwrap(),
         comment: "old".into(),
     }];
     let result = sync::diff(&desired, &actual);
-    assert_eq!(result.additions[0].ip, Subject::parse("192.0.2.1").unwrap());
+    assert_eq!(
+        result.additions[0].subject,
+        Subject::parse("192.0.2.1").unwrap()
+    );
     assert_eq!(result.removals, vec![Subject::parse("192.0.2.2").unwrap()]);
-}
-
-#[test]
-fn empty_list_fuse_rejects_non_empty_remote_without_request() {
-    let client = reqwest::blocking::Client::builder().build().unwrap();
-    let lists =
-        sync::ListsClient::new(client, "http://127.0.0.1:1", "account", "list", 0, 0.0, 1.0);
-    let result = lists.replace(&crate::models::DesiredList { items: vec![] }, 1, false);
-    assert!(matches!(
-        result,
-        Err(crate::error::BlockholeError::Safety(_))
-    ));
 }
 
 proptest! {
@@ -230,15 +210,15 @@ proptest! {
     fn diff_against_self_is_identical(
         comments in prop::collection::vec("[a-z0-9]{1,10}", 0..20)
     ) {
-        let items: Vec<crate::models::CloudflareItem> = comments
+        let items: Vec<blockhole_core::models::BlockTarget> = comments
             .into_iter()
             .enumerate()
-            .map(|(idx, comment)| crate::models::CloudflareItem {
-                ip: Subject::parse(&format!("192.0.2.{}", (idx % 250) + 1)).unwrap(),
+            .map(|(idx, comment)| blockhole_core::models::BlockTarget {
+                subject: Subject::parse(&format!("192.0.2.{}", (idx % 250) + 1)).unwrap(),
                 comment,
             })
             .collect();
-        let desired = crate::models::DesiredList { items: items.clone() };
+        let desired = blockhole_core::models::DesiredList { items: items.clone() };
         let result = sync::diff(&desired, &items);
         prop_assert!(result.identical());
     }
@@ -282,7 +262,7 @@ fn render_formats_cloudflare_comments_correctly() {
             suspicious_paths: 0,
             error_requests: 0,
             observation_windows: 0,
-            source_zones: vec![],
+            sources: vec![],
             score: 0.0,
             reason_codes: vec!["manual_import".into()],
             status: RecordStatus::PermanentBlocked {
@@ -309,7 +289,7 @@ fn render_formats_cloudflare_comments_correctly() {
             suspicious_paths: 2,
             error_requests: 90,
             observation_windows: 1,
-            source_zones: vec!["zone".into()],
+            sources: vec!["zone".into()],
             score: 6.0,
             reason_codes: vec!["high_error_ratio".into(), "suspicious_paths".into()],
             status: RecordStatus::TemporaryBlocked {
@@ -323,10 +303,10 @@ fn render_formats_cloudflare_comments_correctly() {
     let report_path = PathBuf::from("reports/latest.md");
     let desired = crate::render::render(&temp, &state, now, &report_path).unwrap();
 
-    let perm_item = desired.items.iter().find(|i| i.ip == perm_ip).unwrap();
+    let perm_item = desired.items.iter().find(|i| i.subject == perm_ip).unwrap();
     assert_eq!(perm_item.comment, "blockhole:permanent:manual");
 
-    let temp_item = desired.items.iter().find(|i| i.ip == temp_ip).unwrap();
+    let temp_item = desired.items.iter().find(|i| i.subject == temp_ip).unwrap();
     assert_eq!(
         temp_item.comment,
         "blockhole:auto:high_error_ratio+suspicious_paths:expires=2026-07-22"
@@ -398,7 +378,7 @@ fn observations_do_not_suppress_decay() {
     // except repeated_windows kicks in, raising the raw score from 6.0 to 7.0).
     let obs2 = Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: t1,
         observed_requests: 1,
         weighted_requests: 1.0,

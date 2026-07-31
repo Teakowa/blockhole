@@ -104,7 +104,7 @@ fn migrate_v1(old: V1State) -> Result<State> {
                 suspicious_paths: old.suspicious_paths,
                 error_requests: old.error_requests,
                 observation_windows: old.observation_windows,
-                source_zones: old.source_zones,
+                sources: old.source_zones,
                 score: old.score,
                 reason_codes: old.reason_codes,
                 status,

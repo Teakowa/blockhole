@@ -1,47 +1,21 @@
-use crate::{
+use crate::http::{plugin_error, request};
+use blockhole_core::{
     error::{BlockholeError, Result},
-    http::request,
-    models::{CloudflareItem, DesiredList, Subject},
+    models::{BlockTarget, DesiredList, Subject},
+    sync::BlockBackend,
 };
 use reqwest::blocking::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::BTreeSet,
     thread::sleep,
     time::{Duration, Instant},
 };
-#[derive(Debug, Eq, PartialEq)]
-pub struct ListDiff {
-    pub additions: Vec<CloudflareItem>,
-    pub removals: Vec<Subject>,
-    pub changes: Vec<CloudflareItem>,
-}
-impl ListDiff {
-    pub fn identical(&self) -> bool {
-        self.additions.is_empty() && self.removals.is_empty() && self.changes.is_empty()
-    }
-}
-pub fn diff(desired: &DesiredList, actual: &[CloudflareItem]) -> ListDiff {
-    let want: BTreeMap<&Subject, &CloudflareItem> =
-        desired.items.iter().map(|i| (&i.ip, i)).collect();
-    let have: BTreeMap<&Subject, &CloudflareItem> = actual.iter().map(|i| (&i.ip, i)).collect();
-    ListDiff {
-        additions: want
-            .iter()
-            .filter(|(k, _)| !have.contains_key(*k))
-            .map(|(_, v)| (*v).clone())
-            .collect(),
-        removals: have
-            .keys()
-            .filter(|k| !want.contains_key(*k))
-            .map(|k| (*k).clone())
-            .collect(),
-        changes: want
-            .iter()
-            .filter(|(k, v)| have.get(*k).is_some_and(|x| x.comment != v.comment))
-            .map(|(_, v)| (*v).clone())
-            .collect(),
-    }
+
+#[derive(Serialize)]
+struct CloudflareItem {
+    ip: Subject,
+    comment: String,
 }
 #[derive(Deserialize)]
 struct ListResponse {
@@ -71,6 +45,7 @@ struct Operation {
     operation_id: Option<String>,
     status: Option<String>,
 }
+
 pub struct ListsClient {
     client: Client,
     base: String,
@@ -80,6 +55,7 @@ pub struct ListsClient {
     poll_interval: f64,
     poll_timeout: f64,
 }
+
 impl ListsClient {
     pub fn new(
         client: Client,
@@ -100,92 +76,93 @@ impl ListsClient {
             poll_timeout,
         }
     }
+
     fn items_url(&self) -> String {
         format!(
             "{}/accounts/{}/rules/lists/{}/items",
             self.base, self.account, self.list
         )
     }
-    pub fn get_items(&self) -> Result<Vec<CloudflareItem>> {
+
+    fn current_items(&self) -> Result<Vec<BlockTarget>> {
         let mut items = Vec::new();
         let mut cursor = None;
         let mut seen = BTreeSet::new();
         loop {
             let mut url = format!("{}?per_page=500", self.items_url());
-            if let Some(ref c) = cursor {
-                url.push_str(&format!("&cursor={c}"));
+            if let Some(ref cursor) = cursor {
+                url.push_str(&format!("&cursor={cursor}"));
             }
             let response = request(&self.client, reqwest::Method::GET, &url, self.retries, None)?;
             if !response.status().is_success() {
-                return Err(BlockholeError::Cloudflare(format!(
+                return Err(BlockholeError::Plugin(format!(
                     "list read HTTP {}",
                     response.status()
                 )));
             }
-            let payload: ListResponse = response.json()?;
+            let payload: ListResponse = response.json().map_err(plugin_error)?;
             for item in payload.result {
-                items.push(CloudflareItem {
-                    ip: Subject::parse(&item.ip)?,
+                items.push(BlockTarget {
+                    subject: Subject::parse(&item.ip)?,
                     comment: item.comment,
                 });
             }
             let next = payload
                 .result_info
-                .and_then(|i| i.cursors)
-                .and_then(|c| c.after);
+                .and_then(|info| info.cursors)
+                .and_then(|cursors| cursors.after);
             match next {
                 None => return Ok(items),
-                Some(c) if !seen.insert(c.clone()) => {
-                    return Err(BlockholeError::Cloudflare(
+                Some(cursor) if !seen.insert(cursor.clone()) => {
+                    return Err(BlockholeError::Plugin(
                         "list response pagination cursor repeated".into(),
                     ));
                 }
-                Some(c) => cursor = Some(c),
+                Some(next_cursor) => cursor = Some(next_cursor),
             }
         }
     }
-    pub fn replace(
-        &self,
-        desired: &DesiredList,
-        actual_count: usize,
-        allow_empty: bool,
-    ) -> Result<()> {
-        if actual_count > 0 && desired.items.is_empty() && !allow_empty {
-            return Err(BlockholeError::Safety(
-                "refusing to replace a non-empty remote list with an empty list".into(),
-            ));
-        }
-        let body = serde_json::to_value(&desired.items)?;
+
+    fn replace_remote(&self, desired: &DesiredList) -> Result<()> {
+        let body: Vec<CloudflareItem> = desired
+            .items
+            .iter()
+            .map(|item| CloudflareItem {
+                ip: item.subject.clone(),
+                comment: item.comment.clone(),
+            })
+            .collect();
         let response = request(
             &self.client,
             reqwest::Method::PUT,
             &self.items_url(),
             self.retries,
-            Some(body),
+            Some(serde_json::to_value(body)?),
         )?;
         if !response.status().is_success() {
-            return Err(BlockholeError::Cloudflare(format!(
+            return Err(BlockholeError::Plugin(format!(
                 "list write HTTP {}",
                 response.status()
             )));
         }
-        let operation: OperationResponse = response.json()?;
-        if let Some(id) = operation.result.and_then(|r| r.operation_id) {
+        let operation: OperationResponse = response.json().map_err(plugin_error)?;
+        if let Some(id) = operation.result.and_then(|result| result.operation_id) {
             self.wait(&id)?;
         }
         let deadline = Instant::now() + Duration::from_secs_f64(self.poll_timeout);
         loop {
-            if diff(desired, &self.get_items()?).identical() {
+            if blockhole_core::sync::diff(desired, &self.current_items()?).identical() {
                 return Ok(());
             }
             if Instant::now() >= deadline {
-                return Err(BlockholeError::Cloudflare(
+                return Err(BlockholeError::Plugin(
                     "remote list verification mismatch".into(),
                 ));
             }
             sleep(Duration::from_secs_f64(self.poll_interval));
         }
     }
+
     fn wait(&self, id: &str) -> Result<()> {
         let url = format!(
             "{}/accounts/{}/rules/lists/bulk_operations/{id}",
@@ -195,31 +172,41 @@ impl ListsClient {
         loop {
             let response = request(&self.client, reqwest::Method::GET, &url, self.retries, None)?;
             if !response.status().is_success() {
-                return Err(BlockholeError::Cloudflare(format!(
+                return Err(BlockholeError::Plugin(format!(
                     "operation poll HTTP {}",
                     response.status()
                 )));
             }
-            let payload: OperationResponse = response.json()?;
-            match payload.result.and_then(|r| r.status) {
+            let payload: OperationResponse = response.json().map_err(plugin_error)?;
+            match payload.result.and_then(|result| result.status) {
                 Some(status)
                     if ["completed", "success", "succeeded"].contains(&status.as_str()) =>
                 {
                     return Ok(());
                 }
                 Some(status) if ["failed", "error"].contains(&status.as_str()) => {
-                    return Err(BlockholeError::Cloudflare(format!(
+                    return Err(BlockholeError::Plugin(format!(
                         "Cloudflare operation failed: {status}"
                     )));
                 }
                 _ => {}
             }
             if Instant::now() >= deadline {
-                return Err(BlockholeError::Cloudflare(
+                return Err(BlockholeError::Plugin(
                     "Cloudflare operation polling timed out".into(),
                 ));
             }
             sleep(Duration::from_secs_f64(self.poll_interval));
         }
+    }
+}
+
+impl BlockBackend for ListsClient {
+    fn current(&self) -> Result<Vec<BlockTarget>> {
+        self.current_items()
+    }
+
+    fn replace(&self, desired: &DesiredList) -> Result<()> {
+        self.replace_remote(desired)
     }
 }

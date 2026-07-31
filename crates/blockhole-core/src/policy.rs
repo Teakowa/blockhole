@@ -24,7 +24,7 @@ pub struct MergedSignals {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub observation_windows: u64,
-    pub source_zones: Vec<String>,
+    pub sources: Vec<String>,
     pub raw_score: f64,
     pub reason_codes: Vec<String>,
     pub qualifies_for_block: bool,
@@ -77,8 +77,8 @@ pub fn score_signals(
         + existing.map_or(0, |r| r.suspicious_paths);
     let errors = observations.iter().map(|o| o.error_requests).sum::<u64>()
         + existing.map_or(0, |r| r.error_requests);
-    let mut zones: BTreeSet<String> = observations.iter().map(|o| o.zone_id.clone()).collect();
-    zones.extend(existing.map_or_else(Vec::new, |r| r.source_zones.clone()));
+    let mut sources: BTreeSet<String> = observations.iter().map(|o| o.source_id.clone()).collect();
+    sources.extend(existing.map_or_else(Vec::new, |r| r.sources.clone()));
     let windows =
         existing.map_or(0, |r| r.observation_windows) + u64::from(!observations.is_empty());
     let ratio = if observed == 0 {
@@ -109,8 +109,8 @@ pub fn score_signals(
         score += w.repeated_windows;
         reasons.push("repeated_windows".into());
     }
-    if zones.len() >= 2 {
-        score += w.multiple_zones;
+    if sources.len() >= 2 {
+        score += w.multiple_sources;
         reasons.push("multiple_zones".into());
     }
     let qualifies = score >= settings.thresholds.block_score
@@ -127,7 +127,7 @@ pub fn score_signals(
         suspicious_paths: suspicious,
         error_requests: errors,
         observation_windows: windows,
-        source_zones: zones.into_iter().collect(),
+        sources: sources.into_iter().collect(),
         raw_score: (score * 10_000.0).round() / 10_000.0,
         reason_codes: reasons,
         qualifies_for_block: qualifies,
@@ -165,7 +165,7 @@ pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], n
                 suspicious_paths: 0,
                 error_requests: 0,
                 observation_windows: 0,
-                source_zones: Vec::new(),
+                sources: Vec::new(),
                 score: 0.0,
                 reason_codes: vec!["manual_import".into()],
                 status: RecordStatus::PermanentBlocked {

@@ -206,7 +206,7 @@ fn build_record(
         suspicious_paths: signals.suspicious_paths,
         error_requests: signals.error_requests,
         observation_windows: signals.observation_windows,
-        source_zones: signals.source_zones,
+        sources: signals.sources,
         score,
         reason_codes: signals.reason_codes,
         status,

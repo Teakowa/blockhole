@@ -1,7 +1,12 @@
-use crate::error::{BlockholeError, Result};
+use blockhole_core::error::{BlockholeError, Result};
 use reqwest::blocking::{Client, Response};
 use std::thread::sleep;
 use std::time::Duration;
+
+pub fn plugin_error(error: reqwest::Error) -> BlockholeError {
+    BlockholeError::Plugin(format!("Cloudflare request failed: {error}"))
+}
+
 pub fn request(
     client: &Client,
     method: reqwest::Method,
@@ -27,18 +32,16 @@ pub fn request(
                 let delay = response
                     .headers()
                     .get("Retry-After")
-                    .and_then(|v| v.to_str().ok())
-                    .and_then(|v| v.parse::<f64>().ok())
+                    .and_then(|value| value.to_str().ok())
+                    .and_then(|value| value.parse::<f64>().ok())
                     .unwrap_or(2_f64.powi(attempt as i32));
                 sleep(Duration::from_secs_f64(delay.max(0.0)));
             }
-            Err(err) if attempt == retries => {
-                return Err(BlockholeError::Cloudflare(format!("request failed: {err}")));
-            }
+            Err(error) if attempt == retries => return Err(plugin_error(error)),
             Err(_) => sleep(Duration::from_secs_f64(2_f64.powi(attempt as i32))),
         }
     }
-    Err(BlockholeError::Cloudflare(
-        "retry loop ended unexpectedly".into(),
+    Err(BlockholeError::Plugin(
+        "Cloudflare retry loop ended unexpectedly".into(),
     ))
 }

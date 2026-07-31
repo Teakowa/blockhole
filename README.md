@@ -1,10 +1,9 @@
 # Blockhole
 
-Blockhole maintains a cautious, auditable Cloudflare account-level IP
-denylist from suspicious HTTP scanning activity observed in Security
-Analytics. It is a batch pipeline: GitHub Actions collects analytics, applies
-deterministic policy, commits canonical state and generated artifacts, and
-reconciles a Cloudflare Custom IP List.
+Blockhole maintains a cautious, auditable IP denylist from suspicious HTTP
+scanning activity. Its reusable core applies deterministic policy and lifecycle
+rules; platform plugins collect observations and enforce block targets.
+Cloudflare is the default plugin and is used by the CLI in this repository.
 
 The policy runs in `enforce` mode by default. Use `--dry-run` when validating a
 run without changing the remote list. Scheduled runs execute code from `main`
@@ -33,6 +32,9 @@ The token needs analytics read access for the configured zones and Custom List
 read/edit access for the configured account. Never commit it or place it in
 configuration files.
 
+The selected plugin is configured by `platform.name`; the current supported
+value is `cloudflare`.
+
 ## CLI
 
 ```text
@@ -49,14 +51,14 @@ and `--report-path`.
 
 ## Repository data
 
-- `config/policy.toml`: thresholds, lifecycle, API, and rollout settings.
+- `config/policy.toml`: platform selection, thresholds, lifecycle, API, and rollout settings.
 - `config/allowlist.txt`: trusted addresses and networks.
 - `config/permanent-blocklist.txt`: manually managed permanent addresses and networks.
 - `data/state.json`: canonical versioned lifecycle state (only on the orphan
   `blacklist-state` branch).
 - `dist/blacklist.txt`: generated active IP list (only on the orphan
   `blacklist-state` branch).
-- `dist/cloudflare-list.json`: generated Custom List payload (only on the
+- `dist/desired-blocks.json`: generated platform-neutral block targets (only on the
   orphan `blacklist-state` branch).
 - `reports/latest.md`: redacted run report (only on the orphan
   `blacklist-state` branch).

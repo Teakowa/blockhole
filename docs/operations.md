@@ -2,7 +2,10 @@
 
 ## GitHub configuration
 
-Configure these repository or environment variables:
+The CLI selects a platform implementation through `platform.name` in
+`config/policy.toml`. The current implementation is `cloudflare`.
+
+Configure these repository or environment variables for that plugin:
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_ZONE_IDS`
@@ -53,10 +56,10 @@ fixtures in temporary directories and validate the source tree independently.
 
 ## Empty-list protection
 
-A scheduled or ordinary run cannot replace a non-empty Cloudflare list with an
-empty desired list. Collection, validation, schema, and state failures do not
-modify Cloudflare. An empty replacement requires manual dispatch with
-`allow_empty=true` and successful collection for every configured zone.
+A scheduled or ordinary run cannot replace a non-empty platform block list with
+an empty desired list. Collection, validation, schema, and state failures do
+not modify the platform. An empty replacement requires manual dispatch with
+`allow_empty=true` and successful collection for every configured source.
 
 ## Recovery
 

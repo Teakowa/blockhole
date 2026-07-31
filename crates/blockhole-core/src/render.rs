@@ -1,7 +1,7 @@
 use crate::{
     error::Result,
     lifecycle::active,
-    models::{CloudflareItem, DesiredList, RecordStatus, State},
+    models::{BlockTarget, DesiredList, RecordStatus, State},
 };
 use chrono::{DateTime, Utc};
 use std::{fs, path::Path};
@@ -23,12 +23,9 @@ pub fn render(
             ),
             _ => continue,
         };
-        items.push(CloudflareItem {
-            ip: subject,
-            comment,
-        });
+        items.push(BlockTarget { subject, comment });
     }
-    items.sort_by(|a, b| a.ip.cmp(&b.ip));
+    items.sort_by(|a, b| a.subject.cmp(&b.subject));
     let desired = DesiredList { items };
     fs::create_dir_all(root.join("dist"))?;
     fs::write(
@@ -36,11 +33,11 @@ pub fn render(
         desired
             .items
             .iter()
-            .map(|i| format!("{}\n", i.ip))
+            .map(|i| format!("{}\n", i.subject))
             .collect::<String>(),
     )?;
     fs::write(
-        root.join("dist/cloudflare-list.json"),
+        root.join("dist/desired-blocks.json"),
         serde_json::to_string_pretty(&desired)? + "\n",
     )?;
     let report_target = if report_path.is_relative() {

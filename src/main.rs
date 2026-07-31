@@ -1,15 +1,14 @@
-use blockhole::{
-    analytics,
-    config::{self, RunMode},
+use blockhole_core::{
+    config,
     error::{BlockholeError, Result},
     lifecycle,
     models::Observation,
+    plugin::{CollectionWindow, PlatformPlugin, SyncOptions},
     policy, render, state,
-    sync::ListsClient,
 };
+use blockhole_plugin_cloudflare::CloudflarePlugin;
 use chrono::{Duration, Utc};
 use clap::{Parser, Subcommand};
-use reqwest::blocking::Client;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -117,6 +116,7 @@ fn execute(args: Vec<String>) -> Result<()> {
 }
 fn validate(root: &Path) -> Result<()> {
     let settings = config::load(root)?;
+    validate_plugin(root, &settings.platform)?;
     let allow = policy::allowlist(root)?;
     let permanent = policy::permanent(root)?;
     let st = state::load(&settings.root.join("data/state.json"))?;
@@ -147,39 +147,11 @@ fn collect(
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
-    if settings.zone_ids.is_empty() {
-        return Err(BlockholeError::Configuration(
-            "no zone IDs configured in config/policy.toml".into(),
-        ));
-    }
-    let (token, _, _) = config::credentials()?;
-    let client = authenticated_client(token)?;
-    std::thread::scope(|s| {
-        let handles: Vec<_> = settings
-            .zone_ids
-            .iter()
-            .map(|zone| {
-                s.spawn(|| {
-                    analytics::collect(
-                        &client,
-                        &settings.graphql_url,
-                        settings.max_retries,
-                        zone,
-                        start,
-                        end,
-                        &settings.suspicious_path_set,
-                    )
-                })
-            })
-            .collect();
-        let mut all = Vec::new();
-        for handle in handles {
-            all.extend(handle.join().map_err(|_| {
-                BlockholeError::Cloudflare("zone collection thread panicked".into())
-            })??);
-        }
-        Ok(all)
-    })
+    let plugin = load_plugin(settings)?;
+    plugin.collect(
+        CollectionWindow { start, end },
+        &settings.suspicious_path_set,
+    )
 }
 fn evaluate_at(
     root: &Path,
@@ -227,45 +199,42 @@ fn evaluate_at(
 }
 fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
     let settings = config::load(root)?;
-    let (token, account, list) = config::credentials()?;
-    let desired: blockhole::models::DesiredList =
-        serde_json::from_str(&fs::read_to_string(root.join("dist/cloudflare-list.json"))?)?;
-    let client = authenticated_client(token)?;
-    let lists = ListsClient::new(
-        client,
-        &settings.api_base_url,
-        &account,
-        &list,
-        settings.max_retries,
-        settings.poll_interval_seconds,
-        settings.poll_timeout_seconds,
-    );
-    let actual = lists.get_items()?;
-    let diff = blockhole::sync::diff(&desired, &actual);
+    let desired: blockhole_core::models::DesiredList =
+        serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
+    let plugin = load_plugin(&settings)?;
+    let diff = plugin.sync(
+        &desired,
+        SyncOptions {
+            dry_run,
+            mode: settings.mode,
+            allow_empty,
+        },
+    )?;
     println!(
         "add={} remove={} change={}",
         diff.additions.len(),
         diff.removals.len(),
         diff.changes.len()
     );
-    if !dry_run && settings.mode != RunMode::DryRun && !diff.identical() {
-        lists.replace(&desired, actual.len(), allow_empty)?;
-    }
     Ok(())
 }
 
-fn authenticated_client(token: String) -> Result<Client> {
-    let mut headers = reqwest::header::HeaderMap::new();
-    headers.insert(
-        reqwest::header::AUTHORIZATION,
-        reqwest::header::HeaderValue::from_str(&format!("Bearer {token}"))
-            .map_err(|e| BlockholeError::Configuration(e.to_string()))?,
-    );
-    Ok(Client::builder()
-        .timeout(std::time::Duration::from_secs(30))
-        .user_agent(format!("blockhole/{VERSION}"))
-        .default_headers(headers)
-        .build()?)
+fn load_plugin(settings: &config::Settings) -> Result<Box<dyn PlatformPlugin>> {
+    match settings.platform.as_str() {
+        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(&settings.root)?)),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
+}
+
+fn validate_plugin(root: &Path, name: &str) -> Result<()> {
+    match name {
+        "cloudflare" => CloudflarePlugin::validate_config(root),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
 }
 
 #[cfg(test)]
@@ -302,5 +271,13 @@ mod tests {
         let err = version_cli.unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
         assert!(err.to_string().contains(VERSION));
+    }
+
+    #[test]
+    fn unknown_platform_plugin_is_rejected() {
+        let error = validate_plugin(Path::new("."), "unknown").unwrap_err();
+        assert!(
+            matches!(error, BlockholeError::Configuration(message) if message.contains("unknown"))
+        );
     }
 }

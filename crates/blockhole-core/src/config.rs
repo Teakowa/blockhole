@@ -5,7 +5,7 @@ use crate::{
 use regex::RegexSet;
 use serde::Deserialize;
 use std::{
-    env, fs,
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -37,7 +37,8 @@ pub struct Weights {
     #[serde(default = "one")]
     pub repeated_windows: f64,
     #[serde(default)]
-    pub multiple_zones: f64,
+    #[serde(rename = "multiple_zones")]
+    pub multiple_sources: f64,
 }
 fn one() -> f64 {
     1.0
@@ -48,6 +49,7 @@ fn four() -> f64 {
 #[derive(Clone)]
 pub struct Settings {
     pub root: PathBuf,
+    pub platform: String,
     pub mode: RunMode,
     pub lookback_hours: i64,
     pub overlap_hours: i64,
@@ -59,19 +61,13 @@ pub struct Settings {
     pub weights: Weights,
     pub suspicious_path_patterns: Vec<String>,
     pub suspicious_path_set: RegexSet,
-    pub graphql_url: String,
-    pub api_base_url: String,
-    pub max_retries: usize,
-    pub poll_interval_seconds: f64,
-    pub poll_timeout_seconds: f64,
-    pub zone_ids: Vec<String>,
 }
 impl std::fmt::Debug for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Settings")
             .field("root", &self.root)
+            .field("platform", &self.platform)
             .field("mode", &self.mode)
-            .field("zone_ids", &self.zone_ids)
             .field("suspicious_path_patterns", &self.suspicious_path_patterns)
             .finish_non_exhaustive()
     }
@@ -79,6 +75,7 @@ impl std::fmt::Debug for Settings {
 #[derive(Deserialize)]
 struct Raw {
     schema_version: u32,
+    platform: Platform,
     mode: RunMode,
     lookback_hours: i64,
     overlap_hours: i64,
@@ -90,20 +87,10 @@ struct Raw {
     thresholds: Thresholds,
     #[serde(default)]
     signal_weights: Option<Weights>,
-    cloudflare: Cloudflare,
-    zones: Zones,
 }
 #[derive(Deserialize)]
-struct Cloudflare {
-    graphql_url: String,
-    api_base_url: String,
-    max_retries: usize,
-    poll_interval_seconds: f64,
-    poll_timeout_seconds: f64,
-}
-#[derive(Deserialize)]
-struct Zones {
-    ids: Vec<String>,
+struct Platform {
+    name: String,
 }
 pub fn load(root: &Path) -> Result<Settings> {
     let raw: Raw = toml::from_str(&fs::read_to_string(root.join("config/policy.toml"))?)
@@ -124,19 +111,16 @@ impl TryFrom<(Raw, PathBuf)> for Settings {
                 "lookback_hours must exceed overlap_hours".into(),
             ));
         }
-        let zones = env::var("CLOUDFLARE_ZONE_IDS")
-            .ok()
-            .map(|x| {
-                x.split(',')
-                    .filter(|s| !s.trim().is_empty())
-                    .map(|s| s.trim().to_string())
-                    .collect()
-            })
-            .unwrap_or(raw.zones.ids);
+        if raw.platform.name.trim().is_empty() {
+            return Err(BlockholeError::Configuration(
+                "platform.name must not be empty".into(),
+            ));
+        }
         let suspicious_path_set = RegexSet::new(&raw.suspicious_path_patterns)
             .map_err(|e| BlockholeError::Configuration(format!("invalid regex pattern: {e}")))?;
         Ok(Settings {
             root,
+            platform: raw.platform.name,
             mode: raw.mode,
             lookback_hours: raw.lookback_hours,
             overlap_hours: raw.overlap_hours,
@@ -151,26 +135,12 @@ impl TryFrom<(Raw, PathBuf)> for Settings {
                 suspicious_paths: 4.0,
                 high_error_ratio: 1.0,
                 repeated_windows: 1.0,
-                multiple_zones: 0.0,
+                multiple_sources: 0.0,
             }),
             suspicious_path_patterns: raw.suspicious_path_patterns,
             suspicious_path_set,
-            graphql_url: raw.cloudflare.graphql_url,
-            api_base_url: raw.cloudflare.api_base_url,
-            max_retries: raw.cloudflare.max_retries,
-            poll_interval_seconds: raw.cloudflare.poll_interval_seconds,
-            poll_timeout_seconds: raw.cloudflare.poll_timeout_seconds,
-            zone_ids: zones,
         })
     }
-}
-pub fn credentials() -> Result<(String, String, String)> {
-    let get = |var: &'static str| env::var(var).map_err(|_| BlockholeError::MissingEnvVar { var });
-    Ok((
-        get("CLOUDFLARE_API_TOKEN")?,
-        get("CLOUDFLARE_ACCOUNT_ID")?,
-        get("CLOUDFLARE_LIST_ID")?,
-    ))
 }
 pub fn load_subject_file(path: &Path) -> Result<Vec<Subject>> {
     let mut result = Vec::new();
