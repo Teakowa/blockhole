@@ -395,10 +395,109 @@ fn resolve_path(root: &Path, path: PathBuf) -> PathBuf {
 
 #[cfg(test)]
 mod tests {
-    use super::{AddressVersion, normalize_desired, parse_log_line};
+    use super::{AddressVersion, AwsWafBackend, normalize_desired, parse_log_line};
     use super::{AwsWafConfig, validate_config_values};
-    use blockhole_core::models::{BlockTarget, DesiredList, Subject};
-    use std::path::PathBuf;
+    use aws_config::{BehaviorVersion, Region};
+    use aws_sdk_wafv2::types::Scope;
+    use blockhole_core::{
+        models::{BlockTarget, DesiredList, Subject},
+        sync::BlockBackend,
+    };
+    use serde_json::Value;
+    use std::{
+        io::{Read, Write},
+        net::{TcpListener, TcpStream},
+        path::PathBuf,
+        sync::{Arc, Mutex},
+        thread,
+    };
+    use tokio::runtime::Builder as RuntimeBuilder;
+
+    fn read_request(stream: &mut TcpStream) -> (String, String) {
+        let mut bytes = Vec::new();
+        let header_end = loop {
+            let mut buffer = [0; 4096];
+            let count = stream.read(&mut buffer).unwrap();
+            assert!(count > 0, "mock AWS server received an incomplete request");
+            bytes.extend_from_slice(&buffer[..count]);
+            if let Some(offset) = bytes.windows(4).position(|window| window == b"\r\n\r\n") {
+                break offset;
+            }
+        };
+        let headers = String::from_utf8_lossy(&bytes[..header_end]).to_string();
+        let content_length = headers
+            .lines()
+            .find_map(|line| {
+                let line = line.to_ascii_lowercase();
+                line.strip_prefix("content-length:")
+                    .and_then(|value| value.trim().parse::<usize>().ok())
+            })
+            .unwrap_or(0);
+        while bytes.len() < header_end + 4 + content_length {
+            let mut buffer = [0; 4096];
+            let count = stream.read(&mut buffer).unwrap();
+            assert!(count > 0, "mock AWS server received a truncated body");
+            bytes.extend_from_slice(&buffer[..count]);
+        }
+        let body_start = header_end + 4;
+        let body =
+            String::from_utf8_lossy(&bytes[body_start..body_start + content_length]).to_string();
+        (headers, body)
+    }
+
+    fn write_response(stream: &mut TcpStream, body: &str) {
+        write!(
+            stream,
+            "HTTP/1.1 200 OK\r\nContent-Type: application/x-amz-json-1.1\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+            body.len(),
+            body
+        )
+        .unwrap();
+        stream.flush().unwrap();
+    }
+
+    fn serve_waf_mock(
+        listener: TcpListener,
+        requests: Arc<Mutex<Vec<String>>>,
+    ) -> thread::JoinHandle<()> {
+        thread::spawn(move || {
+            let addresses = Arc::new(Mutex::new(vec!["192.0.2.1/32".to_string()]));
+            for _ in 0..3 {
+                let (mut stream, _) = listener.accept().unwrap();
+                let (headers, body) = read_request(&mut stream);
+                let target = headers.to_ascii_lowercase();
+                if target.contains("getipset") {
+                    requests.lock().unwrap().push("get_ip_set".into());
+                    let addresses = addresses.lock().unwrap().clone();
+                    let response = serde_json::json!({
+                        "LockToken": "lock-token",
+                        "IPSet": {
+                            "Name": "blockhole",
+                            "Id": "ip-set-id",
+                            "Scope": "REGIONAL",
+                            "Description": "",
+                            "IPAddressVersion": "IPV4",
+                            "Addresses": addresses
+                        }
+                    });
+                    write_response(&mut stream, &response.to_string());
+                } else if target.contains("updateipset") {
+                    requests.lock().unwrap().push("update_ip_set".into());
+                    let request: Value = serde_json::from_str(&body).unwrap();
+                    let updated = request["Addresses"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|address| address.as_str().unwrap().to_string())
+                        .collect::<Vec<_>>();
+                    *addresses.lock().unwrap() = updated;
+                    write_response(&mut stream, "{\"NextLockToken\":\"next-token\"}");
+                } else {
+                    panic!("unexpected AWS WAF operation: {headers}");
+                }
+            }
+        })
+    }
 
     #[test]
     fn parses_waf_json_log_into_normalized_observation() {
@@ -437,6 +536,48 @@ mod tests {
         let error = parse_log_line("not-json").unwrap_err();
 
         assert!(error.to_string().contains("AWS WAF log"));
+    }
+
+    #[test]
+    fn replaces_ip_set_with_get_update_and_readback() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = format!("http://{}", listener.local_addr().unwrap());
+        let requests = Arc::new(Mutex::new(Vec::new()));
+        let server = serve_waf_mock(listener, Arc::clone(&requests));
+        let runtime = Arc::new(
+            RuntimeBuilder::new_multi_thread()
+                .enable_all()
+                .build()
+                .unwrap(),
+        );
+        let sdk_config = runtime.block_on(
+            aws_config::defaults(BehaviorVersion::latest())
+                .region(Region::new("us-east-1"))
+                .endpoint_url(endpoint)
+                .test_credentials()
+                .load(),
+        );
+        let backend = AwsWafBackend {
+            client: super::WafClient::new(&sdk_config),
+            runtime,
+            scope: Scope::Regional,
+            ip_set_name: "blockhole".into(),
+            ip_set_id: "ip-set-id".into(),
+        };
+        let desired = DesiredList {
+            items: vec![BlockTarget {
+                subject: Subject::parse("192.0.2.2").unwrap(),
+                comment: String::new(),
+            }],
+        };
+
+        backend.replace(&desired).unwrap();
+        server.join().unwrap();
+
+        assert_eq!(
+            *requests.lock().unwrap(),
+            vec!["get_ip_set", "update_ip_set", "get_ip_set"]
+        );
     }
 
     #[test]
