@@ -25,10 +25,6 @@
       "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-08-03"
     },
     {
-      "ip": "94.154.43.188/32",
-      "comment": "blockhole:auto:high_error_ratio+multiple_zones+repeated_windows+suspicious_paths:expires=2026-08-01"
-    },
-    {
       "ip": "103.86.108.226/32",
       "comment": "blockhole:auto:high_error_ratio+repeated_windows+suspicious_paths:expires=2026-08-01"
     },
