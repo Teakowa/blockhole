@@ -1,15 +1,25 @@
 use crate::{
-    config::{Settings, load_subject_file},
+    config::Settings,
     error::{BlockholeError, Result},
     models::{IpRecord, Observation, RecordStatus, Subject},
 };
-use chrono::{DateTime, Utc};
-use std::{collections::BTreeSet, path::Path};
-pub fn allowlist(root: &Path) -> Result<Vec<Subject>> {
-    load_subject_file(&root.join("config/allowlist.txt"))
-}
-pub fn permanent(root: &Path) -> Result<Vec<Subject>> {
-    load_subject_file(&root.join("config/permanent-blocklist.txt"))
+use chrono::{DateTime, Duration, Utc};
+use std::collections::{BTreeMap, BTreeSet};
+
+pub fn parse_subjects(text: &str, source: &str) -> Result<Vec<Subject>> {
+    let mut result = Vec::new();
+    for (line, raw) in text.lines().enumerate() {
+        let value = raw.split('#').next().unwrap_or("").trim();
+        if value.is_empty() {
+            continue;
+        }
+        result.push(Subject::parse(value).map_err(|error| {
+            BlockholeError::Configuration(format!("{source}:{}: {error}", line + 1))
+        })?);
+    }
+    result.sort();
+    result.dedup();
+    Ok(result)
 }
 pub fn is_allowlisted(subject: &Subject, list: &[Subject]) -> bool {
     list.iter().any(|network| network.contains(subject))
@@ -24,10 +34,12 @@ pub struct MergedSignals {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub observation_windows: u64,
-    pub source_zones: Vec<String>,
+    pub sources: Vec<String>,
     pub raw_score: f64,
     pub reason_codes: Vec<String>,
     pub qualifies_for_block: bool,
+    pub fingerprint_history: BTreeMap<String, DateTime<Utc>>,
+    pub has_new_observations: bool,
 }
 
 /// Merge observations with existing record counters and compute signal scores.
@@ -40,10 +52,34 @@ pub fn score_signals(
     settings: &Settings,
     now: DateTime<Utc>,
 ) -> Result<MergedSignals> {
+    let cutoff = existing.map(|record| record.last_evaluated).unwrap_or(now)
+        - Duration::hours(settings.overlap_hours.max(0));
+    let mut fingerprint_history = existing.map_or_else(BTreeMap::new, |record| {
+        record
+            .fingerprint_history
+            .iter()
+            .filter(|(_, observed_at)| **observed_at >= cutoff)
+            .map(|(fingerprint, observed_at)| (fingerprint.clone(), *observed_at))
+            .collect()
+    });
+    let mut fingerprints = BTreeSet::new();
+    let observations = observations
+        .iter()
+        .filter(|observation| {
+            observation.fingerprint.is_empty()
+                || (!fingerprint_history.contains_key(&observation.fingerprint)
+                    && fingerprints.insert(observation.fingerprint.as_str()))
+        })
+        .collect::<Vec<_>>();
     if observations.is_empty() && existing.is_none() {
         return Err(BlockholeError::Policy(
             "cannot evaluate empty observations without state".into(),
         ));
+    }
+    for observation in &observations {
+        if !observation.fingerprint.is_empty() {
+            fingerprint_history.insert(observation.fingerprint.clone(), observation.observed_at);
+        }
     }
     let first_seen = observations
         .iter()
@@ -73,12 +109,21 @@ pub fn score_signals(
         .collect();
     let distinct = paths.len() as u64;
     let distinct = distinct.max(existing.map_or(0, |r| r.distinct_paths));
-    let suspicious = observations.iter().map(|o| o.suspicious_paths).sum::<u64>()
+    let suspicious = observations
+        .iter()
+        .map(|observation| {
+            observation
+                .paths
+                .iter()
+                .filter(|path| settings.suspicious_path_set.is_match(path))
+                .count() as u64
+        })
+        .sum::<u64>()
         + existing.map_or(0, |r| r.suspicious_paths);
     let errors = observations.iter().map(|o| o.error_requests).sum::<u64>()
         + existing.map_or(0, |r| r.error_requests);
-    let mut zones: BTreeSet<String> = observations.iter().map(|o| o.zone_id.clone()).collect();
-    zones.extend(existing.map_or_else(Vec::new, |r| r.source_zones.clone()));
+    let mut sources: BTreeSet<String> = observations.iter().map(|o| o.source_id.clone()).collect();
+    sources.extend(existing.map_or_else(Vec::new, |r| r.sources.clone()));
     let windows =
         existing.map_or(0, |r| r.observation_windows) + u64::from(!observations.is_empty());
     let ratio = if observed == 0 {
@@ -109,9 +154,9 @@ pub fn score_signals(
         score += w.repeated_windows;
         reasons.push("repeated_windows".into());
     }
-    if zones.len() >= 2 {
-        score += w.multiple_zones;
-        reasons.push("multiple_zones".into());
+    if sources.len() >= 2 {
+        score += w.multiple_sources;
+        reasons.push("multiple_sources".into());
     }
     let qualifies = score >= settings.thresholds.block_score
         && reasons.len() >= 2
@@ -127,12 +172,15 @@ pub fn score_signals(
         suspicious_paths: suspicious,
         error_requests: errors,
         observation_windows: windows,
-        source_zones: zones.into_iter().collect(),
+        sources: sources.into_iter().collect(),
         raw_score: (score * 10_000.0).round() / 10_000.0,
         reason_codes: reasons,
         qualifies_for_block: qualifies,
+        fingerprint_history,
+        has_new_observations: !observations.is_empty(),
     })
 }
+
 pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], now: DateTime<Utc>) {
     let wanted: BTreeSet<_> = subjects.iter().cloned().collect();
     state.records.retain(|subject, record| {
@@ -165,7 +213,8 @@ pub fn merge_permanent(state: &mut crate::models::State, subjects: &[Subject], n
                 suspicious_paths: 0,
                 error_requests: 0,
                 observation_windows: 0,
-                source_zones: Vec::new(),
+                sources: Vec::new(),
+                fingerprint_history: std::collections::BTreeMap::new(),
                 score: 0.0,
                 reason_codes: vec!["manual_import".into()],
                 status: RecordStatus::PermanentBlocked {

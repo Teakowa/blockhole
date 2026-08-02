@@ -4,9 +4,9 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use std::{collections::BTreeMap, fs, io::Write, path::Path};
+use std::collections::BTreeMap;
 
-pub const CURRENT_SCHEMA: u32 = 3;
+pub const CURRENT_SCHEMA: u32 = 5;
 #[derive(Deserialize)]
 struct V1Record {
     first_seen: DateTime<Utc>,
@@ -31,9 +31,8 @@ struct V1State {
     checkpoints: BTreeMap<String, DateTime<Utc>>,
     records: BTreeMap<String, V1Record>,
 }
-pub fn load(path: &Path) -> Result<State> {
-    let text = fs::read_to_string(path)?;
-    let value: serde_json::Value = serde_json::from_str(&text)?;
+pub fn decode(text: &str) -> Result<State> {
+    let value: serde_json::Value = serde_json::from_str(text)?;
     let version = value
         .get("schema_version")
         .and_then(|v| v.as_u64())
@@ -47,10 +46,34 @@ pub fn load(path: &Path) -> Result<State> {
     if version == CURRENT_SCHEMA {
         return serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()));
     }
+    if version == 3 {
+        return migrate_v3(value);
+    }
+    if version == 4 {
+        return migrate_v4(value);
+    }
     if version == 2 {
         return migrate_v2(value);
     }
     migrate_v1(serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?)
+}
+fn migrate_v3(value: serde_json::Value) -> Result<State> {
+    let mut state: State =
+        serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?;
+    state.schema_version = CURRENT_SCHEMA;
+    for record in state.records.values_mut() {
+        record.schema_version = CURRENT_SCHEMA;
+    }
+    Ok(state)
+}
+fn migrate_v4(value: serde_json::Value) -> Result<State> {
+    let mut state: State =
+        serde_json::from_value(value).map_err(|e| BlockholeError::State(e.to_string()))?;
+    state.schema_version = CURRENT_SCHEMA;
+    for record in state.records.values_mut() {
+        record.schema_version = CURRENT_SCHEMA;
+    }
+    Ok(state)
 }
 fn migrate_v2(value: serde_json::Value) -> Result<State> {
     let mut state: State =
@@ -104,7 +127,8 @@ fn migrate_v1(old: V1State) -> Result<State> {
                 suspicious_paths: old.suspicious_paths,
                 error_requests: old.error_requests,
                 observation_windows: old.observation_windows,
-                source_zones: old.source_zones,
+                sources: old.source_zones,
+                fingerprint_history: BTreeMap::new(),
                 score: old.score,
                 reason_codes: old.reason_codes,
                 status,
@@ -117,21 +141,10 @@ fn migrate_v1(old: V1State) -> Result<State> {
         records,
     })
 }
-pub fn write(path: &Path, state: &State) -> Result<()> {
-    let payload = serde_json::to_string_pretty(state)? + "\n";
-    fs::create_dir_all(path.parent().unwrap_or(Path::new(".")))?;
-    let temporary = path.with_file_name(format!(
-        ".{}.tmp",
-        path.file_name().unwrap().to_string_lossy()
-    ));
-    {
-        let mut file = fs::File::create(&temporary)?;
-        file.write_all(payload.as_bytes())?;
-        file.sync_all()?;
-    }
-    fs::rename(&temporary, path)?;
-    Ok(())
+pub fn encode(state: &State) -> Result<String> {
+    Ok(serde_json::to_string_pretty(state)? + "\n")
 }
+
 pub fn empty() -> State {
     State {
         schema_version: CURRENT_SCHEMA,

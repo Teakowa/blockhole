@@ -2,7 +2,10 @@
 
 ## GitHub configuration
 
-Configure these repository or environment variables:
+The CLI selects a platform implementation through `platform.name` in
+`config/policy.toml`. Supported values are `cloudflare`, `nginx`, and `aws-waf`.
+
+For Cloudflare, configure these repository or environment variables:
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_ZONE_IDS`
@@ -11,6 +14,53 @@ Configure these repository or environment variables:
 Store only `CLOUDFLARE_API_TOKEN` as a secret. Do not expose it to pull
 request jobs. The synchronization workflow uses a single concurrency group,
 does not cancel an active run, and keeps manual dry-run available.
+
+For Nginx, configure a dedicated managed include file:
+
+```toml
+[nginx]
+access_log = "/var/log/nginx/access.log"
+denylist_path = "/etc/nginx/conf.d/blockhole-deny.conf"
+source_id = "nginx"
+reload = false
+```
+
+The Nginx plugin reads standard combined access-log lines and writes only
+`deny` directives to `denylist_path`. Include that file from the applicable
+Nginx `server` or `location` block. `reload = true` invokes only
+`nginx -s reload`; it does not execute a configurable shell command. The process needs
+read permission for the access log and write permission for the include file.
+Because this is a local-file plugin, the runner must be the Nginx host or have
+the required log and configuration paths mounted into it.
+
+For AWS WAFv2, configure an existing IPSet and a JSON Lines log file that the
+runner can read:
+
+```toml
+[aws_waf]
+log_path = "/var/log/blockhole/aws-waf.jsonl"
+region = "us-east-1"
+scope = "REGIONAL"
+ip_set_name = "blockhole-deny"
+ip_set_id = "0123456789abcdef0123456789abcdef"
+address_version = "IPV4"
+source_id = "aws-waf"
+```
+
+The AWS plugin reads `timestamp`, `httpRequest.clientIp`,
+`httpRequest.uri`, `action`, and `responseCodeSent`; it strips query strings
+and does not persist request arguments, headers, cookies, bodies, or request
+IDs. It reads and updates the configured WAFv2 IPSet through the AWS SDK,
+using the default AWS credential chain. The IPSet is replaced only after a
+successful read, and updates use the returned optimistic-lock token followed
+by a read-back verification. CloudFront scope must use `us-east-1`; a
+CloudFront IPSet also requires `address_version = "IPV4"` or `"IPV6"` as
+appropriate for that IPSet.
+
+The AWS WAF plugin does not create an IPSet or configure log delivery. Prepare
+the WAF logging destination and grant the runner permission to call
+`wafv2:GetIPSet` and `wafv2:UpdateIPSet`. Its local log path must be populated
+before `collect` or `run` is enabled.
 
 ## Rollout
 
@@ -35,8 +85,10 @@ install Rust or compile the CLI.
 
 The first analytics collection uses the configured `lookback_hours` window.
 After a successful run, the next collection starts at the saved analytics
-checkpoint and ends at the current time. This makes hourly runs collect only
-the new interval instead of adding the same rolling 24-hour result repeatedly.
+checkpoint minus `overlap_hours` and ends at the current time. The overlap
+protects against boundary delays while the checkpoint still advances only
+after successful collection and evaluation. State retains event fingerprints
+long enough to prevent the overlap from counting the same observation twice.
 
 ## Runtime state branch
 
@@ -53,10 +105,10 @@ fixtures in temporary directories and validate the source tree independently.
 
 ## Empty-list protection
 
-A scheduled or ordinary run cannot replace a non-empty Cloudflare list with an
-empty desired list. Collection, validation, schema, and state failures do not
-modify Cloudflare. An empty replacement requires manual dispatch with
-`allow_empty=true` and successful collection for every configured zone.
+A scheduled or ordinary run cannot replace a non-empty platform block list with
+an empty desired list. Collection, validation, schema, and state failures do
+not modify the platform. An empty replacement requires manual dispatch with
+`allow_empty=true` and successful collection for every configured source.
 
 ## Recovery
 

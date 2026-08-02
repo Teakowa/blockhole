@@ -15,18 +15,25 @@ adaptive sampling, so rare IPs may not appear and repeated queries can vary
 slightly with sampling resolution. The number of observed IPs must therefore
 not be interpreted as an exact malicious density for a network.
 
-The analytics query groups by client IP, response status, and
-`clientRequestPath`. Query strings are removed before paths are retained. The
-configured `suspicious_path_patterns` identify probe-like paths; these paths
-are the required primary signal and still cannot block an IP on their own.
+The Cloudflare plugin groups analytics by client IP, response status, and
+`clientRequestPath`. The Nginx plugin reads client IP, response status, and
+request target from combined access logs. The AWS WAF plugin reads client IP,
+response status, action, and URI from JSON Lines logs. All three plugins remove
+query strings before paths are retained. The configured
+`suspicious_path_patterns` identify probe-like paths; these paths are the
+required primary signal and still cannot block an IP on their own.
 
-The allowlist is evaluated before scoring and takes precedence over all blocks,
-including manually imported `permanent_blocked` records. When a `permanent_blocked`
-record matches an allowlist entry, it is retained in state with `suppressed_by_allowlist: true`
-and excluded from active denylists. If the allowlist entry is later removed, the permanent
-block automatically reactivates. Entries may be individual IPv4 or IPv6 addresses or
+The allowlist takes precedence over all block decisions, including automatically
+qualified and manually imported `permanent_blocked` records. Allowlisted records
+remain in state and retain their underlying lifecycle status, but are excluded from
+active denylists. If the allowlist entry is later removed, an unexpired block
+automatically reactivates. Entries may be individual IPv4 or IPv6 addresses or
 networks. Invalid entries fail validation. Do not add broad ASN or country exemptions
 as a substitute for explicit allowlist entries.
+
+Observation fingerprints are retained in state through the next checkpoint's
+overlap window. Re-reading the same event during that overlap does not increase
+request counts, weighted estimates, observation windows, or block TTLs.
 
 Automatic records move through `candidate`, `temporary_blocked`, `cooldown`,
 and `expired` states. Manually imported records use `permanent_blocked` and

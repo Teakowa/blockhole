@@ -1,5 +1,8 @@
 schema_version = 1
 mode = "enforce"
+
+platform = { name = "cloudflare" }
+
 lookback_hours = 24
 overlap_hours = 2
 block_ttl_hours = 72
@@ -26,7 +29,7 @@ path_breadth = 0
 suspicious_paths = 4
 high_error_ratio = 1
 repeated_windows = 1
-multiple_zones = 0
+multiple_sources = 0
 
 [cloudflare]
 graphql_url = "https://api.cloudflare.com/client/v4/graphql"
@@ -39,3 +42,22 @@ poll_timeout_seconds = 120
 [zones]
 # Fill with zone IDs before enabling collection.
 ids = []
+
+# For platform.name = "nginx", configure a combined access log and a
+# dedicated include file instead of the Cloudflare settings above:
+# [nginx]
+# access_log = "/var/log/nginx/access.log"
+# denylist_path = "/etc/nginx/conf.d/blockhole-deny.conf"
+# source_id = "nginx"
+# reload = false
+
+# For platform.name = "aws-waf", configure an existing AWS WAFv2 IPSet and a
+# JSON Lines log file populated by the AWS WAF logging pipeline:
+# [aws_waf]
+# log_path = "/var/log/blockhole/aws-waf.jsonl"
+# region = "us-east-1"
+# scope = "REGIONAL"
+# ip_set_name = "blockhole-deny"
+# ip_set_id = "0123456789abcdef0123456789abcdef"
+# address_version = "IPV4"
+# source_id = "aws-waf"

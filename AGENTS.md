@@ -8,9 +8,10 @@ capabilities or interaction model.
 
 ## Project boundaries
 
-Blockhole is a Rust CLI run by GitHub Actions. It reads Cloudflare Security
-Analytics, keeps canonical lifecycle state in Git, renders a deterministic IP
-denylist, and reconciles one Cloudflare Custom IP List.
+Blockhole is a Rust CLI run by GitHub Actions. Its core reads normalized
+observations, keeps canonical lifecycle state in Git, renders a deterministic
+IP denylist, and delegates collection and enforcement to a platform plugin.
+Cloudflare is the default plugin.
 
 - Git is the durable source of truth; Cloudflare is a deployment target.
 - Do not add Workers, D1, KV, R2, Queues, Workflows, Durable Objects, Pages,
@@ -23,43 +24,40 @@ denylist, and reconciles one Cloudflare Custom IP List.
 ## Architecture
 
 ```text
-config/policy.toml ──► src/config.rs      (parse + validate)
-                       src/analytics.rs   (GraphQL query builder)
-                       src/http.rs        (Cloudflare HTTP client)
-                       src/models.rs      (shared data types)
-                       src/policy.rs      (scoring + evaluation)
-                       src/lifecycle.rs   (state machine transitions)
-                       src/state.rs       (state I/O + schema migration)
-                       src/render.rs      (deterministic output files)
-                       src/sync.rs        (Cloudflare list reconciliation)
-                       src/main.rs        (CLI + orchestration)
-                       src/error.rs       (error types)
-                       src/tests.rs       (unit + integration tests)
+config/policy.toml ──► blockhole-core
+                         config / models / policy / lifecycle
+                         state / render / sync / plugin traits
+                              ▲                    │
+                              │                    ▼
+                  platform plugins                generic block target
+          Cloudflare / Nginx / AWS WAF implementations   │
+                              ▲                        ▼
+                         blockhole CLI       collect → evaluate → sync
 ```
 
 ### Module responsibilities
 
-| Module          | Responsibility                                              |
-|-----------------|-------------------------------------------------------------|
-| `config`        | Parse `policy.toml`, validate thresholds, expose typed config |
-| `analytics`     | Build Cloudflare GraphQL queries, deserialize responses     |
-| `http`          | Rate-limited Cloudflare HTTP client with `Retry-After`      |
-| `models`        | Shared structs: `IpRecord`, `AnalyticsRow`, scores          |
-| `policy`        | Scoring rules, threshold evaluation, signal combination     |
-| `lifecycle`     | State machine: candidate → blocked → cooldown → expired     |
-| `state`         | Schema-versioned JSON state I/O, atomic writes, migration   |
-| `render`        | Deterministic `blacklist.txt`, `cloudflare-list.json`, report |
-| `sync`          | Reconcile desired list against remote Cloudflare list       |
-| `main`          | CLI argument parsing, subcommand orchestration              |
-| `error`         | Unified error type                                          |
-| `tests`         | Unit and integration tests with mock fixtures               |
+| Module/package                    | Responsibility                                      |
+|-----------------------------------|-----------------------------------------------------|
+| `blockhole-core::config`          | Parse policy and expose typed core configuration    |
+| `blockhole-core::models`          | Normalized observations, state, and block targets  |
+| `blockhole-core::policy`          | Scoring and threshold evaluation                    |
+| `blockhole-core::lifecycle`       | Candidate/block/cooldown/expired transitions       |
+| `blockhole-core::state`           | Versioned state I/O, atomic writes, migration      |
+| `blockhole-core::render`          | Deterministic generic output and reports           |
+| `blockhole-core::sync`            | Generic diff, backend trait, and safety fuse       |
+| `blockhole-core::plugin`          | Platform collection and sync contracts              |
+| `blockhole-plugin-cloudflare`     | GraphQL, HTTP, authentication, and Custom List API |
+| `blockhole-plugin-nginx`          | Access-log collection and managed deny include      |
+| `blockhole-plugin-aws-waf`        | WAF JSONL collection and WAFv2 IPSet API           |
+| `src/main.rs`                     | Plugin selection and CLI orchestration              |
 
 ### Runtime data flow
 
 ```text
-Cloudflare Analytics → collect → evaluate (policy + lifecycle) → state.json
-state.json → render → dist/blacklist.txt + dist/cloudflare-list.json
-state.json + cloudflare-list.json → sync → Cloudflare Custom IP List
+Platform plugin → collect → evaluate (policy + lifecycle) → state.json
+state.json → render → dist/blacklist.txt + dist/desired-blocks.json
+state.json + desired-blocks.json → core reconcile → platform plugin enforcement
 ```
 
 ### Branch model
@@ -92,8 +90,8 @@ state.json + cloudflare-list.json → sync → Cloudflare Custom IP List
   or workflow YAML.
 - State schema changes require a version increment, migration, and migration
   tests.
-- Cloudflare tests must use mocks and redacted fixtures; never call production
-  APIs by default.
+- Platform plugin tests must use mocks and redacted fixtures; never call
+  production APIs by default.
 - Do not commit secrets or raw request data.
 - Keep changes narrow and update documentation when public behavior changes.
 
@@ -110,9 +108,9 @@ state.json + cloudflare-list.json → sync → Cloudflare Custom IP List
 All three must pass before a change is considered complete:
 
 ```bash
-cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
 ```
 
 ## Completion standards

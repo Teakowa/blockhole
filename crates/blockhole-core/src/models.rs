@@ -50,12 +50,12 @@ impl<'de> Deserialize<'de> for Subject {
 #[serde(deny_unknown_fields)]
 pub struct Observation {
     pub ip: Subject,
-    pub zone_id: String,
+    #[serde(alias = "zone_id")]
+    pub source_id: String,
     pub observed_at: DateTime<Utc>,
     pub observed_requests: u64,
     pub weighted_requests: f64,
     pub paths: Vec<String>,
-    pub suspicious_paths: u64,
     pub error_requests: u64,
     pub sampled: bool,
     pub sample_interval: Option<f64>,
@@ -97,7 +97,10 @@ pub struct IpRecord {
     pub suspicious_paths: u64,
     pub error_requests: u64,
     pub observation_windows: u64,
-    pub source_zones: Vec<String>,
+    #[serde(alias = "source_zones")]
+    pub sources: Vec<String>,
+    #[serde(default)]
+    pub fingerprint_history: std::collections::BTreeMap<String, DateTime<Utc>>,
     pub score: f64,
     pub reason_codes: Vec<String>,
     pub status: RecordStatus,
@@ -111,12 +114,58 @@ pub struct State {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct CloudflareItem {
-    pub ip: Subject,
+pub struct BlockTarget {
+    pub subject: Subject,
     pub comment: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DesiredList {
-    pub items: Vec<CloudflareItem>,
+    pub items: Vec<BlockTarget>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum BlockDecision {
+    Allow,
+    Temporary { expires_at: DateTime<Utc> },
+    Permanent,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct EvaluationResult {
+    pub subject: Subject,
+    pub record: IpRecord,
+    pub decision: BlockDecision,
+}
+
+impl EvaluationResult {
+    pub fn from_record(subject: Subject, record: IpRecord, now: DateTime<Utc>) -> Self {
+        Self::from_record_with_allowlist(subject, record, now, false)
+    }
+
+    pub fn from_record_with_allowlist(
+        subject: Subject,
+        record: IpRecord,
+        now: DateTime<Utc>,
+        allowlisted: bool,
+    ) -> Self {
+        let decision = match &record.status {
+            _ if allowlisted => BlockDecision::Allow,
+            RecordStatus::PermanentBlocked {
+                suppressed_by_allowlist: false,
+                ..
+            } => BlockDecision::Permanent,
+            RecordStatus::TemporaryBlocked { expires_at, .. } if *expires_at > now => {
+                BlockDecision::Temporary {
+                    expires_at: *expires_at,
+                }
+            }
+            _ => BlockDecision::Allow,
+        };
+        Self {
+            subject,
+            record,
+            decision,
+        }
+    }
 }

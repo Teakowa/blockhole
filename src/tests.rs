@@ -1,5 +1,4 @@
-use crate::{
-    analytics,
+use blockhole_core::{
     config::{RunMode, Settings, Thresholds, Weights},
     models::{Observation, RecordStatus, Subject},
     policy, state, sync,
@@ -10,7 +9,6 @@ use regex::RegexSet;
 use std::path::PathBuf;
 fn settings() -> Settings {
     Settings {
-        root: PathBuf::from("."),
         mode: RunMode::DryRun,
         lookback_hours: 24,
         overlap_hours: 2,
@@ -31,33 +29,35 @@ fn settings() -> Settings {
             suspicious_paths: 4.0,
             high_error_ratio: 1.0,
             repeated_windows: 1.0,
-            multiple_zones: 0.0,
+            multiple_sources: 0.0,
         },
-        suspicious_path_patterns: vec![],
-        suspicious_path_set: RegexSet::empty(),
-        graphql_url: "".into(),
-        api_base_url: "".into(),
-        max_retries: 3,
-        poll_interval_seconds: 0.0,
-        poll_timeout_seconds: 1.0,
-        zone_ids: vec!["zone".into()],
+        suspicious_path_patterns: vec![r"^/scan/".into()],
+        suspicious_path_set: RegexSet::new([r"^/scan/"]).unwrap(),
     }
+}
+
+#[test]
+fn policy_config_selects_cloudflare_plugin() {
+    let text = std::fs::read_to_string("config/policy.toml").unwrap();
+    assert_eq!(
+        blockhole_core::config::parse_platform(&text).unwrap(),
+        "cloudflare"
+    );
 }
 
 /// Helper: create a blocking observation (crosses all thresholds).
 fn blocking_obs(now: chrono::DateTime<chrono::Utc>) -> Observation {
     Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: now,
         observed_requests: 200,
         weighted_requests: 200.0,
-        paths: vec!["/a".into(), "/b".into()],
-        suspicious_paths: 2,
+        paths: vec!["/scan/a".into(), "/scan/b".into()],
         error_requests: 180,
         sampled: false,
         sample_interval: None,
-        fingerprint: "x".into(),
+        fingerprint: format!("x-{now}"),
     }
 }
 
@@ -79,17 +79,144 @@ fn two_signals_and_scanning_block() {
         RecordStatus::TemporaryBlocked { .. }
     ));
 }
+
+#[test]
+fn evaluation_result_contains_platform_neutral_block_decision() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let subject = Subject::parse("192.0.2.1").unwrap();
+    let result = crate::lifecycle::evaluate(
+        &subject,
+        None,
+        &[blocking_obs(now)],
+        &settings(),
+        now,
+        false,
+    )
+    .unwrap();
+
+    assert_eq!(result.subject, subject);
+    assert!(matches!(
+        result.decision,
+        crate::models::BlockDecision::Temporary { .. }
+    ));
+}
+
+#[test]
+fn policy_computes_suspicious_paths_from_paths() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let observations = [blocking_obs(now)];
+    let signals = policy::score_signals(&observations, None, &settings(), now).unwrap();
+
+    assert_eq!(signals.suspicious_paths, 2);
+}
+
+#[test]
+fn duplicate_fingerprints_count_once() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let observation = blocking_obs(now);
+    let signals =
+        policy::score_signals(&[observation.clone(), observation], None, &settings(), now).unwrap();
+
+    assert_eq!(signals.observed_requests, 200);
+    assert_eq!(signals.weighted_requests, 200.0);
+    assert_eq!(signals.suspicious_paths, 2);
+    assert_eq!(signals.observation_windows, 1);
+}
+
+#[test]
+fn overlapping_runs_ignore_a_prior_fingerprint() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::hours(1);
+    let s = settings();
+    let observation = blocking_obs(t0);
+    let first =
+        crate::lifecycle::transition(None, std::slice::from_ref(&observation), &s, t0, false)
+            .unwrap();
+    let second = crate::lifecycle::transition(Some(&first), &[observation], &s, t1, false).unwrap();
+
+    assert_eq!(second.observed_requests, first.observed_requests);
+    assert_eq!(second.weighted_requests, first.weighted_requests);
+    assert_eq!(second.observation_windows, first.observation_windows);
+    assert_eq!(second.fingerprint_history.len(), 1);
+    match (&first.status, &second.status) {
+        (
+            RecordStatus::TemporaryBlocked {
+                expires_at: first_expires,
+                ..
+            },
+            RecordStatus::TemporaryBlocked {
+                expires_at: second_expires,
+                ..
+            },
+        ) => assert_eq!(second_expires, first_expires),
+        statuses => panic!("unexpected statuses: {statuses:?}"),
+    }
+}
+
+#[test]
+fn multiple_source_reason_is_platform_neutral() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let first = blocking_obs(now);
+    let mut second = blocking_obs(now);
+    second.source_id = "source-b".into();
+    second.fingerprint = "source-b-observation".into();
+
+    let signals = policy::score_signals(&[first, second], None, &settings(), now).unwrap();
+
+    assert!(signals.reason_codes.contains(&"multiple_sources".into()));
+    assert!(!signals.reason_codes.contains(&"multiple_zones".into()));
+}
+
+#[test]
+fn qualifying_observations_extend_temporary_block_until_cap() {
+    let t0 = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let t1 = t0 + Duration::hours(1);
+    let t2 = t1 + Duration::hours(1);
+    let mut s = settings();
+    s.block_ttl_hours = 72;
+    s.max_ttl_extensions = 1;
+
+    let initial = crate::lifecycle::transition(None, &[blocking_obs(t0)], &s, t0, false).unwrap();
+    let extended =
+        crate::lifecycle::transition(Some(&initial), &[blocking_obs(t1)], &s, t1, false).unwrap();
+    let capped =
+        crate::lifecycle::transition(Some(&extended), &[blocking_obs(t2)], &s, t2, false).unwrap();
+
+    let (initial_expires, extended_expires, capped_expires) =
+        match (initial.status, extended.status, capped.status) {
+            (
+                RecordStatus::TemporaryBlocked {
+                    expires_at: initial_expires,
+                    ..
+                },
+                RecordStatus::TemporaryBlocked {
+                    expires_at: extended_expires,
+                    ttl_extensions: 1,
+                    ..
+                },
+                RecordStatus::TemporaryBlocked {
+                    expires_at: capped_expires,
+                    ttl_extensions: 1,
+                    ..
+                },
+            ) => (initial_expires, extended_expires, capped_expires),
+            statuses => panic!("unexpected statuses: {statuses:?}"),
+        };
+
+    assert_eq!(extended_expires, initial_expires + Duration::hours(72));
+    assert_eq!(capped_expires, extended_expires);
+}
+
 #[test]
 fn one_scanning_path_stays_candidate() {
     let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
     let obs = Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: now,
         observed_requests: 300,
         weighted_requests: 300.0,
-        paths: vec!["/a".into(), "/b".into()],
-        suspicious_paths: 1,
+        paths: vec!["/scan/a".into(), "/normal".into()],
         error_requests: 270,
         sampled: false,
         sample_interval: None,
@@ -152,28 +279,48 @@ fn permanent_import_is_not_released_and_allowlist_can_suppress_it() {
 }
 
 #[test]
-fn v1_and_v2_state_migrates_to_v3_status() {
-    let path_v1 =
-        std::env::temp_dir().join(format!("blockhole-state-v1-{}.json", std::process::id()));
+fn allowlist_suppresses_decision_without_erasing_lifecycle_status() {
+    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+    let subject = Subject::parse("192.0.2.1").unwrap();
+    let record =
+        crate::lifecycle::transition(None, &[blocking_obs(now)], &settings(), now, true).unwrap();
+    assert!(matches!(
+        record.status,
+        RecordStatus::TemporaryBlocked { .. }
+    ));
+
+    let mut state = state::empty();
+    state.records.insert(subject, record);
+    let allowlist = vec![Subject::parse("192.0.2.0/24").unwrap()];
+
+    let suppressed =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &allowlist));
+    let active =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
+
+    assert!(suppressed.items.is_empty());
+    assert_eq!(active.items.len(), 1);
+}
+
+#[test]
+fn v1_v2_v3_and_v4_state_migrate_to_v5_status() {
     let json_v1 = r#"{"schema_version":1,"checkpoints":{},"records":{"192.0.2.1":{"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":1,"weighted_requests":1.0,"distinct_paths":1,"suspicious_paths":0,"error_requests":0,"observation_windows":1,"source_zones":[],"score":0,"status":"blocked","reason_codes":[],"block_started_at":"2026-01-01T00:00:00Z","expires_at":"2026-01-02T00:00:00Z","ttl_extensions":0}}}"#;
-    std::fs::write(&path_v1, json_v1).unwrap();
-    let migrated_v1 = state::load(&path_v1).unwrap();
-    std::fs::remove_file(path_v1).unwrap();
-    assert_eq!(migrated_v1.schema_version, 3);
+    let migrated_v1 = state::decode(json_v1).unwrap();
+    assert_eq!(migrated_v1.schema_version, 5);
+    assert_eq!(
+        migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
+        5
+    );
     assert!(matches!(
         migrated_v1.records[&Subject::parse("192.0.2.1").unwrap()].status,
         RecordStatus::TemporaryBlocked { .. }
     ));
 
-    let path_v2 =
-        std::env::temp_dir().join(format!("blockhole-state-v2-{}.json", std::process::id()));
     let json_v2 = r#"{"schema_version":2,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":2,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":[],"score":0.0,"reason_codes":["manual_import"],"status":{"type":"permanent_blocked","imported_at":"2026-01-01T00:00:00Z","source":"config/permanent-blocklist.txt","reason":null}}}}"#;
-    std::fs::write(&path_v2, json_v2).unwrap();
-    let migrated_v2 = state::load(&path_v2).unwrap();
-    std::fs::remove_file(path_v2).unwrap();
-    assert_eq!(migrated_v2.schema_version, 3);
+    let migrated_v2 = state::decode(json_v2).unwrap();
+    assert_eq!(migrated_v2.schema_version, 5);
     let record_v2 = &migrated_v2.records[&Subject::parse("192.0.2.1").unwrap()];
-    assert_eq!(record_v2.schema_version, 3);
+    assert_eq!(record_v2.schema_version, 5);
     if let RecordStatus::PermanentBlocked {
         suppressed_by_allowlist,
         ..
@@ -183,46 +330,56 @@ fn v1_and_v2_state_migrates_to_v3_status() {
     } else {
         panic!("expected PermanentBlocked status");
     }
-}
 
-#[test]
-fn analytics_parser_strips_query_and_preserves_sampling() {
-    let payload = r#"{"data":{"viewer":{"zones":[{"series":[{"dimensions":{"clientIP":"192.0.2.1","edgeResponseStatus":404,"clientRequestPath":"/.env?token=redacted"},"avg":{"sampleInterval":1.5},"count":3}]}]}}}"#;
-    let now = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
-    let pattern_set = RegexSet::new([r"(^|/)\.env($|/)"]).unwrap();
-    let observations = analytics::parse(payload, "zone", now, &pattern_set).unwrap();
-    assert_eq!(observations[0].paths, vec!["/.env"]);
-    assert_eq!(observations[0].weighted_requests, 4.5);
-    assert!(observations[0].sampled);
+    let json_v3 = r#"{"schema_version":3,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":3,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"source_zones":["legacy-source"],"score":0.0,"reason_codes":[],"status":{"type":"candidate"}}}}"#;
+    let migrated_v3 = state::decode(json_v3).unwrap();
+    assert_eq!(migrated_v3.schema_version, 5);
+    assert_eq!(
+        migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].schema_version,
+        5
+    );
+    assert_eq!(
+        migrated_v3.records[&Subject::parse("192.0.2.1").unwrap()].sources,
+        vec!["legacy-source"]
+    );
+    let serialized = serde_json::to_value(&migrated_v3).unwrap();
+    assert!(
+        serialized["records"]["192.0.2.1/32"]
+            .get("sources")
+            .is_some()
+    );
+    assert!(
+        serialized["records"]["192.0.2.1/32"]
+            .get("source_zones")
+            .is_none()
+    );
+
+    let json_v4 = r#"{"schema_version":4,"checkpoints":{},"records":{"192.0.2.1":{"schema_version":4,"first_seen":"2026-01-01T00:00:00Z","last_seen":"2026-01-01T00:00:00Z","last_evaluated":"2026-01-01T00:00:00Z","observed_requests":0,"weighted_requests":0.0,"distinct_paths":0,"suspicious_paths":0,"error_requests":0,"observation_windows":0,"sources":[],"score":0.0,"reason_codes":[],"status":{"type":"candidate"}}}}"#;
+    let migrated_v4 = state::decode(json_v4).unwrap();
+    assert_eq!(migrated_v4.schema_version, 5);
+    let record_v4 = &migrated_v4.records[&Subject::parse("192.0.2.1").unwrap()];
+    assert_eq!(record_v4.schema_version, 5);
+    assert!(record_v4.fingerprint_history.is_empty());
 }
 
 #[test]
 fn list_diff_is_deterministic() {
-    let desired = crate::models::DesiredList {
-        items: vec![crate::models::CloudflareItem {
-            ip: Subject::parse("192.0.2.1").unwrap(),
+    let desired = blockhole_core::models::DesiredList {
+        items: vec![blockhole_core::models::BlockTarget {
+            subject: Subject::parse("192.0.2.1").unwrap(),
             comment: "new".into(),
         }],
     };
-    let actual = vec![crate::models::CloudflareItem {
-        ip: Subject::parse("192.0.2.2").unwrap(),
+    let actual = vec![blockhole_core::models::BlockTarget {
+        subject: Subject::parse("192.0.2.2").unwrap(),
         comment: "old".into(),
     }];
     let result = sync::diff(&desired, &actual);
-    assert_eq!(result.additions[0].ip, Subject::parse("192.0.2.1").unwrap());
+    assert_eq!(
+        result.additions[0].subject,
+        Subject::parse("192.0.2.1").unwrap()
+    );
     assert_eq!(result.removals, vec![Subject::parse("192.0.2.2").unwrap()]);
-}
-
-#[test]
-fn empty_list_fuse_rejects_non_empty_remote_without_request() {
-    let client = reqwest::blocking::Client::builder().build().unwrap();
-    let lists =
-        sync::ListsClient::new(client, "http://127.0.0.1:1", "account", "list", 0, 0.0, 1.0);
-    let result = lists.replace(&crate::models::DesiredList { items: vec![] }, 1, false);
-    assert!(matches!(
-        result,
-        Err(crate::error::BlockholeError::Safety(_))
-    ));
 }
 
 proptest! {
@@ -230,15 +387,15 @@ proptest! {
     fn diff_against_self_is_identical(
         comments in prop::collection::vec("[a-z0-9]{1,10}", 0..20)
     ) {
-        let items: Vec<crate::models::CloudflareItem> = comments
+        let items: Vec<blockhole_core::models::BlockTarget> = comments
             .into_iter()
             .enumerate()
-            .map(|(idx, comment)| crate::models::CloudflareItem {
-                ip: Subject::parse(&format!("192.0.2.{}", (idx % 250) + 1)).unwrap(),
+            .map(|(idx, comment)| blockhole_core::models::BlockTarget {
+                subject: Subject::parse(&format!("192.0.2.{}", (idx % 250) + 1)).unwrap(),
                 comment,
             })
             .collect();
-        let desired = crate::models::DesiredList { items: items.clone() };
+        let desired = blockhole_core::models::DesiredList { items: items.clone() };
         let result = sync::diff(&desired, &items);
         prop_assert!(result.identical());
     }
@@ -251,7 +408,10 @@ fn render_writes_report_to_custom_path() {
     std::fs::create_dir_all(&temp).unwrap();
     let state = state::empty();
     let report_path = PathBuf::from("custom/report.md");
-    let res = crate::render::render(&temp, &state, Utc::now(), &report_path);
+    let now = Utc::now();
+    let desired =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
+    let res = crate::output::write_render_outputs(&temp, &desired, now, &report_path);
     assert!(res.is_ok());
     assert!(temp.join("custom/report.md").exists());
     let _ = std::fs::remove_dir_all(&temp);
@@ -282,7 +442,8 @@ fn render_formats_cloudflare_comments_correctly() {
             suspicious_paths: 0,
             error_requests: 0,
             observation_windows: 0,
-            source_zones: vec![],
+            sources: vec![],
+            fingerprint_history: std::collections::BTreeMap::new(),
             score: 0.0,
             reason_codes: vec!["manual_import".into()],
             status: RecordStatus::PermanentBlocked {
@@ -309,7 +470,8 @@ fn render_formats_cloudflare_comments_correctly() {
             suspicious_paths: 2,
             error_requests: 90,
             observation_windows: 1,
-            source_zones: vec!["zone".into()],
+            sources: vec!["zone".into()],
+            fingerprint_history: std::collections::BTreeMap::new(),
             score: 6.0,
             reason_codes: vec!["high_error_ratio".into(), "suspicious_paths".into()],
             status: RecordStatus::TemporaryBlocked {
@@ -320,13 +482,20 @@ fn render_formats_cloudflare_comments_correctly() {
         },
     );
 
-    let report_path = PathBuf::from("reports/latest.md");
-    let desired = crate::render::render(&temp, &state, now, &report_path).unwrap();
+    let desired =
+        crate::render::render_desired_list(&crate::render::evaluate_state(&state, now, &[]));
+    crate::output::write_render_outputs(
+        &temp,
+        &desired,
+        now,
+        PathBuf::from("reports/latest.md").as_path(),
+    )
+    .unwrap();
 
-    let perm_item = desired.items.iter().find(|i| i.ip == perm_ip).unwrap();
+    let perm_item = desired.items.iter().find(|i| i.subject == perm_ip).unwrap();
     assert_eq!(perm_item.comment, "blockhole:permanent:manual");
 
-    let temp_item = desired.items.iter().find(|i| i.ip == temp_ip).unwrap();
+    let temp_item = desired.items.iter().find(|i| i.subject == temp_ip).unwrap();
     assert_eq!(
         temp_item.comment,
         "blockhole:auto:high_error_ratio+suspicious_paths:expires=2026-07-22"
@@ -398,12 +567,11 @@ fn observations_do_not_suppress_decay() {
     // except repeated_windows kicks in, raising the raw score from 6.0 to 7.0).
     let obs2 = Observation {
         ip: Subject::parse("192.0.2.1").unwrap(),
-        zone_id: "zone".into(),
+        source_id: "zone".into(),
         observed_at: t1,
         observed_requests: 1,
         weighted_requests: 1.0,
         paths: vec!["/c".into()],
-        suspicious_paths: 0,
         error_requests: 0,
         sampled: false,
         sample_interval: None,

@@ -1,19 +1,23 @@
-use blockhole::{
-    analytics,
-    config::{self, RunMode},
+use blockhole_core::{
+    config,
     error::{BlockholeError, Result},
     lifecycle,
-    models::Observation,
-    policy, render, state,
-    sync::ListsClient,
+    models::{Observation, Subject},
+    plugin::{BlockDeployer, CollectionWindow, ObservationSource, SyncOptions},
+    policy, render,
 };
+use blockhole_plugin_aws_waf::AwsWafPlugin;
+use blockhole_plugin_cloudflare::CloudflarePlugin;
+use blockhole_plugin_nginx::NginxPlugin;
 use chrono::{Duration, Utc};
 use clap::{Parser, Subcommand};
-use reqwest::blocking::Client;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
+
+mod output;
+mod state_io;
 
 pub const VERSION: &str = match option_env!("BLOCKHOLE_VERSION") {
     Some(v) => v,
@@ -82,17 +86,20 @@ fn execute(args: Vec<String>) -> Result<()> {
     match cli.command {
         Command::Validate => validate(&root),
         Command::Collect { lookback_hours } => {
-            let settings = config::load(&root)?;
-            let (start, end) = window(&settings, lookback_hours)?;
-            let observations = collect(&settings, start, end)?;
+            let settings = load_settings(&root)?;
+            let (start, end) = window(&root, &settings, lookback_hours)?;
+            let observations = collect(&root, start, end)?;
             println!("{}", serde_json::to_string_pretty(&observations)?);
             Ok(())
         }
         Command::Evaluate => evaluate_at(&root, &[], Utc::now()),
         Command::Render { report_path } => {
-            let settings = config::load(&root)?;
-            let st = state::load(&settings.root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now(), &report_path).map(|_| ())
+            let _settings = load_settings(&root)?;
+            let st = state_io::load(&root.join("data/state.json"))?;
+            let allow = load_subjects(&root, "allowlist.txt")?;
+            let now = Utc::now();
+            let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
+            output::write_render_outputs(&root, &desired, now, &report_path)
         }
         Command::Sync {
             dry_run,
@@ -105,21 +112,25 @@ fn execute(args: Vec<String>) -> Result<()> {
             report_path,
         } => {
             validate(&root)?;
-            let settings = config::load(&root)?;
-            let (start, end) = window(&settings, lookback_hours)?;
-            let observations = collect(&settings, start, end)?;
+            let settings = load_settings(&root)?;
+            let (start, end) = window(&root, &settings, lookback_hours)?;
+            let observations = collect(&root, start, end)?;
             evaluate_at(&root, &observations, end)?;
-            let st = state::load(&root.join("data/state.json"))?;
-            render::render(&root, &st, Utc::now(), &report_path)?;
+            let st = state_io::load(&root.join("data/state.json"))?;
+            let allow = load_subjects(&root, "allowlist.txt")?;
+            let now = Utc::now();
+            let desired = render::render_desired_list(&render::evaluate_state(&st, now, &allow));
+            output::write_render_outputs(&root, &desired, now, &report_path)?;
             sync(&root, dry_run, allow_empty)
         }
     }
 }
 fn validate(root: &Path) -> Result<()> {
-    let settings = config::load(root)?;
-    let allow = policy::allowlist(root)?;
-    let permanent = policy::permanent(root)?;
-    let st = state::load(&settings.root.join("data/state.json"))?;
+    load_settings(root)?;
+    validate_plugin(root, &load_platform(root)?)?;
+    let allow = load_subjects(root, "allowlist.txt")?;
+    let permanent = load_subjects(root, "permanent-blocklist.txt")?;
+    let st = state_io::load(&root.join("data/state.json"))?;
     println!(
         "valid: {} allowlist entries, {} permanent entries, {} state records",
         allow.len(),
@@ -129,67 +140,52 @@ fn validate(root: &Path) -> Result<()> {
     Ok(())
 }
 fn window(
+    root: &Path,
     settings: &config::Settings,
     lookback: Option<i64>,
 ) -> Result<(chrono::DateTime<Utc>, chrono::DateTime<Utc>)> {
     let end = Utc::now();
-    let st = state::load(&settings.root.join("data/state.json"))?;
+    let st = state_io::load(&root.join("data/state.json"))?;
+    let checkpoint = st.checkpoints.get("analytics").copied();
     Ok((
-        st.checkpoints
-            .get("analytics")
-            .copied()
-            .unwrap_or(end - Duration::hours(lookback.unwrap_or(settings.lookback_hours))),
+        collection_start(
+            checkpoint,
+            end,
+            lookback.unwrap_or(settings.lookback_hours),
+            settings.overlap_hours,
+        ),
         end,
     ))
 }
+
+fn collection_start(
+    checkpoint: Option<chrono::DateTime<Utc>>,
+    end: chrono::DateTime<Utc>,
+    lookback_hours: i64,
+    overlap_hours: i64,
+) -> chrono::DateTime<Utc> {
+    checkpoint
+        .map(|value| value - Duration::hours(overlap_hours))
+        .unwrap_or(end - Duration::hours(lookback_hours))
+}
 fn collect(
-    settings: &config::Settings,
+    root: &Path,
     start: chrono::DateTime<Utc>,
     end: chrono::DateTime<Utc>,
 ) -> Result<Vec<Observation>> {
-    if settings.zone_ids.is_empty() {
-        return Err(BlockholeError::Configuration(
-            "no zone IDs configured in config/policy.toml".into(),
-        ));
-    }
-    let (token, _, _) = config::credentials()?;
-    let client = authenticated_client(token)?;
-    std::thread::scope(|s| {
-        let handles: Vec<_> = settings
-            .zone_ids
-            .iter()
-            .map(|zone| {
-                s.spawn(|| {
-                    analytics::collect(
-                        &client,
-                        &settings.graphql_url,
-                        settings.max_retries,
-                        zone,
-                        start,
-                        end,
-                        &settings.suspicious_path_set,
-                    )
-                })
-            })
-            .collect();
-        let mut all = Vec::new();
-        for handle in handles {
-            all.extend(handle.join().map_err(|_| {
-                BlockholeError::Cloudflare("zone collection thread panicked".into())
-            })??);
-        }
-        Ok(all)
-    })
+    let source = load_source(root)?;
+    let observations = source.collect(CollectionWindow { start, end })?;
+    Ok(observations)
 }
 fn evaluate_at(
     root: &Path,
     observations: &[Observation],
     checkpoint: chrono::DateTime<Utc>,
 ) -> Result<()> {
-    let settings = config::load(root)?;
-    let mut st = state::load(&root.join("data/state.json"))?;
-    let allow = policy::allowlist(root)?;
-    let permanent = policy::permanent(root)?;
+    let settings = load_settings(root)?;
+    let mut st = state_io::load(&root.join("data/state.json"))?;
+    let allow = load_subjects(root, "allowlist.txt")?;
+    let permanent = load_subjects(root, "permanent-blocklist.txt")?;
     policy::merge_permanent(&mut st, &permanent, checkpoint);
 
     let mut grouped = std::collections::BTreeMap::<_, Vec<Observation>>::new();
@@ -212,65 +208,114 @@ fn evaluate_at(
     for subject in all_subjects {
         let previous = st.records.get(&subject);
         let obs = grouped.get(&subject).map_or(&[] as &[_], |v| v.as_slice());
-        let record = lifecycle::transition(
+        let result = lifecycle::evaluate(
+            &subject,
             previous,
             obs,
             &settings,
             checkpoint,
             policy::is_allowlisted(&subject, &allow),
         )?;
-        st.records.insert(subject, record);
+        st.records.insert(subject, result.record);
     }
 
     st.checkpoints.insert("analytics".into(), checkpoint);
-    state::write(&root.join("data/state.json"), &st)
+    state_io::write(&root.join("data/state.json"), &st)
 }
 fn sync(root: &Path, dry_run: bool, allow_empty: bool) -> Result<()> {
-    let settings = config::load(root)?;
-    let (token, account, list) = config::credentials()?;
-    let desired: blockhole::models::DesiredList =
-        serde_json::from_str(&fs::read_to_string(root.join("dist/cloudflare-list.json"))?)?;
-    let client = authenticated_client(token)?;
-    let lists = ListsClient::new(
-        client,
-        &settings.api_base_url,
-        &account,
-        &list,
-        settings.max_retries,
-        settings.poll_interval_seconds,
-        settings.poll_timeout_seconds,
-    );
-    let actual = lists.get_items()?;
-    let diff = blockhole::sync::diff(&desired, &actual);
+    let settings = load_settings(root)?;
+    let desired: blockhole_core::models::DesiredList =
+        serde_json::from_str(&fs::read_to_string(root.join("dist/desired-blocks.json"))?)?;
+    let deployer = load_deployer(root)?;
+    let diff = deployer.sync(
+        &desired,
+        SyncOptions {
+            dry_run,
+            mode: settings.mode,
+            allow_empty,
+        },
+    )?;
     println!(
         "add={} remove={} change={}",
         diff.additions.len(),
         diff.removals.len(),
         diff.changes.len()
     );
-    if !dry_run && settings.mode != RunMode::DryRun && !diff.identical() {
-        lists.replace(&desired, actual.len(), allow_empty)?;
-    }
     Ok(())
 }
 
-fn authenticated_client(token: String) -> Result<Client> {
-    let mut headers = reqwest::header::HeaderMap::new();
-    headers.insert(
-        reqwest::header::AUTHORIZATION,
-        reqwest::header::HeaderValue::from_str(&format!("Bearer {token}"))
-            .map_err(|e| BlockholeError::Configuration(e.to_string()))?,
-    );
-    Ok(Client::builder()
-        .timeout(std::time::Duration::from_secs(30))
-        .user_agent(format!("blockhole/{VERSION}"))
-        .default_headers(headers)
-        .build()?)
+fn load_settings(root: &Path) -> Result<config::Settings> {
+    config::parse(&fs::read_to_string(root.join("config/policy.toml"))?)
+}
+
+fn load_platform(root: &Path) -> Result<String> {
+    config::parse_platform(&fs::read_to_string(root.join("config/policy.toml"))?)
+}
+
+fn load_subjects(root: &Path, filename: &str) -> Result<Vec<Subject>> {
+    let path = root.join("config").join(filename);
+    let source = path.display().to_string();
+    policy::parse_subjects(&fs::read_to_string(&path)?, &source)
+}
+
+fn load_source(root: &Path) -> Result<Box<dyn ObservationSource>> {
+    match load_platform(root)?.as_str() {
+        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
+        "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
+        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(root)?)),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
+}
+
+fn load_deployer(root: &Path) -> Result<Box<dyn BlockDeployer>> {
+    match load_platform(root)?.as_str() {
+        "cloudflare" => Ok(Box::new(CloudflarePlugin::load(root)?)),
+        "nginx" => Ok(Box::new(NginxPlugin::load(root)?)),
+        "aws-waf" => Ok(Box::new(AwsWafPlugin::load(root)?)),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
+}
+
+fn validate_plugin(root: &Path, name: &str) -> Result<()> {
+    match name {
+        "cloudflare" => CloudflarePlugin::validate_config(root),
+        "nginx" => NginxPlugin::validate_config(root),
+        "aws-waf" => AwsWafPlugin::validate_config(root),
+        name => Err(BlockholeError::Configuration(format!(
+            "unsupported platform plugin: {name}"
+        ))),
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::TimeZone;
+
+    #[test]
+    fn collection_window_rewinds_checkpoint_by_overlap() {
+        let end = Utc.with_ymd_and_hms(2026, 7, 31, 12, 0, 0).unwrap();
+        let checkpoint = end - Duration::hours(1);
+
+        assert_eq!(
+            collection_start(Some(checkpoint), end, 24, 2),
+            end - Duration::hours(3)
+        );
+    }
+
+    #[test]
+    fn first_collection_uses_lookback_without_checkpoint() {
+        let end = Utc.with_ymd_and_hms(2026, 7, 31, 12, 0, 0).unwrap();
+
+        assert_eq!(
+            collection_start(None, end, 24, 2),
+            end - Duration::hours(24)
+        );
+    }
 
     #[test]
     fn cli_parse_render_and_run_report_path() {
@@ -302,5 +347,13 @@ mod tests {
         let err = version_cli.unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
         assert!(err.to_string().contains(VERSION));
+    }
+
+    #[test]
+    fn unknown_platform_plugin_is_rejected() {
+        let error = validate_plugin(Path::new("."), "unknown").unwrap_err();
+        assert!(
+            matches!(error, BlockholeError::Configuration(message) if message.contains("unknown"))
+        );
     }
 }

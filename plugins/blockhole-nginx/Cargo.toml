@@ -1,0 +1,12 @@
+[package]
+name = "blockhole-plugin-nginx"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+blockhole-core = { path = "../../crates/blockhole-core" }
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1.11"
+sha2 = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+toml = "1.1"
