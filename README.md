@@ -17,7 +17,15 @@ Requirements: Rust stable and Cargo.
 ```bash
 cargo run -- validate
 cargo run -- render
-cargo test
+cargo test --workspace
+```
+
+Mandatory repository checks:
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
 ```
 
 Before collection, add zone IDs to `config/policy.toml` and provide:
@@ -31,6 +39,21 @@ CLOUDFLARE_LIST_ID
 The token needs analytics read access for the configured zones and Custom List
 read/edit access for the configured account. Never commit it or place it in
 configuration files.
+
+## Architecture & Workspaces
+
+Blockhole is organized as a Cargo workspace with decoupled core logic and platform plugins:
+
+```text
+crates/
+  core/                  Policy evaluation, lifecycle state, rendering, and plugin contracts
+plugins/
+  blockhole-cloudflare   Cloudflare GraphQL analytics collection & Custom List IP denylist sync
+  blockhole-nginx        Nginx combined access log collection & managed deny include generation
+  blockhole-plugin-aws-waf AWS WAF JSONL log collection & WAFv2 IPSet sync
+src/
+  main.rs                CLI binary orchestrating plugin selection and subcommand execution
+```
 
 The selected plugin is configured by `platform.name`; supported values are
 `cloudflare`, `nginx`, and `aws-waf`.
@@ -79,7 +102,4 @@ See [detection policy](docs/detection-policy.md) and
 ## Security boundary
 
 Blockhole never treats one request or one sampled record as sufficient for a
-block. It strips query strings before analysis, preserves only bounded
-decision evidence, applies the allowlist first, uses expiring blocks, and has
-an empty-list fuse that protects an existing remote list from failed or
-partial collection.
+block. It strips query strings before analysis, preserves observation fingerprints across window overlaps to prevent duplicate counting, applies the allowlist first, uses expiring blocks, and has an empty-list fuse that protects an existing remote list from failed or partial collection.
