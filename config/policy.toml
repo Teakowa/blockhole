@@ -5,7 +5,7 @@ platform = { name = "cloudflare" }
 
 lookback_hours = 24
 overlap_hours = 2
-block_ttl_hours = 72
+block_ttl_hours = 720
 cooldown_hours = 24
 max_ttl_extensions = 3
 score_decay_per_day = 0.25
