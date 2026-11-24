@@ -1,5 +1,5 @@
 # Latest run
 
 - Mode: generated
-- Evaluated at: 2026-11-23T21:26:06.225400729+00:00
-- Active blocked IPs: 456
+- Evaluated at: 2026-11-24T06:03:35.043793432+00:00
+- Active blocked IPs: 457
